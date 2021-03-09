@@ -6,6 +6,9 @@ const Ul = styled.ul`
   list-style: none;
   display: flex;
   flex-flow: row nowrap;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
   li {
     color: white;
     padding: 1em;
@@ -115,12 +118,18 @@ const Burger = () => {
 }
 
 const Nav = styled.nav`
+  background-color: rgba(0, 0, 0, 0.7);
   width: 100%;
-  height: 6em;
+  height: 4em;
   border-bottom: 2px solid gold;
   padding: 1em 2em;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  @media (min-width: 768px) {
+    position: sticky;
+    top: 0;
+  }
   .logo {
     padding: 15px 0;
   }
@@ -139,8 +148,8 @@ export function App() {
     <>
       <header>
         <h1>Cadeem's Cars</h1>
-        <Navbar />
       </header>
+      <Navbar />
       <main>
         <figure>
           <img

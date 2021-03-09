@@ -1,3 +1,6 @@
+$theme-background-color: black;
+$theme-foreground-color: gold;
+
 :root {
   font: 16px / 1 sans-serif;
 }
@@ -9,4 +12,114 @@ html {
 body {
   margin: 0;
   min-height: 100%;
+  background-color: black;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  li {
+    list-style: none;
+  }
+}
+.desktop {
+  display: none;
+}
+
+header {
+  h1 {
+    width: 80vw;
+    text-align: center;
+    color: $theme-foreground-color;
+  }
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  figure {
+    background-image: radial-gradient(
+      farthest-corner at 50% 0%,
+      turquoise,
+      black
+    );
+    width: 85vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    &:not(:first-of-type) {
+      border-top: 0.2em solid $theme-foreground-color;
+      border-radius: 0.5em;
+    }
+    img {
+      margin-top: 1em;
+      width: 80vw;
+      height: 80vw;
+      border-radius: 0.5em;
+    }
+  }
+}
+
+// Tablet View
+@media all and (min-width: 768px) {
+  .desktop {
+    display: block;
+  }
+  header {
+    h1 {
+      width: 100vw;
+    }
+  }
+  main {
+    padding-top: 1em;
+    figure {
+      background-image: linear-gradient(black, turquoise);
+      flex-direction: row;
+      justify-content: left;
+      text-align: left;
+      &:not(:first-of-type) {
+        border-top: none;
+      }
+      border-radius: 0.5em;
+      border-bottom: 0.2em solid $theme-foreground-color;
+      border-left: 0.1em solid $theme-foreground-color;
+      border-right: 0.1em solid $theme-foreground-color;
+      img {
+        width: 30vw;
+        height: 30vw;
+        margin-right: 1em;
+      }
+    }
+  }
+}
+
+// Desktop View
+@media all and (min-width: 959px) {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    h1 {
+      width: 30vw;
+    }
+  }
+  main {
+    text-shadow: none;
+    figure,
+    figure:not(:first-of-type) {
+      background-image: linear-gradient(black, turquoise, black);
+      border-top: 0.2em solid $theme-foreground-color;
+
+      img {
+        width: 26vh;
+        height: 26vh;
+        margin-top: 0;
+      }
+    }
+  }
 }

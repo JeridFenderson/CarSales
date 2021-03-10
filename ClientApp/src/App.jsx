@@ -27,10 +27,9 @@ const Ul = styled.ul`
     transition: transform 0.3s ease-in-out;
     li {
       color: black;
-      &:first-of-type {
-        display: flex;
-        justify-content: space-between;
-      }
+      display: flex;
+      justify-content: space-between;
+
       &:not(:first-of-type) {
         border-top: 0.2em solid black;
         border-radius: 1em;
@@ -118,7 +117,7 @@ const Burger = () => {
 }
 
 const Nav = styled.nav`
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.9);
   width: 100%;
   height: 4em;
   border-bottom: 2px solid gold;
@@ -213,8 +212,10 @@ export function App() {
         <ul>
           <li>Cadeem's Cars</li>
           <li>Telephone Number</li>
-          <li>Facebook Page</li>
           <li>Physical Address</li>
+          <li>
+            <i class="fab fa-facebook-square"></i>
+          </li>
         </ul>
       </footer>
     </>

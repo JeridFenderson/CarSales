@@ -40,7 +40,8 @@ ul {
     list-style: none;
   }
 }
-.desktop {
+.desktop,
+.tablet {
   display: none;
 }
 
@@ -105,7 +106,7 @@ footer {
 
 // Tablet View
 @media all and (min-width: 768px) {
-  .desktop {
+  .tablet {
     display: block;
   }
   header {
@@ -139,6 +140,10 @@ footer {
 
 // Desktop View
 @media all and (min-width: 959px) {
+  .desktop {
+    display: block;
+    padding-top: 1em;
+  }
   header {
     display: flex;
     justify-content: space-between;

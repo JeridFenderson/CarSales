@@ -4,6 +4,7 @@ export const Ul = styled.ul`
   list-style: none;
   display: flex;
   flex-flow: row nowrap;
+  justify-content: space-between;
   position: -webkit-sticky;
   position: sticky;
   top: 0;
@@ -18,20 +19,15 @@ export const Ul = styled.ul`
     transform: ${({ open }) => (open ? 'translateX(0)' : 'translateX(100%)')};
     top: 0;
     right: 0;
-    height: 32em;
     width: 16em;
     padding-top: 3em;
-    border-radius: 0 0 0 1em;
     transition: transform 0.3s ease-in-out;
     li {
       color: black;
       display: flex;
       justify-content: space-between;
-
-      &:not(:first-of-type) {
-        border-top: 0.2em solid black;
-        border-radius: 1em;
-        text-align: center;
+      &:last-of-type {
+        padding-bottom: 2em;
       }
     }
   }
@@ -42,7 +38,7 @@ export const StyledBurger = styled.div`
   height: 2rem;
   position: fixed;
   top: 1em;
-  right: 1.5em;
+  right: 1em;
   z-index: 20;
   display: none;
   @media (max-width: 767px) {
@@ -72,18 +68,9 @@ export const StyledBurger = styled.div`
 
 export const Nav = styled.nav`
   background-color: rgba(0, 0, 0, 0.9);
-  width: 100%;
-  height: 4em;
-  border-bottom: 2px solid gold;
-  padding: 1em 2em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  max-width: 100%;
   @media (min-width: 768px) {
     position: sticky;
     top: 0;
-  }
-  .logo {
-    padding: 15px 0;
   }
 `

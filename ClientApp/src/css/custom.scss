@@ -47,14 +47,14 @@ ul {
 
 header {
   h1 {
-    width: 80vw;
+    width: 100vw;
     text-align: center;
   }
 }
 
 main {
   padding-top: 1em;
-  background-image: linear-gradient(turquoise, black);
+  background-color: turquoise;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
@@ -62,12 +62,7 @@ main {
   color: white;
   figure {
     background-color: $theme-background-color;
-    // background-image: radial-gradient(
-    //   farthest-corner at 50% 0%,
-    //   turquoise,
-    //   black
-    // );
-    width: 45vw;
+    width: 80vw;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -78,20 +73,18 @@ main {
     border-left: 0.1em solid $theme-foreground-color;
     border-right: 0.1em solid $theme-foreground-color;
     border-radius: 0.5em;
-    box-shadow: 0.2em 0.2em 1em white;
     img {
-      margin-top: 1em;
-      width: 40vw;
-      height: 40vw;
+      object-fit: contain;
+      width: 80vw;
       border-radius: 0.5em;
     }
   }
 }
 
 footer {
-  background-color: #111;
+  background-color: $theme-background-color;
+  color: white;
   padding: 1em;
-  margin-top: 1em;
   ul {
     display: flex;
     flex-direction: column;
@@ -106,18 +99,16 @@ footer {
 
 // Tablet View
 @media all and (min-width: 768px) {
+  .mobile {
+    display: none;
+  }
   .tablet {
     display: block;
   }
-  header {
-    h1 {
-      width: 100vw;
-    }
-  }
+
   main {
     flex-direction: column;
     figure {
-      // background-image: linear-gradient(black, turquoise);
       width: 90vw;
       flex-direction: row;
       justify-content: left;
@@ -125,7 +116,6 @@ footer {
       border-top: none;
       img {
         width: 30vw;
-        height: 30vw;
         margin-right: 1em;
       }
     }
@@ -144,27 +134,13 @@ footer {
     display: block;
     padding-top: 1em;
   }
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    h1 {
-      width: 30vw;
-    }
-  }
   main {
     text-shadow: none;
     figure {
-      // background-image: linear-gradient(black, turquoise, black);
       border-top: 0.2em solid $theme-foreground-color;
       border-bottom: none;
       border-left: none;
       border-right: none;
-      img {
-        width: 26vh;
-        height: 26vh;
-        margin-top: 0;
-      }
     }
   }
 }

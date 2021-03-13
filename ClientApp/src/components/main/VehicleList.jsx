@@ -20,22 +20,42 @@ export function VehicleList() {
       description: 'The first car on the road!',
     },
   ])
+  const notFound = {
+    make: `Sorry my friend, vehicle not found...`,
+    description: `It looks like the vehicle you're searching for isn't in our current inventory`,
+  }
+  const [filterText, setFilterText] = useState('')
 
   useEffect(() => {
     async function loadVehicles() {
-      const response = await fetch('/api/Vehicles')
+      const url = !filterText.length
+        ? `/api/Vehicles`
+        : `/api/Vehicles/?filterMake=${filterText}`
+      const response = await fetch(url)
       const json = await response.json()
       setVehicles(json)
     }
 
     loadVehicles()
-  }, [])
+  }, [filterText])
 
   return (
     <>
-      {vehicles.map((vehicle) => (
-        <Vehicle key={vehicle.id} vehicle={vehicle} />
-      ))}
+      <input
+        type="text"
+        placeholder="Make..."
+        value={filterText}
+        onChange={function (event) {
+          setFilterText(event.target.value)
+        }}
+      />
+      {!vehicles.length ? (
+        <Vehicle vehicle={notFound} />
+      ) : (
+        vehicles.map((vehicle) => (
+          <Vehicle key={vehicle.id} vehicle={vehicle} />
+        ))
+      )}
     </>
   )
 }

@@ -31,7 +31,8 @@ export function Vehicle({ vehicle }) {
           </h2>
         </li>
         <li className="tablet">
-          {odometer} miles{engineSize && ` on this ${engineSize} liter`}
+          {odometer && `${odometer} miles`}
+          {engineSize && ` on this ${engineSize} liter`}
           {fuelType && `, ${fuelType.toLowerCase()} powered`}{' '}
           {bodyType && `${bodyType}`}
         </li>
@@ -43,7 +44,7 @@ export function Vehicle({ vehicle }) {
           {description}
         </li>
         <li>
-          <h3>${price}</h3>
+          <h3>{price && `$${price}`}</h3>
         </li>
       </ul>
     </figure>

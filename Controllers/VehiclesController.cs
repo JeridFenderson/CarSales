@@ -31,11 +31,18 @@ namespace CarSales.Controllers
         // Returns a list of all your Vehicles
         //
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles()
+        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles(string filterMake)
         {
             // Uses the database context in `_context` to request all of the Vehicles, sort
             // them by row id and return them as a JSON array.
-            return await _context.Vehicles.OrderBy(row => row.Id).ToListAsync();
+            if (filterMake == null)
+            {
+                return await _context.Vehicles.ToListAsync();
+            }
+            else
+            {
+            return await _context.Vehicles.Where(vehicle => vehicle.Make.ToLower().Contains(filterMake.ToLower())).ToListAsync();
+            }        
         }
 
         // GET: api/Vehicles/5

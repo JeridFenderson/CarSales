@@ -6,10 +6,9 @@ export function Nav() {
   const [open, setOpen] = useState(false)
 
   return (
-    <nav role="navigation">
+    <nav>
       <div id="menuToggle">
         <input type="checkbox" onChange={() => setOpen(!open)} />
-
         <span></span>
         <span></span>
         <span></span>
@@ -19,7 +18,7 @@ export function Nav() {
             <Link to="/" onClick={() => setOpen(false)}>
               Log In
             </Link>
-            <span> Or </span>{' '}
+            <strong> Or </strong>
             <Link to="/" onClick={() => setOpen(false)}>
               Sign Up
             </Link>

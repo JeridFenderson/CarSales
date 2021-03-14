@@ -43,6 +43,25 @@ ul {
   }
 }
 
+a {
+  text-decoration: none;
+}
+a:link {
+  color: $font-color;
+}
+a:visited {
+  color: grey;
+}
+a:focus {
+  color: yellow;
+}
+a:hover {
+  color: green;
+}
+a:active {
+  color: red;
+}
+
 .desktop,
 .tablet {
   display: none;

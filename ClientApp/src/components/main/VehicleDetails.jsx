@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import '../../css/vehicleDetails.scss'
 
@@ -56,26 +57,30 @@ export function VehicleDetails() {
   }, [id])
 
   return (
-    <main>
+    <main className="details">
+      <p className="back-arrow">
+        <Link to="/vehicles">
+          <i className="fas fa-backward"></i>
+        </Link>
+      </p>
       <h2>
         {year} {make} {model}
       </h2>
-      <img
-        src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        alt={`${year} ${make} ${model}`}
-      />
+      <figure>
+        <img
+          src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+          alt={`${year} ${make} ${model}`}
+        />
+      </figure>
       <ul>
         <li>
-          {odometer && `${odometer} miles`}
-          {engineSize && ` on this ${engineSize} liter`}
-          {fuelType && `, ${fuelType.toLowerCase()} powered`}{' '}
-          {bodyType && `${bodyType.toLowerCase()}`}
+          Odometer miles: {odometer}. {vin && `VIN: ${vin}. `}
+          General description: {fuelType} driven {drivetrain} {bodyType}
         </li>
         <li>
-          {vin && `VIN: ${vin}. `}
-          {drivetrain && `${drivetrain}. `}
           {exteriorColor && `${exteriorColor} exterior color. `}
           {interiorColor && `${interiorColor} interior color. `}
+          {engineSize && `${engineSize} liter engine. `}
           {description}
         </li>
       </ul>

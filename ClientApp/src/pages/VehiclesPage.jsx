@@ -1,14 +1,14 @@
 import { Header } from '../components/header/Header'
 import { Nav } from '../components/nav/Nav'
 import { Footer } from '../components/footer/Footer'
-import { Vehicles } from '../components/main/Vehicles'
+import { VehiclesLoader } from '../components/main/VehiclesLoader'
 
 export function VehiclesPage() {
   return (
     <>
       <Header />
       <Nav />
-      <Vehicles />
+      <VehiclesLoader />
       <Footer />
     </>
   )

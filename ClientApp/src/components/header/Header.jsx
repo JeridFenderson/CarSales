@@ -4,7 +4,7 @@ import '../../css/header.scss'
 export function Header() {
   return (
     <header>
-      <h1>Cadeem's Cars</h1>
+      <h1>Cheap and Easy Auto</h1>
     </header>
   )
 }

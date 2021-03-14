@@ -6,20 +6,36 @@ export function CreateVehicle() {
   const history = useHistory()
 
   const [vehicle, setVehicle] = useState({
-    year: 0,
+    year: '',
     make: '',
     model: '',
-    price: 0,
-    odometer: 0,
+    price: '',
+    odometer: '',
     vin: '',
-    fuelType: '',
-    drivetrain: '',
-    bodyType: '',
+    fuelType: 'Gas',
+    drivetrain: 'Manual',
+    bodyType: 'Sedan',
     exteriorColor: '',
     interiorColor: '',
     engineSize: '',
     description: '',
   })
+
+  const {
+    year,
+    make,
+    model,
+    price,
+    odometer,
+    vin,
+    fuelType,
+    drivetrain,
+    bodyType,
+    exteriorColor,
+    interiorColor,
+    engineSize,
+    description,
+  } = vehicle
 
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
@@ -41,11 +57,11 @@ export function CreateVehicle() {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(vehicle),
     })
-    history.push('/')
+    history.push('/vehicles')
   }
 
   return (
-    <main>
+    <main className="create">
       <form onSubmit={handleFormSubmit}>
         <section>
           <p className="form-input">
@@ -53,7 +69,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="year"
-              value={vehicle.year}
+              placeholder="1973"
+              value={year}
               onChange={handleNumberFieldChange}
               maxLength="4"
               required
@@ -64,7 +81,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="make"
-              value={vehicle.make}
+              placeholder="Chevrolet"
+              value={make}
               onChange={handleStringFieldChange}
               required
             />
@@ -74,7 +92,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="model"
-              value={vehicle.model}
+              placeholder="C10"
+              value={model}
               onChange={handleStringFieldChange}
               required
             />
@@ -84,7 +103,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="price"
-              value={vehicle.price}
+              placeholder="4000"
+              value={price}
               onChange={handleNumberFieldChange}
               required
             />
@@ -94,55 +114,78 @@ export function CreateVehicle() {
             <input
               type="text"
               name="odometer"
-              value={vehicle.odometer}
+              placeholder="99999"
+              value={odometer}
               onChange={handleNumberFieldChange}
               required
+            />
+          </p>
+          <p className="form-input">
+            <label htmlFor="vin">VIN</label>
+            <input
+              type="text"
+              name="vin"
+              placeholder="CCY143S119259"
+              value={vin}
+              onChange={handleStringFieldChange}
             />
           </p>
         </section>
         <section>
           <p className="form-input">
-            <label htmlFor="vin">Vin</label>
-            <input
-              type="text"
-              name="vin"
-              value={vehicle.vin}
-              onChange={handleStringFieldChange}
-            />
-          </p>
-          <p className="form-input">
             <label htmlFor="fuelType">Fuel Type</label>
-            <input
-              type="text"
+            <select
               name="fuelType"
-              value={vehicle.fuelType}
+              value={fuelType}
               onChange={handleStringFieldChange}
-            />
+            >
+              <option value="Gas">Gas</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="Hydrogen Fuel Cell">Hydrogen</option>
+            </select>
           </p>
           <p className="form-input">
             <label htmlFor="drivetrain">Drivetrain</label>
-            <input
-              type="text"
+            <select
               name="drivetrain"
-              value={vehicle.drivetrain}
+              value={drivetrain}
               onChange={handleStringFieldChange}
-            />
+            >
+              <option value="Automatic">Automatic</option>
+              <option value="Manual">Manual</option>
+              <option value="DCT">DCT</option>
+              <option value="Direct Drive">Direct Drive</option>
+              <option value="Some Rare Drivetrain System">Other</option>
+            </select>
           </p>
           <p className="form-input">
             <label htmlFor="bodyType">Body Type</label>
-            <input
-              type="text"
+            <select
               name="bodyType"
-              value={vehicle.bodyType}
+              value={bodyType}
               onChange={handleStringFieldChange}
-            />
+            >
+              <option value="Sedan">Sedan</option>
+              <option value="SUV">SUV</option>
+              <option value="Pickup Truck">Pickup Truck</option>
+              <option value="Minivan">Minivan</option>
+              <option value="Coupe">Coupe</option>
+              <option value="Convertible">Convertible</option>
+              <option value="Hatchback">Hatchback</option>
+              <option value="Sports Car">Sports Car</option>
+              <option value="Station Wagon">Station Wagon</option>
+              <option value="Some Exotic Body Type">Other</option>
+            </select>
           </p>
           <p className="form-input">
             <label htmlFor="exteriorColor">Exterior Color</label>
             <input
               type="text"
               name="exteriorColor"
-              value={vehicle.exteriorColor}
+              placeholder="Grey"
+              value={exteriorColor}
               onChange={handleStringFieldChange}
             />
           </p>
@@ -151,7 +194,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="interiorColor"
-              value={vehicle.interiorColor}
+              placeholder="Black"
+              value={interiorColor}
               onChange={handleStringFieldChange}
             />
           </p>
@@ -160,7 +204,8 @@ export function CreateVehicle() {
             <input
               type="text"
               name="engineSize"
-              value={vehicle.engineSize}
+              placeholder="6.2"
+              value={engineSize}
               onChange={handleStringFieldChange}
             />
           </p>
@@ -169,14 +214,16 @@ export function CreateVehicle() {
           <label htmlFor="description">Description</label>
           <textarea
             name="description"
-            value={vehicle.description}
+            value={description}
             onChange={handleStringFieldChange}
+            rows="4"
           />
-          <span className="note">
-            Additional notes and features that you'd like to advertise.
-          </span>
         </p>
-        <input type="submit" value="Submit" />
+        <p>
+          <span></span>
+          <input type="submit" value="Submit" className="submit" />
+          <span></span>
+        </p>
       </form>
     </main>
   )

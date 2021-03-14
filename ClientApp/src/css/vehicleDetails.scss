@@ -1,0 +1,79 @@
+@import 'constants';
+
+main {
+  padding-top: 1em;
+  background-color: $foreground-color;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  color: $font-color;
+  a {
+    text-decoration: none;
+  }
+  a:link {
+    color: $font-color;
+  }
+  a:visited {
+    color: $foreground-color;
+  }
+  a:focus {
+    color: yellow;
+  }
+  a:hover {
+    color: green;
+  }
+  a:active {
+    color: red;
+  }
+  figure {
+    background-color: $background-color;
+    width: 80vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-top: 0.2em solid $font-color;
+    border-bottom: 0.2em solid $font-color;
+    border-left: 0.1em solid $font-color;
+    border-right: 0.1em solid $font-color;
+    border-radius: 0.5em;
+    img {
+      object-fit: contain;
+      width: 80vw;
+      border-radius: 0.5em;
+    }
+  }
+}
+
+// Tablet View
+@media all and (min-width: $tablet) {
+  main {
+    flex-direction: column;
+    figure {
+      width: 90vw;
+      flex-direction: row;
+      justify-content: left;
+      text-align: left;
+      border-top: none;
+      img {
+        width: 30vw;
+        margin-right: 1em;
+      }
+    }
+  }
+}
+
+// Desktop View
+@media all and (min-width: $desktop) {
+  main {
+    text-shadow: none;
+    figure {
+      border-top: 0.2em solid $font-color;
+      border-bottom: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+}

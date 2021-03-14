@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react'
-import './css/custom.scss'
-import { Header } from './components/header/Header'
-import { Navbar } from './components/nav/Navbar'
-import { Footer } from './components/footer/Footer'
-import { VehicleList } from './components/main/VehicleList'
+import { Route, Switch } from 'react-router-dom'
+import { VehiclesPage } from './pages/VehiclesPage'
+import { VehiclePage } from './pages/VehiclePage'
+import { CreateVehiclePage } from './pages/CreateVehiclePage'
 
 export function App() {
   return (
-    <>
-      <Header />
-      <Navbar />
-      <main>
-        <VehicleList />
-      </main>
-      <Footer />
-    </>
+    <Switch>
+      <Route exact path="/vehicles">
+        <VehiclesPage />
+      </Route>
+      <Route exact path="/vehicles/:id">
+        <VehiclePage />
+      </Route>
+      <Route exact path="/create">
+        <CreateVehiclePage />
+      </Route>
+    </Switch>
   )
 }

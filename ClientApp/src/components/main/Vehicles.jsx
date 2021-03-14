@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Vehicle } from './Vehicle'
+import '../../css/vehicles.scss'
 
-export function VehicleList() {
+export function Vehicles() {
   const [vehicles, setVehicles] = useState([
     {
       id: 0,
@@ -20,10 +21,12 @@ export function VehicleList() {
       description: 'The first car on the road!',
     },
   ])
+
   const notFound = {
     make: `Sorry my friend, vehicle not found...`,
     description: `It looks like the vehicle you're searching for isn't in our current inventory`,
   }
+
   const [filterText, setFilterText] = useState('')
 
   useEffect(() => {
@@ -40,7 +43,7 @@ export function VehicleList() {
   }, [filterText])
 
   return (
-    <>
+    <main>
       <input
         type="text"
         placeholder="Make..."
@@ -56,6 +59,6 @@ export function VehicleList() {
           <Vehicle key={vehicle.id} vehicle={vehicle} />
         ))
       )}
-    </>
+    </main>
   )
 }

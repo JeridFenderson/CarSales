@@ -1,0 +1,44 @@
+@import 'constants';
+
+.form {
+  padding: 1em;
+  background-color: $background-color;
+  align-items: center;
+  color: $font-color;
+  form {
+    background-color: $foreground-color;
+    width: 100%;
+    padding-right: 2em;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    p {
+      width: 15em;
+      margin-left: 2em;
+      display: flex;
+      flex: row nowrap;
+      justify-content: space-between;
+    }
+    h3 {
+      margin-left: 2em;
+    }
+    a {
+      color: white;
+      padding-bottom: 1em;
+    }
+  }
+}
+
+@media all and (min-width: $tablet) {
+  .form {
+    form {
+      width: fit-content;
+    }
+    p {
+      .submit {
+        height: 2em;
+      }
+    }
+  }
+}

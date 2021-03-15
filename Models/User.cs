@@ -37,6 +37,10 @@ namespace CarSales.Models
             var passwordVerification = new PasswordHasher<User>().VerifyHashedPassword(this, this.HashedPassword, password);
             // Return True if the verification was a success
             return passwordVerification == PasswordVerificationResult.Success;
-        }   
+        }
+
+        public bool IsOwner { get; set; }
+
+        public bool IsAdmin{ get; set; }
     }
 }

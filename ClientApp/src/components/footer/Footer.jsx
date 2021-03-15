@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer>
       <ul>
-        <li>Cadeem's Cars</li>
+        <li>Cheap and Easy Auto&#169;</li>
         <li>Telephone Number</li>
         <li>Physical Address</li>
         <li>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import '../../css/vehicle.scss'
 
-export function VehicleDetails({ vehicle, singleVehicle }) {
+export function VehicleDetailed({ vehicle, singleVehicle }) {
   const {
     year,
     make,

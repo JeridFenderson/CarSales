@@ -1,6 +1,5 @@
 import { Route, Switch } from 'react-router-dom'
 import { VehiclesPage } from './pages/VehiclesPage'
-import { VehiclePage } from './pages/VehiclePage'
 import { CreateVehiclePage } from './pages/CreateVehiclePage'
 
 export function App() {
@@ -10,7 +9,7 @@ export function App() {
         <VehiclesPage />
       </Route>
       <Route exact path="/vehicles/:id">
-        <VehiclePage />
+        <VehiclesPage />
       </Route>
       <Route exact path="/create">
         <CreateVehiclePage />

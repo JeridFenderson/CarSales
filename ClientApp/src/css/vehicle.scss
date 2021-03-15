@@ -1,6 +1,6 @@
 @import 'constants';
 
-.details {
+main {
   background-color: $foreground-color;
   display: flex;
   flex-flow: column nowrap;
@@ -8,7 +8,7 @@
   align-items: center;
   color: $font-color;
 
-  figure {
+  .vehicle {
     display: flex;
     justify-content: center;
     img {
@@ -29,7 +29,7 @@
 
   .back-arrow {
     width: 90vw;
-    margin-bottom: 0;
+    margin: 0;
     font-size: 1.2em;
 
     a:visited {

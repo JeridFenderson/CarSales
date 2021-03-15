@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import '../../css/vehicles.scss'
 
-export function Vehicle({ vehicle }) {
+export function Vehicle({ vehicle, display }) {
   const {
     id,
     year,
@@ -21,7 +22,7 @@ export function Vehicle({ vehicle }) {
 
   return (
     <Link to={`/vehicles/${id}`}>
-      <figure className="general" key={id}>
+      <figure className={display}>
         <img
           src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
           alt={`${year} ${make} ${model}`}
@@ -32,11 +33,11 @@ export function Vehicle({ vehicle }) {
               {year} {make} {model}
             </h2>
           </li>
-          <li>
+          <li className="tablet">
             Odometer miles: {odometer}. {vin && `VIN: ${vin}. `}
             {fuelType} driven {drivetrain} {bodyType}
           </li>
-          <li>
+          <li className="desktop">
             {exteriorColor && `${exteriorColor} exterior color. `}
             {interiorColor && `${interiorColor} interior color. `}
             {engineSize && `${engineSize} liter engine. `}

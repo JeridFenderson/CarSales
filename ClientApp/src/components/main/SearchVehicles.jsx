@@ -5,7 +5,6 @@ import { LoadVehicles } from './LoadVehicles'
 export function SearchVehicles() {
   const [filterText, setFilterText] = useState('')
   const { id } = useParams()
-  console.log(id)
   return (
     <main>
       {!id && (

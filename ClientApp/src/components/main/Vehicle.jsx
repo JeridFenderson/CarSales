@@ -18,6 +18,7 @@ export function Vehicle({ vehicle, display }) {
     interiorColor,
     engineSize,
     description,
+    isSold,
   } = vehicle
 
   return (
@@ -44,7 +45,9 @@ export function Vehicle({ vehicle, display }) {
             {description}
           </li>
           <li>
-            <h3>${price}</h3>
+            {(isSold && <h3 className="isSold">SOLD</h3>) || (
+              <h3>{price && `$${price}`}</h3>
+            )}
           </li>
         </ul>
       </figure>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { LoadVehicles } from './LoadVehicles'
+import { VehicleController } from './VehicleController'
 
 export function SearchVehicles() {
   const [filterText, setFilterText] = useState('')
@@ -17,7 +17,7 @@ export function SearchVehicles() {
           }}
         />
       )}
-      <LoadVehicles filterText={filterText} />
+      <VehicleController filterText={filterText} pageId={id} />
     </main>
   )
 }

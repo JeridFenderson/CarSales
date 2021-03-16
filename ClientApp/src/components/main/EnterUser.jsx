@@ -17,6 +17,7 @@ export function EnterUser() {
   })
   const { firstName, lastName, email, password, isAdmin, isOwner } = newUser
   const signup = history.location.pathname === '/signup' ? true : false
+  const deleteAccount = history.location.pathname === '/login' ? true : false
 
   function handleStringFieldChange(event) {
     setNewUser({ ...newUser, [event.target.name]: event.target.value })
@@ -36,17 +37,28 @@ export function EnterUser() {
 
   async function handleFormSubmit(event) {
     event.preventDefault()
-    const url = signup ? '/api/Users' : '/api/Sessions'
+    let url = signup ? '/api/Users' : '/api/Sessions'
+    url =
+      isLoggedIn() && user.isOwner && deleteAccount
+        ? `/api/Users/${email}`
+        : url
+    const action =
+      isLoggedIn() && user.isOwner && deleteAccount ? 'DELETE' : 'POST'
+
     const response = await fetch(`${url}`, {
-      method: 'POST',
+      method: `${action}`,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(newUser),
     })
     const apiResponse = await response.json()
+
     if (apiResponse.status === 400) {
       setErrorMessage(Object.values(apiResponse.errors).join(' '))
+    } else if (apiResponse.status === 404) {
+      setErrorMessage(Object.values(apiResponse.errors).join(' '))
     } else {
-      if (signup) {
+      if (isLoggedIn() && user.isOwner && deleteAccount) {
+      } else if (signup) {
         history.push('/')
       } else {
         recordAuthentication(apiResponse)
@@ -59,8 +71,14 @@ export function EnterUser() {
     <main className="form">
       {errorMessage && <p>{errorMessage}</p>}
       <form onSubmit={handleFormSubmit}>
-        {isLoggedIn() && user.isOwner && (
+        {isLoggedIn() && user.isOwner && !deleteAccount && (
           <h3>Create Another User, {user.firstName}?</h3>
+        )}
+        {isLoggedIn() && user.isOwner && deleteAccount && (
+          <section>
+            <h3>Delete A User, {user.firstName}?</h3>
+            <p>What's the email address of the account you'd like to delete?</p>
+          </section>
         )}
         {signup && (
           <section>
@@ -100,19 +118,22 @@ export function EnterUser() {
               required
             />
           </p>
-          <p className="form-input">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="******"
-              value={password}
-              onChange={handleStringFieldChange}
-              required
-            />
-          </p>
+          {(!isLoggedIn() ||
+            (isLoggedIn() && user.isOwner && !deleteAccount)) && (
+            <p className="form-input">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="******"
+                value={password}
+                onChange={handleStringFieldChange}
+                required
+              />
+            </p>
+          )}
         </section>
-        {isLoggedIn() && user.isOwner && (
+        {isLoggedIn() && user.isOwner && !deleteAccount && (
           <section>
             <p className="form-input">
               <label htmlFor="isOwner">Owner</label>

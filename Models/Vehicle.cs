@@ -27,6 +27,9 @@ namespace CarSales.Models
         public string ExteriorColor { get; set; }
         public string InteriorColor { get; set; }
         public string EngineSize { get; set; }
-        public string Description { get; set; }     
+        public string Description { get; set; }
+        public bool IsSold { get; set; }
+        
+             
     }
 }

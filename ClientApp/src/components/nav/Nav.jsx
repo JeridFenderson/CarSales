@@ -7,6 +7,11 @@ export function Nav() {
   const [open, setOpen] = useState(false)
   const user = getUser()
 
+  function handleLogOut() {
+    logout()
+    window.location.assign('/')
+  }
+
   return (
     <nav>
       <div id="menuToggle">
@@ -57,19 +62,19 @@ export function Nav() {
           {isLoggedIn() &&
             ((user.isOwner && (
               <li>
-                <Link to="/create" onClick={() => setOpen(false)}>
+                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                   Add A Car
                 </Link>
-                <Link to="/create" onClick={() => setOpen(false)}>
+                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                   <i className="mobile far fa-car"></i>
                 </Link>
               </li>
             )) || (
               <li>
-                <Link to="/create" onClick={() => setOpen(false)}>
+                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                   Sell My Car
                 </Link>
-                <Link to="/create" onClick={() => setOpen(false)}>
+                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                   <i className="mobile far fa-car"></i>
                 </Link>
               </li>
@@ -97,12 +102,12 @@ export function Nav() {
           )}
           {isLoggedIn() && user.isOwner && (
             <li>
-              <Link to="/login">Delete A </Link>
+              <Link to="/login">Delete A User</Link>
             </li>
           )}
           {isLoggedIn() && (
             <li>
-              <Link to="/" onClick={logout}>
+              <Link to="/" onClick={handleLogOut}>
                 Sign Out
               </Link>
             </li>

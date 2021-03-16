@@ -117,15 +117,20 @@ namespace CarSales.Controllers
         // In the sample URL above it is the `5`. The "{id} in the [HttpDelete("{id}")] is what tells dotnet
         // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
         //
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpDelete("{email}")]
+        public async Task<IActionResult> DeleteUser(string email)
         {
+            var response = new
+            {
+                status = 404,
+                errors = new List<string>() { "Account Not Found" }
+            };
             // Find this user by looking for the specific id
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
             if (user == null)
             {
                 // There wasn't a user with that id so return a `404` not found
-                return NotFound();
+                return NotFound(response);
             }
 
             // Tell the database we want to remove this record

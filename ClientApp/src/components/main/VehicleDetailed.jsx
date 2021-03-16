@@ -1,9 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { getUser, isLoggedIn } from '../../auth'
 import '../../css/vehicle.scss'
 
 export function VehicleDetailed({ vehicle, singleVehicle }) {
+  const user = getUser()
   const {
+    id,
     year,
     make,
     model,
@@ -17,6 +20,7 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
     interiorColor,
     engineSize,
     description,
+    isSold,
   } = vehicle
 
   return (
@@ -51,7 +55,24 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
           {description}
         </li>
       </ul>
-      <h3>{price && `$${price}`}</h3>
+      {(isSold && <h3 className="isSold">SOLD</h3>) || (
+        <h3>{price && `$${price}`}</h3>
+      )}
+
+      {isLoggedIn() && user.isAdmin && (
+        <section>
+          <ul>
+            <li>
+              <Link to={`/vehicles/create/${id}/edit`}>Edit</Link>
+            </li>
+            {user.isOwner && (
+              <li>
+                <Link to={`/vehicles/create/${id}/delete`}>Delete</Link>
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
     </>
   )
 }

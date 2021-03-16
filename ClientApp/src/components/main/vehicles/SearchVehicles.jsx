@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { VehicleController } from './VehicleController'
+import { VehiclesController } from './VehiclesController'
 
 export function SearchVehicles() {
   const [filterText, setFilterText] = useState('')
-  const { id } = useParams()
+  const { path, id } = useParams()
   return (
     <main>
-      {!id && (
+      {path === 'view' && !id && (
         <input
           type="text"
           placeholder="Make..."
@@ -17,7 +17,7 @@ export function SearchVehicles() {
           }}
         />
       )}
-      <VehicleController filterText={filterText} pageId={id} />
+      <VehiclesController filterText={filterText} />
     </main>
   )
 }

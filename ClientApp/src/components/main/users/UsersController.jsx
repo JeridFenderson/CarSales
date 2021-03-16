@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { getUser, isLoggedIn, recordAuthentication } from '../../auth'
-import '../../css/form.scss'
+import { getUser, isLoggedIn, recordAuthentication } from '../../../auth'
+import '../../../css/form.scss'
 
-export function EnterUser() {
+export function UsersController() {
   const history = useHistory()
-  const user = getUser()
+  const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
   const [newUser, setNewUser] = useState({
     firstName: '',
@@ -39,11 +39,11 @@ export function EnterUser() {
     event.preventDefault()
     let url = signup ? '/api/Users' : '/api/Sessions'
     url =
-      isLoggedIn() && user.isOwner && deleteAccount
+      isLoggedIn() && currentUser.isOwner && deleteAccount
         ? `/api/Users/${email}`
         : url
     const action =
-      isLoggedIn() && user.isOwner && deleteAccount ? 'DELETE' : 'POST'
+      isLoggedIn() && currentUser.isOwner && deleteAccount ? 'DELETE' : 'POST'
 
     const response = await fetch(`${url}`, {
       method: `${action}`,
@@ -57,7 +57,7 @@ export function EnterUser() {
     } else if (apiResponse.status === 404) {
       setErrorMessage(Object.values(apiResponse.errors).join(' '))
     } else {
-      if (isLoggedIn() && user.isOwner && deleteAccount) {
+      if (isLoggedIn() && currentUser.isOwner && deleteAccount) {
       } else if (signup) {
         history.push('/')
       } else {
@@ -71,12 +71,12 @@ export function EnterUser() {
     <main className="form">
       {errorMessage && <p>{errorMessage}</p>}
       <form onSubmit={handleFormSubmit}>
-        {isLoggedIn() && user.isOwner && !deleteAccount && (
-          <h3>Create Another User, {user.firstName}?</h3>
+        {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
+          <h3>Create Another User, {currentUser.firstName}?</h3>
         )}
-        {isLoggedIn() && user.isOwner && deleteAccount && (
+        {isLoggedIn() && currentUser.isOwner && deleteAccount && (
           <section>
-            <h3>Delete A User, {user.firstName}?</h3>
+            <h3>Delete A User, {currentUser.firstName}?</h3>
             <p>What's the email address of the account you'd like to delete?</p>
           </section>
         )}
@@ -119,7 +119,7 @@ export function EnterUser() {
             />
           </p>
           {(!isLoggedIn() ||
-            (isLoggedIn() && user.isOwner && !deleteAccount)) && (
+            (isLoggedIn() && currentUser.isOwner && !deleteAccount)) && (
             <p className="form-input">
               <label htmlFor="password">Password</label>
               <input
@@ -133,7 +133,7 @@ export function EnterUser() {
             </p>
           )}
         </section>
-        {isLoggedIn() && user.isOwner && !deleteAccount && (
+        {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
           <section>
             <p className="form-input">
               <label htmlFor="isOwner">Owner</label>
@@ -159,7 +159,7 @@ export function EnterUser() {
           <span></span>
           <input type="submit" value="Submit" className="submit" />
           <span></span>
-          {(isLoggedIn() && user.isOwner) ||
+          {(isLoggedIn() && currentUser.isOwner) ||
             (signup && <Link to="/login">Meant to Log In?</Link>) || (
               <Link to="/signup">Meant to Sign Up?</Link>
             )}

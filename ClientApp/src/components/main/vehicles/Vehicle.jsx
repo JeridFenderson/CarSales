@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import '../../css/vehicles.scss'
+import '../../../css/vehicles.scss'
 
 export function Vehicle({ vehicle, display }) {
   const {
@@ -22,7 +22,7 @@ export function Vehicle({ vehicle, display }) {
   } = vehicle
 
   return (
-    <Link to={`/vehicles/${id}`}>
+    <Link to={`/vehicles/view/${id}`}>
       <figure className={display}>
         <img
           src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"

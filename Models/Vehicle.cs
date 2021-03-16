@@ -29,7 +29,7 @@ namespace CarSales.Models
         public string EngineSize { get; set; }
         public string Description { get; set; }
         public bool IsSold { get; set; }
-        
-             
+        public int UserId { get; set; }
+        public User User { get; set; }        
     }
 }

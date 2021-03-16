@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { getUser, isLoggedIn } from '../../auth'
-import '../../css/vehicle.scss'
+import { getUser, isLoggedIn } from '../../../auth'
+import '../../../css/vehicle.scss'
 
 export function VehicleDetailed({ vehicle, singleVehicle }) {
-  const user = getUser()
+  const currentUser = getUser()
   const {
     id,
     year,
@@ -21,13 +21,14 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
     engineSize,
     description,
     isSold,
+    user,
   } = vehicle
 
   return (
     <>
       {singleVehicle && (
         <p className="back-arrow">
-          <Link to="/vehicles">
+          <Link to="/vehicles/view">
             <i className="fas fa-backward"></i>
           </Link>
         </p>
@@ -59,13 +60,14 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
         <h3>{price && `$${price}`}</h3>
       )}
 
-      {isLoggedIn() && user.isAdmin && (
+      {isLoggedIn() && currentUser.isAdmin && (
         <section>
           <ul>
+            {user !== undefined && <li>Posted by {user.firstName}</li>}
             <li>
               <Link to={`/vehicles/create/${id}/edit`}>Edit</Link>
             </li>
-            {user.isOwner && (
+            {currentUser.isOwner && (
               <li>
                 <Link to={`/vehicles/create/${id}/delete`}>Delete</Link>
               </li>

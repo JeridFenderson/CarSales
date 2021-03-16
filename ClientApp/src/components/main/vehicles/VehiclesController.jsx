@@ -1,35 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
-import { getUser, isLoggedIn } from '../../auth'
-import '../../css/createVehicle.scss'
+import { authHeader, getUser, isLoggedIn } from '../../../auth'
+import '../../../css/createVehicle.scss'
 import { SelectVehicles } from './SelectVehicles'
 
-export function VehicleController({ filterText }) {
+export function VehiclesController({ filterText }) {
   const history = useHistory()
-  const { id, action } = useParams()
-  const user = getUser()
+  const { path, id, action } = useParams()
+  const currentUser = getUser()
   const [trigger, setTrigger] = useState(false)
-  const path = history.location.pathname.split('/')[2]
 
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 0,
-      year: 1885,
-      make: 'Benz',
-      model: 'Patent Motor Car',
-      price: 825,
-      odometer: 0,
-      vin: '',
-      fuelType: 'gas',
-      driveTrain: 'direct',
-      bodyType: 'wagon',
-      exteriorColor: 'black',
-      interiorColor: 'black',
-      engineSize: 1,
-      description: 'The first car on the road!',
-      isSold: false,
-    },
-  ])
+  const [vehicles, setVehicles] = useState([{ [id]: 0 }])
 
   const [vehicle, setVehicle] = useState({
     year: '',
@@ -39,7 +20,7 @@ export function VehicleController({ filterText }) {
     odometer: '',
     vin: '',
     fuelType: 'Gas',
-    drivetrain: 'Manual',
+    drivetrain: 'Automatic',
     bodyType: 'Sedan',
     exteriorColor: '',
     interiorColor: '',
@@ -74,11 +55,14 @@ export function VehicleController({ filterText }) {
       const response = await fetch(url)
       const json = await response.json()
       setVehicles(json)
-      if (id) {
+      if (path === 'create' && id) {
         setVehicle(json)
       }
     }
-    if (path !== 'create' || (path === 'create' && id && action === 'edit')) {
+    if (
+      path === 'view' ||
+      (path === 'create' && id !== '' && action === 'edit')
+    ) {
       loadVehicles()
     }
   }, [id, action, filterText, path])
@@ -103,30 +87,29 @@ export function VehicleController({ filterText }) {
       }
       const response = await fetch(`${url}`, {
         method: `${apiAction}`,
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...authHeader() },
         body: JSON.stringify(vehicle),
       })
+
       console.log(response)
       history.push('/vehicles')
     }
-    if (trigger || action === 'delete') submitForm()
-  }, [trigger, action, history, id, vehicle])
+    if (trigger || action === 'delete' || (path === 'create' && id === ''))
+      submitForm()
+  }, [trigger, action, history, id, vehicle, path])
 
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
   }
 
   function handleNumberFieldChange(event) {
-    const value = parseInt(event.target.value)
-    if (isNaN(value)) {
-      setVehicle({ ...vehicle, [event.target.name]: 0 })
-    } else {
-      setVehicle({ ...vehicle, [event.target.name]: value })
-    }
+    setVehicle({
+      ...vehicle,
+      [event.target.name]: Number(event.target.value) || 0,
+    })
   }
 
   function handleBooleanFieldChange(event) {
-    console.log('hello')
     setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
   }
 
@@ -135,21 +118,22 @@ export function VehicleController({ filterText }) {
     setTrigger(true)
   }
 
-  if (path !== 'create') {
+  if (path === 'view') {
     return <SelectVehicles vehicles={vehicles} />
   } else {
     return (
       <main className="create">
-        {isLoggedIn() && user.isAdmin && action === 'edit' && (
+        {id && (
           <p className="back-arrow">
-            <Link to={`/vehicles/${id}`}>
+            {console.log(id)}
+            <Link to={`/vehicles/view/${id}`}>
               <i className="fas fa-backward"></i>
             </Link>
           </p>
         )}
         <form onSubmit={handleFormSubmit}>
           <section>
-            <p className="form-input">
+            <p>
               <label htmlFor="year">Year</label>
               <input
                 type="text"
@@ -161,7 +145,7 @@ export function VehicleController({ filterText }) {
                 required
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="make">Make</label>
               <input
                 type="text"
@@ -172,7 +156,7 @@ export function VehicleController({ filterText }) {
                 required
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="model">Model</label>
               <input
                 type="text"
@@ -183,7 +167,7 @@ export function VehicleController({ filterText }) {
                 required
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="price">Price</label>
               <input
                 type="text"
@@ -194,7 +178,7 @@ export function VehicleController({ filterText }) {
                 required
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="odometer">Odometer</label>
               <input
                 type="text"
@@ -205,7 +189,7 @@ export function VehicleController({ filterText }) {
                 required
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="vin">VIN</label>
               <input
                 type="text"
@@ -217,7 +201,7 @@ export function VehicleController({ filterText }) {
             </p>
           </section>
           <section>
-            <p className="form-input">
+            <p>
               <label htmlFor="fuelType">Fuel Type</label>
               <select
                 name="fuelType"
@@ -231,7 +215,7 @@ export function VehicleController({ filterText }) {
                 <option value="Hydrogen Fuel Cell">Hydrogen</option>
               </select>
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="drivetrain">Drivetrain</label>
               <select
                 name="drivetrain"
@@ -245,7 +229,7 @@ export function VehicleController({ filterText }) {
                 <option value="Some Rare Drivetrain System">Other</option>
               </select>
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="bodyType">Body Type</label>
               <select
                 name="bodyType"
@@ -264,7 +248,7 @@ export function VehicleController({ filterText }) {
                 <option value="Some Exotic Body Type">Other</option>
               </select>
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="exteriorColor">Exterior Color</label>
               <input
                 type="text"
@@ -274,7 +258,7 @@ export function VehicleController({ filterText }) {
                 onChange={handleStringFieldChange}
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="interiorColor">Interior Color</label>
               <input
                 type="text"
@@ -284,7 +268,7 @@ export function VehicleController({ filterText }) {
                 onChange={handleStringFieldChange}
               />
             </p>
-            <p className="form-input">
+            <p>
               <label htmlFor="engineSize">Engine Size</label>
               <input
                 type="text"
@@ -295,7 +279,7 @@ export function VehicleController({ filterText }) {
               />
             </p>
           </section>
-          <p className="form-input">
+          <p>
             <label htmlFor="description">Description</label>
             <textarea
               name="description"
@@ -305,8 +289,8 @@ export function VehicleController({ filterText }) {
             />
           </p>
           <section>
-            {isLoggedIn() && user.isAdmin && (
-              <p className="form-input">
+            {isLoggedIn() && currentUser.isAdmin && (
+              <p>
                 <span></span>
                 <label htmlFor="isSold">Sold?</label>
                 <input

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarSales.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CarSales.Controllers
 {
@@ -37,11 +39,14 @@ namespace CarSales.Controllers
             // them by row id and return them as a JSON array.
             if (filterMake == null)
             {
-                return await _context.Vehicles.ToListAsync();
+                return await _context.Vehicles.Include(vehicle => vehicle.User).ToListAsync();
             }
             else
             {
-            return await _context.Vehicles.Where(vehicle => vehicle.Make.ToLower().Contains(filterMake.ToLower())).ToListAsync();
+            return await _context.Vehicles
+            .Include(vehicle => vehicle.User)
+            .Where(vehicle => vehicle.Make.ToLower().Contains(filterMake.ToLower()))
+            .ToListAsync();
             }        
         }
 
@@ -55,7 +60,10 @@ namespace CarSales.Controllers
         public async Task<ActionResult<Vehicle>> GetVehicle(int id)
         {
             // Find the vehicle in the database using `FindAsync` to look it up by id
-            var vehicle = await _context.Vehicles.FindAsync(id);
+            var vehicle = await _context.Vehicles
+            .Include(vehicle => vehicle.User)
+            .Where(vehicle => vehicle.Id == id)
+            .FirstOrDefaultAsync();
 
             // If we didn't find anything, we receive a `null` in return
             if (vehicle == null)
@@ -129,8 +137,11 @@ namespace CarSales.Controllers
         // new values for the record.
         //
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
+            // Set the UserID to the current user id, this overrides anything the user specifies.
+            vehicle.UserId = GetCurrentUserId();
             // Indicate to the database context we want to add this new record
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
@@ -171,6 +182,13 @@ namespace CarSales.Controllers
         private bool VehicleExists(int id)
         {
             return _context.Vehicles.Any(vehicle => vehicle.Id == id);
+        }
+
+        // Private helper method to get the JWT claim related to the user ID
+        private int GetCurrentUserId()
+        {
+            // Get the User Id from the claim and then parse it as an integer.
+            return int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "Id").Value);
         }
     }
 }

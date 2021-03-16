@@ -5,7 +5,7 @@ import '../../css/nav.scss'
 
 export function Nav() {
   const [open, setOpen] = useState(false)
-  const user = getUser()
+  const currentUser = getUser()
 
   function handleLogOut() {
     logout()
@@ -32,7 +32,7 @@ export function Nav() {
               </Link>
             </li>
           )}
-          {isLoggedIn() && <li>Welcome, {user.firstName}!</li>}
+          {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
           <li>
             <Link to="/" onClick={() => setOpen(false)}>
               Home
@@ -41,7 +41,7 @@ export function Nav() {
               <i className="mobile fas fa-home-lg-alt"></i>
             </Link>
           </li>
-          {(isLoggedIn() && user.isAdmin) || (
+          {(isLoggedIn() && currentUser.isAdmin) || (
             <li>
               <Link to="/" onClick={() => setOpen(false)}>
                 Specific Car Request
@@ -52,15 +52,15 @@ export function Nav() {
             </li>
           )}
           <li>
-            <Link to="/vehicles" onClick={() => setOpen(false)}>
+            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
               Pre-owned Inventory
             </Link>
-            <Link to="/vehicles" onClick={() => setOpen(false)}>
+            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
               <i className="mobile fas fa-cars"></i>
             </Link>
           </li>
           {isLoggedIn() &&
-            ((user.isOwner && (
+            ((currentUser.isOwner && (
               <li>
                 <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                   Add A Car
@@ -95,12 +95,12 @@ export function Nav() {
               <i className="mobile fas fa-id-card-alt"></i>
             </Link>
           </li>
-          {isLoggedIn() && user.isOwner && (
+          {isLoggedIn() && currentUser.isOwner && (
             <li>
               <Link to="/signup">Add A New User</Link>
             </li>
           )}
-          {isLoggedIn() && user.isOwner && (
+          {isLoggedIn() && currentUser.isOwner && (
             <li>
               <Link to="/login">Delete A User</Link>
             </li>

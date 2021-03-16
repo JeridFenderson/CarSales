@@ -9,21 +9,19 @@ export function SelectVehicles({ vehicles }) {
   }
 
   if (!Array.isArray(vehicles)) {
-    return (
-      <VehicleDetailed
-        vehicle={vehicles}
-        display="vehicle"
-        singleVehicle={true}
-      />
-    )
+    return <VehicleDetailed vehicle={vehicles} singleVehicle={true} />
   }
 
   switch (vehicles.length) {
     case 0:
-      return <VehicleDetailed vehicle={notFound} display="vehicle" />
+      return <VehicleDetailed vehicle={notFound} singleVehicle={false} />
     case 1:
       return vehicles.map((vehicle) => (
-        <VehicleDetailed key={vehicle.id} vehicle={vehicle} display="vehicle" />
+        <VehicleDetailed
+          key={vehicle.id}
+          vehicle={vehicle}
+          singleVehicle={false}
+        />
       ))
     default:
       return vehicles.map((vehicle) => (

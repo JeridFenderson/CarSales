@@ -1,28 +1,27 @@
 import { Route, Switch } from 'react-router-dom'
 import { VehiclesPage } from './pages/VehiclesPage'
-import { VehicleControllerPage } from './pages/VehicleControllerPage'
-import { EnterUserPage } from './pages/EnterUserPage'
+import { UsersPage } from './pages/UsersPage'
 
 export function App() {
   return (
     <Switch>
-      <Route exact path="/vehicles/">
+      <Route exact path="/vehicles/:path/">
         <VehiclesPage />
       </Route>
-      <Route exact path="/vehicles/:id">
+      <Route exact path="/vehicles/:path/:id">
         <VehiclesPage />
       </Route>
-      <Route exact path="/vehicles/create">
-        <VehicleControllerPage />
+      <Route exact path="/vehicles/:path">
+        <VehiclesPage />
       </Route>
-      <Route exact path="/vehicles/create/:id/:action">
-        <VehicleControllerPage />
+      <Route exact path="/vehicles/:path/:id/:action">
+        <VehiclesPage />
       </Route>
       <Route exact path="/signup">
-        <EnterUserPage />
+        <UsersPage />
       </Route>
       <Route exact path="/login">
-        <EnterUserPage />
+        <UsersPage />
       </Route>
     </Switch>
   )

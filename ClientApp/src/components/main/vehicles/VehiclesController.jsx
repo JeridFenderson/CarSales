@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { authHeader, getUser, isLoggedIn } from '../../../auth'
-import '../../../css/createVehicle.scss'
+import '../../../css/form.scss'
 import { SelectVehicles } from './SelectVehicles'
 
 export function VehiclesController({ filterText }) {
@@ -122,15 +122,7 @@ export function VehiclesController({ filterText }) {
     return <SelectVehicles vehicles={vehicles} />
   } else {
     return (
-      <main className="create">
-        {id && (
-          <p className="back-arrow">
-            {console.log(id)}
-            <Link to={`/vehicles/view/${id}`}>
-              <i className="fas fa-backward"></i>
-            </Link>
-          </p>
-        )}
+      <>
         <form onSubmit={handleFormSubmit}>
           <section>
             <p>
@@ -302,6 +294,14 @@ export function VehiclesController({ filterText }) {
                 <span></span>
               </p>
             )}
+            {id && (
+              <p className="back-arrow">
+                <span></span>
+                <Link to={`/vehicles/view/${id}`}>
+                  <i className="fas fa-backward"></i>
+                </Link>
+              </p>
+            )}
             <p>
               <span></span>
               <input type="submit" value="Submit" className="submit" />
@@ -309,7 +309,7 @@ export function VehiclesController({ filterText }) {
             </p>
           </section>
         </form>
-      </main>
+      </>
     )
   }
 }

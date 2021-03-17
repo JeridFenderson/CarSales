@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getUser, isLoggedIn, logout } from '../../auth'
-import '../../css/nav.scss'
+import { getUser, isLoggedIn, logout } from '../../../auth'
 
 export function Nav() {
   const [open, setOpen] = useState(false)

@@ -1,12 +1,22 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { VehiclesController } from './VehiclesController'
 
 export function SearchVehicles() {
   const [filterText, setFilterText] = useState('')
+  const [mainClass, setMainClass] = useState('')
   const { path, id } = useParams()
+
+  useEffect(() => {
+    if (path === 'create') {
+      setMainClass('form')
+    } else {
+      setMainClass('')
+    }
+  }, [path])
+
   return (
-    <main>
+    <main className={mainClass}>
       {path === 'view' && !id && (
         <input
           type="text"

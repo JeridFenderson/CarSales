@@ -13,7 +13,7 @@ main {
     justify-content: center;
     img {
       object-fit: contain;
-      max-width: 90vw;
+      max-width: 80vw;
       border-top: 0.2em solid $font-color;
       border-bottom: 0.2em solid $font-color;
       border-left: 0.1em solid $font-color;
@@ -24,7 +24,7 @@ main {
 
   ul {
     margin: 1em 0 0 0;
-    width: 90vw;
+    width: 80vw;
   }
 
   a:visited {
@@ -32,7 +32,7 @@ main {
   }
 
   .back-arrow {
-    width: 90vw;
+    width: 80vw;
     margin: 0;
     font-size: 1.2em;
   }

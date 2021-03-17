@@ -33,6 +33,7 @@
 @media all and (min-width: $tablet) {
   .form {
     form {
+      flex-flow: row wrap;
       width: fit-content;
     }
     p {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CarSales.Models
@@ -28,8 +29,13 @@ namespace CarSales.Models
         public string InteriorColor { get; set; }
         public string EngineSize { get; set; }
         public string Description { get; set; }
+        public bool IsListed { get; set; }
         public bool IsSold { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }        
+        public User User { get; set; }
+
+        //  [Required]
+        public List<string> PhotoIds { get; set; }  
+                
     }
 }

@@ -1,21 +1,22 @@
 @import 'constants';
 
-.form {
-  padding: 1em;
+.main-form {
+  padding-top: 1em;
   background-color: $background-color;
   align-items: center;
   color: $font-color;
   form {
     background-color: $foreground-color;
-    width: 100%;
-    padding-right: 2em;
+    width: 100vw;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-evenly;
     align-items: center;
+    section {
+      margin: 1em;
+    }
     p {
       width: 15em;
-      margin-left: 2em;
       display: flex;
       flex: row nowrap;
       justify-content: space-between;
@@ -31,14 +32,12 @@
 }
 
 @media all and (min-width: $tablet) {
-  .form {
+  .main-form {
     form {
-      flex-flow: row wrap;
-      width: fit-content;
-    }
-    p {
-      .submit {
-        height: 2em;
+      p {
+        .submit {
+          height: 2em;
+        }
       }
     }
   }

@@ -9,7 +9,9 @@ export function SearchVehicles() {
 
   useEffect(() => {
     if (path === 'create') {
-      setMainClass('form')
+      setMainClass('main-form')
+    } else if (path === 'view') {
+      setMainClass('main-vehicles')
     } else {
       setMainClass('')
     }
@@ -22,6 +24,7 @@ export function SearchVehicles() {
           type="text"
           placeholder="Make..."
           value={filterText}
+          id="search-bar"
           onChange={function (event) {
             setFilterText(event.target.value)
           }}

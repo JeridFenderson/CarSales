@@ -68,7 +68,7 @@ export function UsersController() {
   }
 
   return (
-    <main className="form">
+    <main className="main-form">
       {errorMessage && <p>{errorMessage}</p>}
       <form onSubmit={handleFormSubmit}>
         {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
@@ -136,6 +136,7 @@ export function UsersController() {
         {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
           <section>
             <p className="form-input">
+              <span></span>
               <label htmlFor="isOwner">Owner</label>
               <input
                 type="checkbox"
@@ -143,8 +144,10 @@ export function UsersController() {
                 checked={isOwner}
                 onChange={handleBooleanFieldChange}
               />
+              <span></span>
             </p>
             <p className="form-input">
+              <span></span>
               <label htmlFor="isAdmin">Admin</label>
               <input
                 type="checkbox"
@@ -152,6 +155,7 @@ export function UsersController() {
                 checked={isAdmin}
                 onChange={handleBooleanFieldChange}
               />
+              <span></span>
             </p>
           </section>
         )}

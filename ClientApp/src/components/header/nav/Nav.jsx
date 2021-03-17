@@ -20,24 +20,13 @@ export function Nav() {
         <span className="burger"></span>
 
         <ul id="menu">
-          {isLoggedIn() || (
-            <li>
-              <Link to="/login" onClick={() => setOpen(false)}>
-                Log In
-              </Link>
-              <span> Or </span>
-              <Link to="/signup" onClick={() => setOpen(false)}>
-                Sign Up
-              </Link>
-            </li>
-          )}
           {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
-              Home
+            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
+              Pre-owned Inventory
             </Link>
-            <Link to="/" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-home-lg-alt"></i>
+            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
+              <i className="mobile fas fa-cars"></i>
             </Link>
           </li>
           {(isLoggedIn() && currentUser.isAdmin) || (
@@ -50,14 +39,6 @@ export function Nav() {
               </Link>
             </li>
           )}
-          <li>
-            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-              Pre-owned Inventory
-            </Link>
-            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-cars"></i>
-            </Link>
-          </li>
           {isLoggedIn() &&
             ((currentUser.isOwner && (
               <li>
@@ -80,18 +61,18 @@ export function Nav() {
             ))}
           <li>
             <Link to="/" onClick={() => setOpen(false)}>
-              Contact Us
-            </Link>
-            <Link to="/" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-address-card"></i>
-            </Link>
-          </li>
-          <li>
-            <Link to="/" onClick={() => setOpen(false)}>
               About Us
             </Link>
             <Link to="/" onClick={() => setOpen(false)}>
               <i className="mobile fas fa-id-card-alt"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/" onClick={() => setOpen(false)}>
+              Contact Us
+            </Link>
+            <Link to="/" onClick={() => setOpen(false)}>
+              <i className="mobile fas fa-address-card"></i>
             </Link>
           </li>
           {isLoggedIn() && currentUser.isOwner && (
@@ -108,6 +89,17 @@ export function Nav() {
             <li>
               <Link to="/" onClick={handleLogOut}>
                 Sign Out
+              </Link>
+            </li>
+          )}
+          {isLoggedIn() || (
+            <li>
+              <Link to="/login" onClick={() => setOpen(false)}>
+                Log In
+              </Link>
+              <span> Or </span>
+              <Link to="/signup" onClick={() => setOpen(false)}>
+                Sign Up
               </Link>
             </li>
           )}

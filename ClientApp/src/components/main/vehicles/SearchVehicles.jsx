@@ -21,7 +21,7 @@ export function SearchVehicles() {
     <main className={mainClass}>
       {path === 'view' && !id && (
         <input
-          type="text"
+          type="search"
           placeholder="Make..."
           value={filterText}
           id="search-bar"

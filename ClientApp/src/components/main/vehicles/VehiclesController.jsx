@@ -11,13 +11,14 @@ export function VehiclesController({ filterText }) {
   const { path, id, action } = useParams()
   const [dropzoneMessage, setDropzoneMessage] = useState('')
   const [isUploading, setIsUploading] = useState(false)
+  const [filesToUpload, setFilesToUpload] = useState([])
   const [errorMessage, setErrorMessage] = useState('')
-  const [trigger, setTrigger] = useState(false)
+  const [formTrigger, setFormTrigger] = useState(false)
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: handleFiles,
+    onDrop: setFilesToUpload,
   })
 
-  const [vehicles, setVehicles] = useState([{ [id]: 0 }])
+  const [vehicles, setVehicles] = useState([{ id: 0 }])
 
   const [vehicle, setVehicle] = useState({
     year: '',
@@ -79,6 +80,52 @@ export function VehiclesController({ filterText }) {
   }, [id, action, filterText, path])
 
   useEffect(() => {
+    if (isUploading) {
+      setDropzoneMessage('Uploading...')
+    }
+    if (isDragActive) {
+      setDropzoneMessage('Drop the files here...')
+    }
+    if (!isUploading && !isDragActive) {
+      setDropzoneMessage('Click or drag vehicle images here to upload!')
+    }
+  }, [isDragActive, isUploading])
+
+  useEffect(() => {
+    function handleFiles(filesToUpload) {
+      Array.isArray(filesToUpload) &&
+        filesToUpload.map(async (fileToUpload) => {
+          const formData = new FormData()
+          formData.append('file', fileToUpload)
+          setIsUploading(true)
+          try {
+            const response = await fetch('/api/Media', {
+              method: 'POST',
+              headers: {
+                ...authHeader(),
+              },
+              body: formData,
+            })
+            if (response.status === 200) {
+              const apiResponse = await response.json()
+              const photo = apiResponse.photo
+              setVehicle((vehicle) => ({
+                ...vehicle,
+                photos: [...vehicle.photos, photo],
+              }))
+            } else {
+              setErrorMessage('Unable to upload an image')
+            }
+          } catch {
+            setErrorMessage('Unable to upload an image')
+          }
+          setIsUploading(false)
+        })
+    }
+    handleFiles(filesToUpload)
+  }, [filesToUpload])
+
+  useEffect(() => {
     async function submitForm() {
       let url = '/api/Vehicles'
       let apiAction = 'POST'
@@ -103,21 +150,9 @@ export function VehiclesController({ filterText }) {
       })
       history.push('/vehicles')
     }
-    if (trigger || action === 'delete' || (path === 'create' && id === ''))
+    if (formTrigger || action === 'delete' || (path === 'create' && id === ''))
       submitForm()
-  }, [trigger, action, history, id, vehicle, path])
-
-  useEffect(() => {
-    if (isUploading) {
-      setDropzoneMessage('Uploading...')
-    }
-    if (isDragActive) {
-      setDropzoneMessage('Drop the files here...')
-    }
-    if (!isUploading && !isDragActive) {
-      setDropzoneMessage('Click here or drag vehicle images here to upload!')
-    }
-  }, [isDragActive, isUploading])
+  }, [formTrigger, action, history, id, vehicle, path])
 
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
@@ -126,7 +161,10 @@ export function VehiclesController({ filterText }) {
   function handleNumberFieldChange(event) {
     setVehicle({
       ...vehicle,
-      [event.target.name]: Number(event.target.value) || 0,
+      [event.target.name]:
+        Number(event.target.value) > 0 && Number(event.target.value) < 999999
+          ? Number(event.target.value)
+          : 0,
     })
   }
 
@@ -134,40 +172,54 @@ export function VehiclesController({ filterText }) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
   }
 
-  async function handleFiles(filesToUpload) {
-    filesToUpload.map(async (fileToUpload) => {
-      const formData = new FormData()
-      formData.append('file', fileToUpload)
-      setIsUploading(true)
-      try {
-        const response = await fetch('/api/Media', {
-          method: 'POST',
-          headers: {
-            ...authHeader(),
-          },
-          body: formData,
-        })
-        if (response.status === 200) {
-          const apiResponse = await response.json()
-          const photo = apiResponse.photo
-          console.log(photo)
-          setVehicle((vehicle) => ({
-            ...vehicle,
-            photos: [...vehicle.photos, photo],
-          }))
-        } else {
-          setErrorMessage('Unable to upload an image')
-        }
-      } catch {
-        setErrorMessage('Unable to upload an image')
-      }
-      setIsUploading(false)
-    })
-  }
-
   function handleFormSubmit(event) {
     event.preventDefault()
-    setTrigger(true)
+    setFormTrigger(true)
+  }
+
+  function Input(packet) {
+    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit]
+    return (
+      <p>
+        <label htmlFor={packet[1].toLowerCase()}>{packet[1]}</label>
+        <input
+          type={packet[0]}
+          name={packet[1].toLowerCase()}
+          placeholder={packet[1]}
+          value={packet[2]}
+          onChange={packet[3]}
+          required={packet[4]}
+          maxLength={packet[5]}
+        />
+      </p>
+    )
+  }
+
+  function BigInput(packet) {
+    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
+    // 6 = name, 7 = list of options]
+    return (
+      <p>
+        <label htmlFor={packet[6]}>{packet[1]}</label>
+        {(packet[7] && (
+          <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
+            {packet[7].map((choice) => (
+              <option value={choice}>{choice}</option>
+            ))}
+          </select>
+        )) || (
+          <input
+            type={packet[0]}
+            name={packet[6]}
+            placeholder={packet[1]}
+            value={packet[2]}
+            onChange={packet[3]}
+            required={packet[4]}
+            maxLength={packet[5]}
+          />
+        )}
+      </p>
+    )
   }
 
   if (path === 'view') {
@@ -178,151 +230,90 @@ export function VehiclesController({ filterText }) {
         {errorMessage && <p>{errorMessage}</p>}
         <form onSubmit={handleFormSubmit}>
           <section>
-            <p>
-              <label htmlFor="year">Year</label>
-              <input
-                type="text"
-                name="year"
-                placeholder="1973"
-                value={year}
-                onChange={handleNumberFieldChange}
-                maxLength={4}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="make">Make</label>
-              <input
-                type="text"
-                name="make"
-                placeholder="Chevrolet"
-                value={make}
-                onChange={handleStringFieldChange}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="model">Model</label>
-              <input
-                type="text"
-                name="model"
-                placeholder="C10"
-                value={model}
-                onChange={handleStringFieldChange}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="price">Price</label>
-              <input
-                type="text"
-                name="price"
-                placeholder="4000"
-                value={price}
-                onChange={handleNumberFieldChange}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="odometer">Odometer</label>
-              <input
-                type="text"
-                name="odometer"
-                placeholder="99999"
-                value={odometer}
-                onChange={handleNumberFieldChange}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="vin">VIN</label>
-              <input
-                type="text"
-                name="vin"
-                placeholder="CCY143S119259"
-                value={vin}
-                onChange={handleStringFieldChange}
-              />
-            </p>
+            {Input(['text', 'Year', year, handleNumberFieldChange, true, 4])}
+            {Input(['text', 'Make', make, handleStringFieldChange, true])}
+            {Input(['text', 'Model', model, handleStringFieldChange, true])}
+            {Input(['text', 'Price', price, handleNumberFieldChange, true])}
+            {Input([
+              'text',
+              'Odometer',
+              odometer,
+              handleNumberFieldChange,
+              true,
+            ])}
+            {Input(['text', 'VIN', vin, handleStringFieldChange, false])}
           </section>
           <section>
-            <p>
-              <label htmlFor="fuelType">Fuel Type</label>
-              <select
-                name="fuelType"
-                value={fuelType}
-                onChange={handleStringFieldChange}
-              >
-                <option value="Gas">Gas</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Electric">Electric</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Hydrogen Fuel Cell">Hydrogen</option>
-              </select>
-            </p>
-            <p>
-              <label htmlFor="drivetrain">Drivetrain</label>
-              <select
-                name="drivetrain"
-                value={drivetrain}
-                onChange={handleStringFieldChange}
-              >
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
-                <option value="DCT">DCT</option>
-                <option value="Direct Drive">Direct Drive</option>
-                <option value="Some Rare Drivetrain System">Other</option>
-              </select>
-            </p>
-            <p>
-              <label htmlFor="bodyType">Body Type</label>
-              <select
-                name="bodyType"
-                value={bodyType}
-                onChange={handleStringFieldChange}
-              >
-                <option value="Sedan">Sedan</option>
-                <option value="SUV">SUV</option>
-                <option value="Pickup Truck">Pickup Truck</option>
-                <option value="Minivan">Minivan</option>
-                <option value="Coupe">Coupe</option>
-                <option value="Convertible">Convertible</option>
-                <option value="Hatchback">Hatchback</option>
-                <option value="Sports Car">Sports Car</option>
-                <option value="Station Wagon">Station Wagon</option>
-                <option value="Some Exotic Body Type">Other</option>
-              </select>
-            </p>
-            <p>
-              <label htmlFor="exteriorColor">Exterior Color</label>
-              <input
-                type="text"
-                name="exteriorColor"
-                placeholder="Grey"
-                value={exteriorColor}
-                onChange={handleStringFieldChange}
-              />
-            </p>
-            <p>
-              <label htmlFor="interiorColor">Interior Color</label>
-              <input
-                type="text"
-                name="interiorColor"
-                placeholder="Black"
-                value={interiorColor}
-                onChange={handleStringFieldChange}
-              />
-            </p>
-            <p>
-              <label htmlFor="engineSize">Engine Size</label>
-              <input
-                type="text"
-                name="engineSize"
-                placeholder="6.2"
-                value={engineSize}
-                onChange={handleStringFieldChange}
-              />
-            </p>
+            {BigInput([
+              '',
+              'Fuel Type',
+              fuelType,
+              handleStringFieldChange,
+              false,
+              '',
+              'fuelType',
+              ['Gas', 'Diesel', 'Electric', 'Hybrid', 'Hydrogen'],
+            ])}
+            {BigInput([
+              '',
+              'Drivetrain',
+              drivetrain,
+              handleStringFieldChange,
+              false,
+              '',
+              'drivetrain',
+              ['Automatic', 'Manual', 'DCT', 'Direct Drive'],
+            ])}
+            {BigInput([
+              '',
+              'Body Type',
+              bodyType,
+              handleStringFieldChange,
+              false,
+              '',
+              'bodyType',
+              [
+                'Sedan',
+                'SUV',
+                'Pickup Truck',
+                'Minivan',
+                'Coupe',
+                'Convertible',
+                'Hatchback',
+                'Sports Car',
+                'Station Wagon',
+                'Other',
+              ],
+            ])}
+
+            {BigInput([
+              'text',
+              'Exterior Color',
+              exteriorColor,
+              handleStringFieldChange,
+              false,
+              '',
+              'exteriorColor',
+            ])}
+            {BigInput([
+              'text',
+              'Interior Color',
+              interiorColor,
+              handleStringFieldChange,
+              false,
+              '',
+              'interiorColor',
+            ])}
+
+            {BigInput([
+              'text',
+              'Engine Size',
+              engineSize,
+              handleStringFieldChange,
+              false,
+              '',
+              'engineSize',
+            ])}
           </section>
           <section>
             <p>
@@ -332,13 +323,6 @@ export function VehiclesController({ filterText }) {
                 value={description}
                 onChange={handleStringFieldChange}
                 rows={4}
-              />
-            </p>
-            <p className="no-file-drop-zone">
-              <input
-                type="file"
-                name="photos"
-                onChange={(event) => handleFiles(event.target.value)}
               />
             </p>
             <div className="file-drop-zone">

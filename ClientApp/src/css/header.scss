@@ -1,6 +1,6 @@
 @import 'constants';
 
-$burger-top: 1em;
+$burger-top: 1.5em;
 $burger-right: 1em;
 $burger-width: 2em;
 
@@ -13,6 +13,11 @@ header {
   }
   .no-scroll {
     background-color: $background-color;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+
     h1 {
       text-align: center;
     }
@@ -27,14 +32,24 @@ header {
   }
 }
 
+@media (min-width: $tablet) {
+  header {
+    .no-scroll {
+      flex-flow: column nowrap;
+    }
+  }
+}
+
 @media (min-width: $desktop) {
-  .no-scroll {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
-    h1 {
-      width: 10em;
+  header {
+    .no-scroll {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      h1 {
+        width: 10em;
+      }
     }
   }
 }
@@ -55,7 +70,7 @@ nav {
     display: none;
   }
   @media (max-width: $tablet - 1px) {
-    position: fixed;
+    position: absolute;
     top: $burger-top;
     right: $burger-right;
     z-index: 1;
@@ -148,7 +163,7 @@ nav {
 }
 
 .scroll #menuToggle {
-  position: fixed;
+  position: absolute;
   top: $burger-top;
   right: $burger-right;
   z-index: 1;

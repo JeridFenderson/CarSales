@@ -65,6 +65,62 @@ namespace CarSales.Controllers
             .FirstOrDefaultAsync(media => media.IsMaster);
         }
 
+        [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> PutMedia(int id, Media media)
+        {
+            // If the ID in the URL does not match the ID in the supplied request body, return a bad request
+            if (id != media.Id)
+            {
+                return BadRequest();
+            }
+
+             // Find the user information of the user that called a delete request
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!user.IsAdmin)
+            {
+                // Make a custom error response
+                var response = new
+                {
+                    status = 401,
+                    errors = new List<string>() { "Not Authorized" }
+                };
+
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+
+            // Tell the database to consider everything in vehicle to be _updated_ values. When
+            // the save happens the database will _replace_ the values in the database with the ones from vehicle
+            _context.Entry(media).State = EntityState.Modified;
+
+            try
+            {
+                // Try to save these changes.
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ooops, looks like there was an error, so check to see if the record we were
+                // updating no longer exists.
+                if (!MediaExists(id))
+                {
+                    // If the record we tried to update was already deleted by someone else,
+                    // return a `404` not found
+                    return NotFound();
+                }
+                else
+                {
+                    // Otherwise throw the error back, which will cause the request to fail
+                    // and generate an error to the client.
+                    throw;
+                }
+            }
+
+            // Return a copy of the updated data
+            return Ok(media);
+        }
+
         // POST: api/Uploads
         //
         // Creates a new uploaded file
@@ -77,7 +133,7 @@ namespace CarSales.Controllers
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [RequestSizeLimit(10_000_000)]
-        public async System.Threading.Tasks.Task<ActionResult> UploadAsync(IFormFile file)
+        public async Task<ActionResult> UploadAsync(IFormFile file)
         {
             // Check this content type against a set of allowed content types
             var contentType = file.ContentType.ToLower();
@@ -147,6 +203,17 @@ namespace CarSales.Controllers
 
             // Return a copy of the deleted data
             return Ok(photo);
+        }
+
+         private bool MediaExists(int id)
+        {
+            return _context.Media.Any(media => media.Id == id);
+        }
+
+        private int GetCurrentUserId()
+        {
+            // Get the User Id from the claim and then parse it as an integer.
+            return int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "Id").Value);
         }
     }
 }

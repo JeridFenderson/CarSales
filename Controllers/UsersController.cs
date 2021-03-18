@@ -60,6 +60,36 @@ namespace CarSales.Controllers
                 return BadRequest();
             }
 
+
+            // Make a custom error response
+            var response = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+             // Find the user information of the user that called a delete request
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!currentUser.IsOwner || GetCurrentUserId() != id)
+            {
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+
+            if (currentUser.IsAdmin != user.IsAdmin)
+            {
+                if(!currentUser.IsOwner)
+                {
+                    return Unauthorized(response);
+                }
+            }
+            if (currentUser.IsOwner != user.IsOwner)
+            {
+                if(!currentUser.IsOwner)
+                {
+                    return Unauthorized(response);
+                }
+            }
+
             // Tell the database to consider everything in user to be _updated_ values. When
             // the save happens the database will _replace_ the values in the database with the ones from user
             _context.Entry(user).State = EntityState.Modified;
@@ -103,6 +133,10 @@ namespace CarSales.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            // Security measure overwrites front end entries for first time users
+            user.IsAdmin = false;
+            user.IsOwner = false;
+
             try
             {
                 // Indicate to the database context we want to add this new record

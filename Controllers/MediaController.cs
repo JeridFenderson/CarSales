@@ -1,11 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using CarSales.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace CarSales.Controllers
@@ -17,6 +21,7 @@ namespace CarSales.Controllers
     [ApiController]
     public class MediaController : ControllerBase
     {
+        private readonly DatabaseContext _context;
         private readonly string CLOUDINARY_CLOUD_NAME;
         private readonly string CLOUDINARY_API_KEY;
         private readonly string CLOUDINARY_API_SECRET;
@@ -31,11 +36,33 @@ namespace CarSales.Controllers
 
         // Constructor that receives a reference to your database context
         // and stores it in _context for you to use in your API methods
-        public MediaController(IConfiguration config)
+        public MediaController(DatabaseContext context, IConfiguration config)
         {
+            _context = context;
             CLOUDINARY_CLOUD_NAME = config["CLOUDINARY_CLOUD_NAME"];
             CLOUDINARY_API_KEY = config["CLOUDINARY_API_KEY"];
             CLOUDINARY_API_SECRET = config["CLOUDINARY_API_SECRET"];
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Media>>> GetAllMedia()
+        {
+            // Uses the database context in `_context` to request all of the Media, sort
+            // them by row id and return them as a JSON array.
+            return await _context.Media
+            .Include(media => media.User)
+            .Where(media => media.UserId > -1 && !media.IsMaster)
+            .ToListAsync();   
+        }
+
+        [HttpGet("Master")]
+        public async Task<ActionResult<Media>> GetMedia()
+        {
+            // Uses the database context in `_context` to request all of the Media, sort
+            // them by row id and return them as a JSON array.
+            return await _context.Media
+            .Include(media => media.User)
+            .FirstOrDefaultAsync(media => media.IsMaster);
         }
 
         // POST: api/Uploads
@@ -85,6 +112,41 @@ namespace CarSales.Controllers
                 // Otherwise there was some failure in uploading
                 return BadRequest("Upload failed");
             }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> DeleteMedia(int id)
+        {
+            var response = new
+            {
+                status = 404,
+                errors = new List<string>() { "Not Found" }
+            };
+            // Find this user by looking for the specific id
+            var photo = await _context.Media.FirstOrDefaultAsync(photo => photo.Id == id);
+            if (photo == null)
+            {
+                return NotFound(response);
+            }
+
+            var cloudPhoto = photo.PublicId;
+             // Removes Media Files From Cloudinary
+            var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
+            var delResParams = new DelResParams()
+            {
+            PublicIds = new List<string>(){cloudPhoto}
+            };
+            cloudinaryClient.DeleteResources(delResParams);
+
+            // Tell the database we want to remove this record
+            _context.Media.Remove(photo);
+
+            // Tell the database to perform the deletion
+            await _context.SaveChangesAsync();
+
+            // Return a copy of the deleted data
+            return Ok(photo);
         }
     }
 }

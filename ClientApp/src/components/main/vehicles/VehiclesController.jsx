@@ -327,7 +327,7 @@ export function VehiclesController({ filterText }) {
             </p>
             <div className="file-drop-zone">
               <div {...getRootProps()}>
-                <input {...getInputProps()} />
+                <input {...getInputProps()} required />
                 {dropzoneMessage}
               </div>
             </div>

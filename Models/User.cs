@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
@@ -40,8 +41,6 @@ namespace CarSales.Models
         }
         public bool IsOwner { get; set; }
         public bool IsAdmin{ get; set; }
-        public string Photo { get; set; }
-        
-        
+        public List<Media> Media { get; set; } 
     }
 }

@@ -33,9 +33,6 @@ namespace CarSales.Models
         public bool IsSold { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
-
-        //  [Required]
-        public List<Media> Photos { get; set; }  
-                
+        public List<Media> Photos { get; set; }            
     }
 }

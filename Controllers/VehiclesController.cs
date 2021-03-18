@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using CarSales.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Configuration;
 
 namespace CarSales.Controllers
 {
@@ -20,12 +23,18 @@ namespace CarSales.Controllers
     {
         // This is the variable you use to have access to your database
         private readonly DatabaseContext _context;
+        private readonly string CLOUDINARY_CLOUD_NAME;
+        private readonly string CLOUDINARY_API_KEY;
+        private readonly string CLOUDINARY_API_SECRET;
 
         // Constructor that recives a reference to your database context
         // and stores it in _context for you to use in your API methods
-        public VehiclesController(DatabaseContext context)
+        public VehiclesController(DatabaseContext context, IConfiguration config)
         {
             _context = context;
+            CLOUDINARY_CLOUD_NAME = config["CLOUDINARY_CLOUD_NAME"];
+            CLOUDINARY_API_KEY = config["CLOUDINARY_API_KEY"];
+            CLOUDINARY_API_SECRET = config["CLOUDINARY_API_SECRET"];
         }
 
         // GET: api/Vehicles
@@ -66,8 +75,7 @@ namespace CarSales.Controllers
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Photos)
             .Include(vehicle => vehicle.User)
-            .Where(vehicle => vehicle.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
 
             // If we didn't find anything, we receive a `null` in return
             if (vehicle == null)
@@ -92,12 +100,28 @@ namespace CarSales.Controllers
         // new values for the record.
         //
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle)
         {
             // If the ID in the URL does not match the ID in the supplied request body, return a bad request
             if (id != vehicle.Id)
             {
                 return BadRequest();
+            }
+
+             // Find the user information of the user that called a delete request
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!user.IsAdmin)
+            {
+                // Make a custom error response
+                var response = new
+                {
+                    status = 401,
+                    errors = new List<string>() { "Not Authorized" }
+                };
+
+                // Return our error with the custom response
+                return Unauthorized(response);
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
@@ -162,6 +186,7 @@ namespace CarSales.Controllers
         // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
         //
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DeleteVehicle(int id)
         {
             // Find this vehicle by looking for the specific id
@@ -171,6 +196,34 @@ namespace CarSales.Controllers
                 // There wasn't a vehicle with that id so return a `404` not found
                 return NotFound();
             }
+
+            // Find the user information of the user that called a delete request
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!user.IsOwner)
+            {
+                // Make a custom error response
+                var response = new
+                {
+                    status = 401,
+                    errors = new List<string>() { "Not Authorized" }
+                };
+
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+
+            // Caputes photos id's of the vehicle being deleted
+            var photos = vehicle.Photos
+            .Where(photo => photo.PublicId != "")
+            .Select(photo => photo.PublicId).ToList();
+
+            // Removes Media Files From Cloudinary
+            var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
+            var delResParams = new DelResParams()
+            {
+            PublicIds = new List<string>(photos)
+            };
+            cloudinaryClient.DeleteResources(delResParams);
 
             // Tell the database we want to remove this record
             _context.Vehicles.Remove(vehicle);
@@ -194,5 +247,8 @@ namespace CarSales.Controllers
             // Get the User Id from the claim and then parse it as an integer.
             return int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "Id").Value);
         }
+
+        // Private helper method that deletes
+        // private async System.Threading.Tasks.Task<ActionResult> UploadAsync(IFormFile file)
     }
 }

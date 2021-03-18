@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarSales.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Configuration;
 
 namespace CarSales.Controllers
 {
@@ -18,12 +23,20 @@ namespace CarSales.Controllers
     {
         // This is the variable you use to have access to your database
         private readonly DatabaseContext _context;
+         private readonly string CLOUDINARY_CLOUD_NAME;
+        private readonly string CLOUDINARY_API_KEY;
+        private readonly string CLOUDINARY_API_SECRET;
 
         // Constructor that recives a reference to your database context
         // and stores it in _context for you to use in your API methods
-        public UsersController(DatabaseContext context)
+        // Constructor that receives a reference to your database context
+        // and stores it in _context for you to use in your API methods
+        public UsersController(DatabaseContext context, IConfiguration config)
         {
             _context = context;
+            CLOUDINARY_CLOUD_NAME = config["CLOUDINARY_CLOUD_NAME"];
+            CLOUDINARY_API_KEY = config["CLOUDINARY_API_KEY"];
+            CLOUDINARY_API_SECRET = config["CLOUDINARY_API_SECRET"];
         }
 
         // PUT: api/Users/5
@@ -38,6 +51,7 @@ namespace CarSales.Controllers
         // new values for the record.
         //
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             // If the ID in the URL does not match the ID in the supplied request body, return a bad request
@@ -118,6 +132,7 @@ namespace CarSales.Controllers
         // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
         //
         [HttpDelete("{email}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DeleteUser(string email)
         {
             var response = new
@@ -133,6 +148,19 @@ namespace CarSales.Controllers
                 return NotFound(response);
             }
 
+            // Caputes photos id's of the vehicle being deleted
+            var photos = user.Media
+            .Where(photo => photo.PublicId != "")
+            .Select(photo => photo.PublicId).ToList();
+
+            // Removes Media Files From Cloudinary
+            var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
+            var delResParams = new DelResParams()
+            {
+            PublicIds = new List<string>(photos)
+            };
+            cloudinaryClient.DeleteResources(delResParams);
+
             // Tell the database we want to remove this record
             _context.Users.Remove(user);
 
@@ -147,6 +175,12 @@ namespace CarSales.Controllers
         private bool UserExists(int id)
         {
             return _context.Users.Any(user => user.Id == id);
+        }
+
+        private int GetCurrentUserId()
+        {
+            // Get the User Id from the claim and then parse it as an integer.
+            return int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "Id").Value);
         }
     }
 }

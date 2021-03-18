@@ -1,4 +1,4 @@
-TRUNCATE TABLE "Vehicles";
+TRUNCATE TABLE "Vehicles", "Media";
 
 INSERT INTO "Vehicles" ("UserId", "Year", "Make", "Model", "Price", "Odometer", "FuelType", "Description") VALUES (4, 1998, 'Honda', 'Civic', 2500, 114000, 'Gas', 'Lorem ipsum dolor sit amet consectetur adipisicing
               elit. Odit perspiciatis nihil iure enim molestias eius at quasi

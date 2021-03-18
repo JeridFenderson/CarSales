@@ -9,9 +9,7 @@ export function VehiclesController({ filterText }) {
   const currentUser = getUser()
   const history = useHistory()
   const { path, id, action } = useParams()
-  const [dropzoneMessage, setDropzoneMessage] = useState(
-    'Drag vehicle images here to upload!'
-  )
+  const [dropzoneMessage, setDropzoneMessage] = useState('')
   const [isUploading, setIsUploading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [trigger, setTrigger] = useState(false)
@@ -117,7 +115,7 @@ export function VehiclesController({ filterText }) {
       setDropzoneMessage('Drop the files here...')
     }
     if (!isUploading && !isDragActive) {
-      setDropzoneMessage('Drag vehicle images here to upload!')
+      setDropzoneMessage('Click here or drag vehicle images here to upload!')
     }
   }, [isDragActive, isUploading])
 
@@ -152,6 +150,7 @@ export function VehiclesController({ filterText }) {
         if (response.status === 200) {
           const apiResponse = await response.json()
           const photo = apiResponse.photo
+          console.log(photo)
           setVehicle((vehicle) => ({
             ...vehicle,
             photos: [...vehicle.photos, photo],

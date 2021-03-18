@@ -39,7 +39,10 @@ namespace CarSales.Controllers
             // them by row id and return them as a JSON array.
             if (filterMake == null)
             {
-                return await _context.Vehicles.Include(vehicle => vehicle.User).ToListAsync();
+                return await _context.Vehicles
+                .Include(vehicle => vehicle.Photos)
+                .Include(vehicle => vehicle.User)
+                .ToListAsync();
             }
             else
             {
@@ -61,6 +64,7 @@ namespace CarSales.Controllers
         {
             // Find the vehicle in the database using `FindAsync` to look it up by id
             var vehicle = await _context.Vehicles
+            .Include(vehicle => vehicle.Photos)
             .Include(vehicle => vehicle.User)
             .Where(vehicle => vehicle.Id == id)
             .FirstOrDefaultAsync();

@@ -1,5 +1,3 @@
-using System;
-
 namespace CarSales.Models
 {
     public class Media
@@ -12,7 +10,6 @@ namespace CarSales.Models
         public int Height { get; set; }
         public string Format { get; set; }
         public string ResourceType { get; set; }
-        public DateTime CreatedAt { get; set; }
         public int Bytes { get; set; }
         public string Type { get; set; }
         public string Url { get; set; }

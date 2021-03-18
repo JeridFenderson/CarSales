@@ -26,7 +26,7 @@ export function Vehicle({ vehicle, display }) {
   return (
     <Link to={`/vehicles/view/${id}`}>
       <figure className={display}>
-        {(photos && (
+        {(photos && photos.length > 0 && (
           <img src={photos[0].url} alt={`${year} ${make} ${model}`} />
         )) || <img alt={`${year} ${make} ${model}`} />}
         <ul>

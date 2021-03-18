@@ -20,7 +20,9 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
     interiorColor,
     engineSize,
     description,
+    isListed,
     isSold,
+    photos,
     user,
   } = vehicle
 
@@ -44,17 +46,16 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
         </h2>
       )}
       <figure className="vehicle">
-        <img
-          src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-          alt={`${year} ${make} ${model}`}
-        />
+        {(photos && (
+          <img src={photos[0].url} alt={`${year} ${make} ${model}`} />
+        )) || <img alt={`${year} ${make} ${model}`} />}
       </figure>
       <ul>
         <li>
           {odometer && `Odometer miles: ${odometer}. `}
           {vin && `VIN: ${vin}`}
           {drivetrain &&
-            `General description: ${fuelType} driven ${drivetrain} ${bodyType}`}
+            `General description: ${fuelType} Powered ${drivetrain} ${bodyType}`}
         </li>
         <li>
           {exteriorColor && `${exteriorColor} exterior color. `}

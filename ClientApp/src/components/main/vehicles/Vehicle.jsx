@@ -18,16 +18,17 @@ export function Vehicle({ vehicle, display }) {
     interiorColor,
     engineSize,
     description,
+    isListed,
     isSold,
+    photos,
   } = vehicle
 
   return (
     <Link to={`/vehicles/view/${id}`}>
       <figure className={display}>
-        <img
-          src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-          alt={`${year} ${make} ${model}`}
-        />
+        {(photos && (
+          <img src={photos[0].url} alt={`${year} ${make} ${model}`} />
+        )) || <img alt={`${year} ${make} ${model}`} />}
         <ul>
           <li>
             <h2>
@@ -36,7 +37,7 @@ export function Vehicle({ vehicle, display }) {
           </li>
           <li className="tablet">
             Odometer miles: {odometer}. {vin && `VIN: ${vin}. `}
-            {fuelType} driven {drivetrain} {bodyType}
+            {fuelType} Powered {drivetrain} {bodyType}
           </li>
           <li className="desktop">
             {exteriorColor && `${exteriorColor} exterior color. `}

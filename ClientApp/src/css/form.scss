@@ -53,6 +53,20 @@
       .file-drop-zone {
         display: block;
       }
+      figure {
+        display: flex;
+        justify-content: center;
+        img {
+          object-fit: cover;
+          width: 10em;
+          height: 10em;
+          border-top: 0.2em solid $font-color;
+          border-bottom: 0.2em solid $font-color;
+          border-left: 0.1em solid $font-color;
+          border-right: 0.1em solid $font-color;
+          border-radius: 0.5em;
+        }
+      }
     }
   }
 }

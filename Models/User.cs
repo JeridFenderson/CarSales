@@ -40,7 +40,7 @@ namespace CarSales.Models
         }
         public bool IsOwner { get; set; }
         public bool IsAdmin{ get; set; }
-        public string PhotoId { get; set; }
+        public string Photo { get; set; }
         
         
     }

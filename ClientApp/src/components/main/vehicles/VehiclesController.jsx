@@ -37,7 +37,7 @@ export function VehiclesController({ filterText }) {
     description: '',
     isListed: false,
     isSold: false,
-    photos: [{}],
+    photos: [],
   })
 
   const {
@@ -54,6 +54,7 @@ export function VehiclesController({ filterText }) {
     interiorColor,
     engineSize,
     description,
+    isListed,
     isSold,
     photos,
   } = vehicle
@@ -97,13 +98,11 @@ export function VehiclesController({ filterText }) {
             break
         }
       }
-      const response = await fetch(`${url}`, {
+      await fetch(`${url}`, {
         method: `${apiAction}`,
         headers: { 'content-type': 'application/json', ...authHeader() },
         body: JSON.stringify(vehicle),
       })
-
-      console.log(response)
       history.push('/vehicles')
     }
     if (trigger || action === 'delete' || (path === 'create' && id === ''))
@@ -161,7 +160,6 @@ export function VehiclesController({ filterText }) {
           setErrorMessage('Unable to upload an image')
         }
       } catch {
-        console.debug(Error)
         setErrorMessage('Unable to upload an image')
       }
       setIsUploading(false)
@@ -350,32 +348,39 @@ export function VehiclesController({ filterText }) {
                 {dropzoneMessage}
               </div>
             </div>
-            {
-              photos.length > 0 && console.log(photos)
-              // photos.map((photo) => (
-              //   <p>
-              //     <img
-              //       alt={`${year}${make} ${model}`}
-              //       width={200}
-              //       src={`https://res.cloudinary.com/jeridsmultimedia/image/upload/${photo}`}
-              //     />
-              //   </p>
-              // ))
-            }
+            {photos.length > 0 &&
+              photos.map((photo, index) => (
+                <figure key={index}>
+                  <img alt={`${year}${make} ${model}`} src={photo.url} />
+                </figure>
+              ))}
           </section>
           <section>
             {isLoggedIn() && currentUser.isAdmin && (
-              <p>
-                <span></span>
-                <label htmlFor="isSold">Sold?</label>
-                <input
-                  type="checkbox"
-                  name="isSold"
-                  checked={isSold}
-                  onChange={handleBooleanFieldChange}
-                />
-                <span></span>
-              </p>
+              <>
+                <p>
+                  <span></span>
+                  <label htmlFor="isListed">List?</label>
+                  <input
+                    type="checkbox"
+                    name="isListed"
+                    checked={isListed}
+                    onChange={handleBooleanFieldChange}
+                  />
+                  <span></span>
+                </p>
+                <p>
+                  <span></span>
+                  <label htmlFor="isSold">Sell?</label>
+                  <input
+                    type="checkbox"
+                    name="isSold"
+                    checked={isSold}
+                    onChange={handleBooleanFieldChange}
+                  />
+                  <span></span>
+                </p>
+              </>
             )}
             {id && (
               <p className="back-arrow">

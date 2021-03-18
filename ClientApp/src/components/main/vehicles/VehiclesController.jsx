@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
+import { useDropzone } from 'react-dropzone'
 import { authHeader, getUser, isLoggedIn } from '../../../auth'
 import '../../../css/form.scss'
 import { SelectVehicles } from './SelectVehicles'
 
 export function VehiclesController({ filterText }) {
+  const currentUser = getUser()
   const history = useHistory()
   const { path, id, action } = useParams()
-  const currentUser = getUser()
+  const [dropzoneMessage, setDropzoneMessage] = useState(
+    'Drag vehicle images here to upload!'
+  )
+  const [isUploading, setIsUploading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const [trigger, setTrigger] = useState(false)
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleFiles,
+  })
 
   const [vehicles, setVehicles] = useState([{ [id]: 0 }])
 
@@ -26,7 +35,9 @@ export function VehiclesController({ filterText }) {
     interiorColor: '',
     engineSize: '',
     description: '',
+    isListed: false,
     isSold: false,
+    photos: [{}],
   })
 
   const {
@@ -44,6 +55,7 @@ export function VehiclesController({ filterText }) {
     engineSize,
     description,
     isSold,
+    photos,
   } = vehicle
 
   useEffect(() => {
@@ -98,6 +110,18 @@ export function VehiclesController({ filterText }) {
       submitForm()
   }, [trigger, action, history, id, vehicle, path])
 
+  useEffect(() => {
+    if (isUploading) {
+      setDropzoneMessage('Uploading...')
+    }
+    if (isDragActive) {
+      setDropzoneMessage('Drop the files here...')
+    }
+    if (!isUploading && !isDragActive) {
+      setDropzoneMessage('Drag vehicle images here to upload!')
+    }
+  }, [isDragActive, isUploading])
+
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
   }
@@ -113,6 +137,37 @@ export function VehiclesController({ filterText }) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
   }
 
+  async function handleFiles(filesToUpload) {
+    filesToUpload.map(async (fileToUpload) => {
+      const formData = new FormData()
+      formData.append('file', fileToUpload)
+      setIsUploading(true)
+      try {
+        const response = await fetch('/api/Media', {
+          method: 'POST',
+          headers: {
+            ...authHeader(),
+          },
+          body: formData,
+        })
+        if (response.status === 200) {
+          const apiResponse = await response.json()
+          const photo = apiResponse.photo
+          setVehicle((vehicle) => ({
+            ...vehicle,
+            photos: [...vehicle.photos, photo],
+          }))
+        } else {
+          setErrorMessage('Unable to upload an image')
+        }
+      } catch {
+        console.debug(Error)
+        setErrorMessage('Unable to upload an image')
+      }
+      setIsUploading(false)
+    })
+  }
+
   function handleFormSubmit(event) {
     event.preventDefault()
     setTrigger(true)
@@ -123,6 +178,7 @@ export function VehiclesController({ filterText }) {
   } else {
     return (
       <>
+        {errorMessage && <p>{errorMessage}</p>}
         <form onSubmit={handleFormSubmit}>
           <section>
             <p>
@@ -133,7 +189,7 @@ export function VehiclesController({ filterText }) {
                 placeholder="1973"
                 value={year}
                 onChange={handleNumberFieldChange}
-                maxLength="4"
+                maxLength={4}
                 required
               />
             </p>
@@ -271,15 +327,42 @@ export function VehiclesController({ filterText }) {
               />
             </p>
           </section>
-          <p>
-            <label htmlFor="description">Description</label>
-            <textarea
-              name="description"
-              value={description}
-              onChange={handleStringFieldChange}
-              rows="4"
-            />
-          </p>
+          <section>
+            <p>
+              <label htmlFor="description">Description</label>
+              <textarea
+                name="description"
+                value={description}
+                onChange={handleStringFieldChange}
+                rows={4}
+              />
+            </p>
+            <p className="no-file-drop-zone">
+              <input
+                type="file"
+                name="photos"
+                onChange={(event) => handleFiles(event.target.value)}
+              />
+            </p>
+            <div className="file-drop-zone">
+              <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                {dropzoneMessage}
+              </div>
+            </div>
+            {
+              photos.length > 0 && console.log(photos)
+              // photos.map((photo) => (
+              //   <p>
+              //     <img
+              //       alt={`${year}${make} ${model}`}
+              //       width={200}
+              //       src={`https://res.cloudinary.com/jeridsmultimedia/image/upload/${photo}`}
+              //     />
+              //   </p>
+              // ))
+            }
+          </section>
           <section>
             {isLoggedIn() && currentUser.isAdmin && (
               <p>

@@ -77,9 +77,8 @@ namespace CarSales.Controllers
             // the URL to the client
             if (result.StatusCode == HttpStatusCode.OK)
             {
-                var idOfUploadedFile = result.PublicId;
 
-                return Ok(new { publicId = idOfUploadedFile });
+                return Ok(new { photo = result });
             }
             else
             {

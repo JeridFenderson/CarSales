@@ -15,11 +15,18 @@
     section {
       margin: 1em;
     }
-    p {
+    p,
+    .file-drop-zone {
       width: 15em;
       display: flex;
       flex: row nowrap;
       justify-content: space-between;
+    }
+    .no-file-drop-zone {
+      display: block;
+    }
+    .file-drop-zone {
+      display: none;
     }
     h3 {
       margin-left: 2em;
@@ -34,10 +41,17 @@
 @media all and (min-width: $tablet) {
   .main-form {
     form {
-      p {
+      p,
+      .file-drop-zone {
         .submit {
           height: 2em;
         }
+      }
+      .no-file-drop-zone {
+        display: none;
+      }
+      .file-drop-zone {
+        display: block;
       }
     }
   }

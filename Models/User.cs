@@ -38,9 +38,7 @@ namespace CarSales.Models
             // Return True if the verification was a success
             return passwordVerification == PasswordVerificationResult.Success;
         }
-
         public bool IsOwner { get; set; }
-
         public bool IsAdmin{ get; set; }
         public string PhotoId { get; set; }
         

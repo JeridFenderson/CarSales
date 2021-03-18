@@ -35,7 +35,7 @@ namespace CarSales.Models
         public User User { get; set; }
 
         //  [Required]
-        public List<string> PhotoIds { get; set; }  
+        public List<Media> Photos { get; set; }  
                 
     }
 }

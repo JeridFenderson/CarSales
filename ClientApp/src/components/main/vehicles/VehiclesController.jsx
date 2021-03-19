@@ -200,24 +200,49 @@ export function VehiclesController({ filterText }) {
     // 6 = name, 7 = list of options]
     return (
       <p>
+        <label htmlFor={packet[1].toLowerCase()}>{packet[1]}</label>
+        <input
+          type={packet[0]}
+          name={packet[6]}
+          placeholder={packet[1]}
+          value={packet[2]}
+          onChange={packet[3]}
+          required={packet[4]}
+          maxLength={packet[5]}
+        />
+      </p>
+    )
+  }
+
+  function OptionsInput(packet) {
+    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
+    // 6 = name, 7 = list of options]
+    return (
+      <p>
         <label htmlFor={packet[6]}>{packet[1]}</label>
-        {(packet[7] && (
-          <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
-            {packet[7].map((choice) => (
-              <option value={choice}>{choice}</option>
-            ))}
-          </select>
-        )) || (
-          <input
-            type={packet[0]}
-            name={packet[6]}
-            placeholder={packet[1]}
-            value={packet[2]}
-            onChange={packet[3]}
-            required={packet[4]}
-            maxLength={packet[5]}
-          />
-        )}
+        <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
+          {packet[7].map((choice) => (
+            <option value={choice}>{choice}</option>
+          ))}
+        </select>
+      </p>
+    )
+  }
+
+  function ButtonInput(packet) {
+    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
+    // 6 = name]
+    return (
+      <p>
+        <span></span>
+        <label htmlFor={packet[6]}>{packet[1]}</label>
+        <input
+          type={packet[0]}
+          name={packet[6]}
+          checked={packet[2]}
+          onChange={packet[3]}
+        />
+        <span></span>
       </p>
     )
   }
@@ -244,7 +269,7 @@ export function VehiclesController({ filterText }) {
             {Input(['text', 'VIN', vin, handleStringFieldChange, false])}
           </section>
           <section>
-            {BigInput([
+            {OptionsInput([
               '',
               'Fuel Type',
               fuelType,
@@ -254,7 +279,7 @@ export function VehiclesController({ filterText }) {
               'fuelType',
               ['Gas', 'Diesel', 'Electric', 'Hybrid', 'Hydrogen'],
             ])}
-            {BigInput([
+            {OptionsInput([
               '',
               'Drivetrain',
               drivetrain,
@@ -264,7 +289,7 @@ export function VehiclesController({ filterText }) {
               'drivetrain',
               ['Automatic', 'Manual', 'DCT', 'Direct Drive'],
             ])}
-            {BigInput([
+            {OptionsInput([
               '',
               'Body Type',
               bodyType,
@@ -341,28 +366,22 @@ export function VehiclesController({ filterText }) {
           <section>
             {isLoggedIn() && currentUser.isAdmin && (
               <>
-                <p>
-                  <span></span>
-                  <label htmlFor="isListed">List?</label>
-                  <input
-                    type="checkbox"
-                    name="isListed"
-                    checked={isListed}
-                    onChange={handleBooleanFieldChange}
-                  />
-                  <span></span>
-                </p>
-                <p>
-                  <span></span>
-                  <label htmlFor="isSold">Sell?</label>
-                  <input
-                    type="checkbox"
-                    name="isSold"
-                    checked={isSold}
-                    onChange={handleBooleanFieldChange}
-                  />
-                  <span></span>
-                </p>
+                {ButtonInput([
+                  'checkbox',
+                  'List?',
+                  isListed,
+                  handleBooleanFieldChange,
+                  '',
+                  'isListed',
+                ])}
+                {ButtonInput([
+                  'checkbox',
+                  'Sell?',
+                  isSold,
+                  handleBooleanFieldChange,
+                  '',
+                  'isSold',
+                ])}
               </>
             )}
             {id && (
@@ -375,7 +394,7 @@ export function VehiclesController({ filterText }) {
             )}
             <p>
               <span></span>
-              <input type="submit" value="Submit" className="submit" />
+              <input type="submit" value="Submit" />
               <span></span>
             </p>
           </section>

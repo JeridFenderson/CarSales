@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { getUser, isLoggedIn } from '../../../auth'
 import '../../../css/vehicles.scss'
 
-export function VehicleDetailed({ vehicle, singleVehicle }) {
+export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
   const currentUser = getUser()
   const {
     id,
@@ -68,7 +68,7 @@ export function VehicleDetailed({ vehicle, singleVehicle }) {
         <h3>{price && `$${price}`}</h3>
       )}
 
-      {isLoggedIn() && currentUser.isAdmin && (
+      {isLoggedIn() && currentUser.isAdmin && !notFound && (
         <aside>
           <ul>
             {user !== undefined && <li>Posted by {user.firstName}</li>}

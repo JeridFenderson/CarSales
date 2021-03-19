@@ -31,10 +31,10 @@ export function Nav() {
           </li>
           {(isLoggedIn() && currentUser.isAdmin) || (
             <li>
-              <Link to="/" onClick={() => setOpen(false)}>
+              <Link to="/vehicles/view" onClick={() => setOpen(false)}>
                 Specific Car Request
               </Link>
-              <Link to="/" onClick={() => setOpen(false)}>
+              <Link to="/vehicles/view" onClick={() => setOpen(false)}>
                 <i className="mobile fas fa-car"></i>
               </Link>
             </li>

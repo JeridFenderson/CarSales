@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&display=swap');
 
-$background-color: black !default;
-$foreground-color: grey !default;
-$font-color: white !default;
+$background-color: rgb(228, 81, 36) !default;
+$foreground-color: white !default;
+$font-color: black !default;
+$standard-header-border: 0.3em solid $foreground-color;
+$standard-body-border: 0.4em solid $background-color;
 $tablet: 768px;
 $desktop: 959px;
 
@@ -46,22 +48,43 @@ ul {
 a {
   text-decoration: none;
 }
-a:link {
-  color: $font-color;
-}
-a:visited {
-  color: grey;
-}
-a:focus {
-  color: yellow;
-}
-a:hover {
-  color: green;
-}
-a:active {
-  color: red;
+header,
+footer {
+  color: $foreground-color;
+  a:link {
+    color: $foreground-color;
+  }
+  a:visited {
+    color: $foreground-color;
+  }
+  a:focus {
+    color: yellow;
+  }
+  a:hover {
+    color: green;
+  }
+  a:active {
+    color: red;
+  }
 }
 
+main {
+  a:link {
+    color: $font-color;
+  }
+  a:visited {
+    color: $font-color;
+  }
+  a:focus {
+    color: yellow;
+  }
+  a:hover {
+    color: green;
+  }
+  a:active {
+    color: red;
+  }
+}
 .desktop,
 .tablet {
   display: none;

@@ -9,23 +9,38 @@ export function SelectVehicles({ vehicles }) {
   }
   const notFound = {
     make: `No vehicles here...`,
+    year: '',
+    model: '',
     description: `It looks like the vehicle you're searching for isn't in our current inventory`,
     photos: [notFoundImg],
   }
 
   if (!Array.isArray(vehicles)) {
-    return <VehicleDetailed vehicle={vehicles} singleVehicle={true} />
+    return (
+      <VehicleDetailed
+        vehicle={vehicles}
+        singleVehicle={true}
+        notFound={false}
+      />
+    )
   }
 
   switch (vehicles.length) {
     case 0:
-      return <VehicleDetailed vehicle={notFound} singleVehicle={false} />
+      return (
+        <VehicleDetailed
+          vehicle={notFound}
+          singleVehicle={false}
+          notFound={true}
+        />
+      )
     case 1:
       return vehicles.map((vehicle) => (
         <VehicleDetailed
           key={vehicle.id}
           vehicle={vehicle}
           singleVehicle={false}
+          notFound={false}
         />
       ))
     default:

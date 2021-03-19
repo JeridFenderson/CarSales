@@ -150,7 +150,8 @@ namespace CarSales.Controllers
             // We will provide the file name and the stream of the content itself.
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(file.FileName, file.OpenReadStream())
+                File = new FileDescription(file.FileName, file.OpenReadStream()),
+                PublicId = "CarSales"
             };
 
             // Upload the file to the server

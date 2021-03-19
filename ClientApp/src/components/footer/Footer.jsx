@@ -14,7 +14,9 @@ export function Footer() {
         </li>
         <li>Physical Address</li>
         <li>
-          <i className="fab fa-facebook-square logo"></i>
+          <a href="#">
+            <i className="fab fa-facebook-square logo"></i>
+          </a>
         </li>
         <li>
           <a href="https://www.linkedin.com/in/jeridfenderson/">

@@ -1,5 +1,7 @@
-TRUNCATE TABLE "Vehicles", "Media", "Users";
+TRUNCATE TABLE "Vehicles", "Media", "Users", "Content";
 
+-- INSERT INTO "Users" ("FirstName", "LastName", "Email", "HashedPassword", "IsAdmin", "IsOwner")
+-- VALUES ('Jerid', 'Fenderson', 'jrfenderson@gmail.com', 'AQAAAAEAACcQAAAAEPz76YM5dn1JBGmQsyK4tS96GjMFPMME6W2ahYU63ceBDjVFpKZpXZ77BxLSJn4wqg', True, True);
 -- INSERT INTO "Vehicles" ("UserId", "Year", "Make", "Model", "Price", "Odometer", "FuelType", "Description") VALUES (4, 1998, 'Honda', 'Civic', 2500, 114000, 'Gas', 'Lorem ipsum dolor sit amet consectetur adipisicing
 --               elit. Odit perspiciatis nihil iure enim molestias eius at quasi
 --               ratione quae sint nemo modi.');
@@ -20,4 +22,5 @@ TRUNCATE TABLE "Vehicles", "Media", "Users";
 --               elit. Odit perspiciatis nihil iure enim molestias eius at quasi
 --               ratione quae sint nemo modi.');
 
--- psql --file=Models/exampledata.sql CarSalesDatabase
+-- in Backend directory
+-- psql --file=Models/truncateDatabase.sql CarSalesDatabase

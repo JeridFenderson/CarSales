@@ -7,17 +7,19 @@
   color: $font-color;
   form {
     background-color: $foreground-color;
+    min-height: 80vh;
     width: 100vw;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-evenly;
     align-items: center;
     section {
-      margin: 1em;
+      padding: 1em;
+      border-left: $standard-body-border;
     }
     p,
     .file-drop-zone {
-      width: 15em;
+      width: 22em;
       display: flex;
       flex: row nowrap;
       justify-content: space-between;
@@ -49,10 +51,24 @@
 @media all and (min-width: $tablet) {
   .main-form {
     form {
-      p,
-      .file-drop-zone {
-        .submit {
-          height: 2em;
+      section {
+        border-radius: 0.5em;
+      }
+      p {
+        width: 16em;
+      }
+    }
+  }
+}
+
+@media all and (min-width: $desktop) {
+  .main-form {
+    form {
+      section {
+        padding: 1em;
+        &:not(:first-of-type) {
+          border-left: $standard-body-border;
+          border-radius: 0.5em;
         }
       }
     }

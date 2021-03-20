@@ -26,7 +26,6 @@ export function VehiclesController({ filterText }) {
     year: '',
     make: '',
     model: '',
-    price: '',
     mileage: { value: 0, unit: '' },
     vin: '',
     exterior_color: '',
@@ -40,8 +39,11 @@ export function VehiclesController({ filterText }) {
     condition: 'GOOD',
     features: [],
     isSearchRequest: false,
+    purchaseCost: '',
     isListed: false,
+    listPrice: '',
     isSold: false,
+    salePrice: '',
     images: [],
   })
 
@@ -49,7 +51,6 @@ export function VehiclesController({ filterText }) {
     year,
     make,
     model,
-    price,
     vin,
     exterior_color,
     interior_color,
@@ -62,8 +63,11 @@ export function VehiclesController({ filterText }) {
     condition,
     features,
     isSearchRequest,
+    purchaseCost,
     isListed,
+    listPrice,
     isSold,
+    salePrice,
     images,
   } = vehicle
 
@@ -200,9 +204,10 @@ export function VehiclesController({ filterText }) {
       mileage: {
         unit: 'MI',
         value:
-          Number(event.target.value) > 0 && Number(event.target.value) < 999999
+          Number(event.target.value) > 0.01 &&
+          Number(event.target.value) < 999999
             ? Number(event.target.value)
-            : 0,
+            : 0.01,
       },
     })
   }

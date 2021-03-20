@@ -16,6 +16,7 @@ namespace CarSales.Models
         // Add database tables here
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Mileage> Mileage {get; set;}
+        public DbSet<Maintenance> Maintenance { get; set; }
         public DbSet<Referral> Referrals {get; set;}
         public DbSet<User> Users { get; set; }
         public DbSet<Media> Media { get; set; }

@@ -53,5 +53,6 @@ namespace CarSales.Models
         public List<Referral> ReferredBy { get; set; }
         public List<int> FromId { get; set;}
         public List<Referral> From { get; set;}   
+        public DateTime DateOfEntryCreation { get; } = DateTime.Now; 
     }
 }

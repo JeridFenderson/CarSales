@@ -157,12 +157,20 @@ namespace CarSales.Controllers
             }
 
             var vehicleFromDatabase = await _context.Vehicles.FindAsync(id);
+
+            if(vehicleFromDatabase.PurchaseCost > 0) vehicle.PurchaseCost = vehicleFromDatabase.PurchaseCost;
+
             if (vehicleFromDatabase.IsSold)
             {
                 return Unauthorized(response);
             }
 
-            if(vehicle.IsSold && (vehicle.PriceSoldAt < 1))
+            if (vehicle.IsListed && !vehicleFromDatabase.IsListed)
+            {
+                vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
+            }
+
+            if(vehicle.IsSold && (vehicle.SalePrice < 1))
             {
                 var otherResponse = new
                 {
@@ -170,6 +178,11 @@ namespace CarSales.Controllers
                     errors = new List<string>() { "No sale, no changing to sold" }
                 };
                 return Unauthorized(response);
+            }
+
+            if(vehicle.IsSold)
+            {
+                vehicle.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
             if(vehicle.IsSold && referredByEmail != null)
@@ -196,7 +209,7 @@ namespace CarSales.Controllers
                     var referralFromName = new Referral
                     {
                         VehicleId = id,
-                        VehicleSalePrice = vehicle.PriceSoldAt,
+                        VehicleSalePrice = vehicle.SalePrice,
                         UserId = referredByUser.Id,
                         FirstName = referredByUser.FirstName,
                         Email = referredByUser.Email,
@@ -210,7 +223,7 @@ namespace CarSales.Controllers
                 var referral = new Referral
                 {
                     VehicleId = id,
-                    VehicleSalePrice = vehicle.PriceSoldAt,
+                    VehicleSalePrice = vehicle.SalePrice,
                     UserId = referredByUser.Id,
                     FirstName = referredByUser.FirstName,
                     Email = referredByUser.Email,
@@ -282,6 +295,11 @@ namespace CarSales.Controllers
                 // Return our error with the custom response
                 return Unauthorized(response);
             }
+
+            if (vehicle.IsListed)
+            {
+                vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
+            }
             // Set the UserID to the current user id, this overrides anything the user specifies.
             vehicle.UserId = currentUser.Id;
             vehicle.Dealer_Id = currentUser.Dealer.Dealer_Id;
@@ -314,6 +332,7 @@ namespace CarSales.Controllers
             // Find this vehicle by looking for the specific id
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Mileage)
+            .Include(vehicle => vehicle.MaintenanceId)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
             if (vehicle == null)
             {
@@ -351,6 +370,7 @@ namespace CarSales.Controllers
 
             // Tell the database we want to remove this record
             _context.Mileage.Remove(vehicle.Mileage);
+            _context.Maintenance.RemoveRange(vehicle.Maintenance);
             _context.Vehicles.Remove(vehicle);
 
             // Tell the database to perform the deletion

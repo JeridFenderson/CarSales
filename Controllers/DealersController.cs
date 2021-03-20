@@ -19,7 +19,7 @@ namespace CarSales.Controllers
     // in this case VehiclesController to determine the URL
     [Route("api/[controller]")]
     [ApiController]
-    public class DealerssController : ControllerBase
+    public class DealersController : ControllerBase
     {
         // This is the variable you use to have access to your database
         private readonly DatabaseContext _context;
@@ -29,7 +29,7 @@ namespace CarSales.Controllers
 
         // Constructor that recives a reference to your database context
         // and stores it in _context for you to use in your API methods
-        public VehiclesController(DatabaseContext context, IConfiguration config)
+        public DealersController(DatabaseContext context, IConfiguration config)
         {
             _context = context;
             CLOUDINARY_CLOUD_NAME = config["CLOUDINARY_CLOUD_NAME"];

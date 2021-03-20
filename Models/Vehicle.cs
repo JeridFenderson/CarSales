@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace CarSales.Models
 {
@@ -11,37 +12,39 @@ namespace CarSales.Models
         { 
             get
             {
-                return Vehicle_Id;
+                return Vin;
             } 
-            set
+        }
+        public string Title { 
+            get
             {
-                Vehicle_Id = Vin;
+                return Trim != "" ? $"{Year} {Make} {Model} {Trim}" :  $"{Year} {Make} {Model}";
             }
         }
-         
+
         [Required]
         public int Year { get; set; }
-
         [Required]
         public string Make { get; set; }
-
         [Required]
         public string Model { get; set; }
-
-        [Required]
-        public int Price { get; set; }
-
-    
+        public string Price { 
+            get
+            {
+                return $"{String.Format("{0:0.00}", ListPrice)} USD";
+            }
+        }
         public int MileageId { get; set; }
-        [Required]
         public Mileage Mileage { get; set; }
 
-
-        [Required]
-        public string Title { get; set; }
-        
         [Required]
         public string Vin { get; set; }
+        public string State_Of_Vehicle {
+            get
+            {
+                return IsCpo ? "CPO" : "Used";
+            }
+        }
         
         [Required]
         public string Exterior_Color { get; set; }
@@ -61,84 +64,76 @@ namespace CarSales.Models
         
         [Required]
         public string Description { get; set; }
+        public string Vehicle_Type { get; set; }
         public string Trim { get; set; }
         public string Condition { get; set; }
         public List<string> Features {get; set;}
         public bool IsSearchRequest { get; set; }
+        public double PurchaseCost {get; set;}
         public bool IsListed {get; set;}
+        public double ListPrice {get; set;}
         public bool IsSold { get; set; }
-        public string Date_First_On_Lot { 
+        public bool IsReferral {get; set; }
+        public double SalePrice { get; set; }
+        public string Date_First_On_Lot { get; set; }
+        public bool IsCpo { get; set; }
+        public List<int> MaintenanceId { get; set; }
+        public List<Maintenance> Maintenance {get; set;}
+        public double MaintenanceCost { 
             get
             {
-                return Date_First_On_Lot;
-            } 
-            set
-            {
-                if(this.IsListed)
-                {
-                    this.Date_Sold= DateTime.Now.ToString("yyyy-mm-dd");
-                }
-            } 
+                return Maintenance.Aggregate(0.00, (currentTotal, maintenance) => currentTotal + maintenance.Cost);
+            }
         }
-        public string Date_Sold {
+        public string Date_Sold { get; set; }
+
+        public double MarginAmount {
             get
             {
-                return Date_Sold;
-            } 
-            set
-            {
-                if(this.IsSold)
-                {
-                    this.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd"); 
-                }
-            } 
+                return SalePrice - PurchaseCost - MaintenanceCost;
+            }
         }
-        public int PriceSoldAt { get; set; }
+        public double MarginPercentage{
+            get
+            {
+                return MarginAmount / (PurchaseCost + MaintenanceCost);
+            }
+        }
+        public double MarginAmountWithReferral {
+            get
+            {
+                return SalePrice * 1.05 - PurchaseCost - MaintenanceCost;
+            }
+        }
+
+        public double MarginPercentageWithReferral{
+            get
+            {
+                return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
+            }
+        }
         public string Available 
         { 
             get
             {
-                string Availability = IsSold ? "not available" : "available";
-                return IsSold ? "not available" : "available";
+                return IsSold ? "not available" : "available";  
             } 
         }
-        public string Tag 
-        { 
-            get
-            {
-                return this.Year + " " + this.Make + " " + this.Model;
-            }
-        }
-        [Required]
-        public List<Media> Images { get; set; }    
-        
+       
+        public List<int> ImagesId { get; set; }
+        public List<Media> Images { get; set; }  
+
 
         public int UserId { get; set; }
         public User User { get; set; }  
-
-
-        //[Required]
         public int Fb_Page_Id { get; set; }
-
-        //[Required]
         public string Dealer_Id { get; set; }
-        
-        //[Required]
         public string Dealer_Name { get; set; }
-        
-        //[Required]
         public string Dealer_Phone { get; set; }
-        
-        //[Required]  
         public int AddressId { get; set; }    
         public Address Address {get; set;}
-
-        //[Required]
         public float Latitude { get; set; }
-        //[Required]
         public float Longitude { get; set; }
-
-        //[Required]
         public string Url { get; set; }     
         public DateTime DateOfEntryCreation { get; } = DateTime.Now;  
     }

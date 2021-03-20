@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using CarSales.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210320145746_CleanedUpRelationships")]
+    partial class CleanedUpRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,32 +93,6 @@ namespace CarSales.Migrations
                     b.HasIndex("AddressId");
 
                     b.ToTable("Dealers");
-                });
-
-            modelBuilder.Entity("CarSales.Models.Maintenance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<double>("Cost")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Task")
-                        .HasColumnType("text");
-
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("Maintenance");
                 });
 
             modelBuilder.Entity("CarSales.Models.Media", b =>
@@ -229,8 +205,8 @@ namespace CarSales.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("integer");
 
-                    b.Property<double>("VehicleSalePrice")
-                        .HasColumnType("double precision");
+                    b.Property<int>("VehicleSalePrice")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -348,19 +324,10 @@ namespace CarSales.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<List<int>>("ImagesId")
-                        .HasColumnType("integer[]");
-
                     b.Property<string>("Interior_Color")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCpo")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsListed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsReferral")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsSearchRequest")
@@ -372,14 +339,8 @@ namespace CarSales.Migrations
                     b.Property<float>("Latitude")
                         .HasColumnType("real");
 
-                    b.Property<double>("ListPrice")
-                        .HasColumnType("double precision");
-
                     b.Property<float>("Longitude")
                         .HasColumnType("real");
-
-                    b.Property<List<int>>("MaintenanceId")
-                        .HasColumnType("integer[]");
 
                     b.Property<string>("Make")
                         .IsRequired()
@@ -392,11 +353,15 @@ namespace CarSales.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("PurchaseCost")
-                        .HasColumnType("double precision");
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
 
-                    b.Property<double>("SalePrice")
-                        .HasColumnType("double precision");
+                    b.Property<int>("PriceSoldAt")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
@@ -411,7 +376,7 @@ namespace CarSales.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Vehicle_Type")
+                    b.Property<string>("Vehicle_Id")
                         .HasColumnType("text");
 
                     b.Property<string>("Vin")
@@ -441,15 +406,6 @@ namespace CarSales.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("CarSales.Models.Maintenance", b =>
-                {
-                    b.HasOne("CarSales.Models.Vehicle", null)
-                        .WithMany("Maintenance")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CarSales.Models.Media", b =>
@@ -539,8 +495,6 @@ namespace CarSales.Migrations
             modelBuilder.Entity("CarSales.Models.Vehicle", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("Maintenance");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace CarSales.Models
@@ -16,5 +17,6 @@ namespace CarSales.Models
         public string Url { get; set; }
         public List<int> MediaId { get; set;}
         public List<Media> Media { get; set;}
+        public DateTime DateOfEntryCreation { get; } = DateTime.Now; 
     }
 }

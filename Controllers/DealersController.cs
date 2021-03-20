@@ -19,7 +19,7 @@ namespace CarSales.Controllers
     // in this case VehiclesController to determine the URL
     [Route("api/[controller]")]
     [ApiController]
-    public class VehiclesController : ControllerBase
+    public class DealerssController : ControllerBase
     {
         // This is the variable you use to have access to your database
         private readonly DatabaseContext _context;
@@ -42,85 +42,24 @@ namespace CarSales.Controllers
         // Returns a list of all your Vehicles
         //
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles(string filterMake)
-        {
-            // Uses the database context in `_context` to request all of the Vehicles, sort
-            // them by row id and return them as a JSON array.
-            if (filterMake == null)
-            {
-                return await _context.Vehicles
-                .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.User)
-                .Where(vehicle => vehicle.IsListed)
-                .ToListAsync();
-            }
-            else
-            {
-            return await _context.Vehicles
-            .Include(vehicle => vehicle.User)
-            .Where(vehicle => (vehicle.IsListed && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
-            .ToListAsync();
-            }        
+        public async Task<ActionResult<IEnumerable<Dealer>>> GetDealers()
+        {   
+            return await _context.Dealers.ToListAsync();
         }
 
-        [HttpGet("All")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<IEnumerable<Vehicle>>> GetAllVehicles(string filterMake)
-        {
-            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if(!currentUser.IsAdmin)
-            {
-                 var response = new
-                {
-                    status = 401,
-                    errors = new List<string>() { "Not Authorized" }
-                };
-
-                // Return our error with the custom response
-                return Unauthorized(response);
-            }
-            // Uses the database context in `_context` to request all of the Vehicles, sort
-            // them by row id and return them as a JSON array.
-            if (filterMake == null)
-            {
-                return await _context.Vehicles
-                .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.User)
-                .ToListAsync();
-            }
-            else
-            {
-            return await _context.Vehicles
-            .Include(vehicle => vehicle.User)
-            .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
-            .ToListAsync();
-            }        
-        }
-
-        // GET: api/Vehicles/5
-        //
-        // Fetches and returns a specific vehicle by finding it by id. The id is specified in the
-        // URL. In the sample URL above it is the `5`.  The "{id}" in the [HttpGet("{id}")] is what tells dotnet
-        // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
-        //
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vehicle>> GetVehicle(int id)
+    
+        public async Task<ActionResult<Dealer>> GetDealer(int id)
         {
-            // Find the vehicle in the database using `FindAsync` to look it up by id
-            var vehicle = await _context.Vehicles
-            .Include(vehicle => vehicle.Images)
-            .Include(vehicle => vehicle.User)
-            .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
-
-            // If we didn't find anything, we receive a `null` in return
-            if (vehicle == null)
+            var dealer = await _context.Dealers.FirstOrDefaultAsync(vehicle => vehicle.Id == id);
+            if (dealer == null)
             {
                 // Return a `404` response to the client indicating we could not find a vehicle with this id
                 return NotFound();
             }
 
             //  Return the vehicle as a JSON object.
-            return vehicle;
+            return dealer;
         }
 
         // PUT: api/Vehicles/5
@@ -134,9 +73,9 @@ namespace CarSales.Controllers
         // supplies to the names of the attributes of our Vehicle POCO class. This represents the
         // new values for the record.
         //
-        [HttpPut("{id}/{referredByEmail}/{referredFromContact}")]
+        [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referredByEmail, string referredFromContact)
+        public async Task<IActionResult> PutDealer(int id, Dealer dealer)
         {
             var response = new
                 {
@@ -144,87 +83,21 @@ namespace CarSales.Controllers
                     errors = new List<string>() { "Not Authorized" }
                 };
             // If the ID in the URL does not match the ID in the supplied request body, return a bad request
-            if (id != vehicle.Id)
+            if (id != dealer.Id)
             {
                 return BadRequest();
             }
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!user.IsAdmin)
+            if (!user.IsOwner)
             {
                 return Unauthorized(response);
-            }
-
-            var vehicleFromDatabase = await _context.Vehicles.FindAsync(id);
-            if (vehicleFromDatabase.IsSold)
-            {
-                return Unauthorized(response);
-            }
-
-            if(vehicle.IsSold && (vehicle.PriceSoldAt < 1))
-            {
-                var otherResponse = new
-                {
-                    status = 401,
-                    errors = new List<string>() { "No sale, no changing to sold" }
-                };
-                return Unauthorized(response);
-            }
-
-            if(vehicle.IsSold && referredByEmail != null)
-            {
-
-                var otherResponse = new
-                {
-                    status = 404,
-                    errors = new List<string>() { "User Not Found" }
-                };
-
-                // Find this user by looking for the specific id
-                var referredByUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredByEmail);
-                if (referredByUser == null)
-                {
-                    // There wasn't a user with that id so return a `404` not found
-                    return NotFound(otherResponse);
-                }
-
-            
-                var referredFromUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredFromContact);
-                if (referredFromUser == null)
-                {
-                    var referralFromName = new Referral
-                    {
-                        VehicleId = id,
-                        VehicleSalePrice = vehicle.PriceSoldAt,
-                        UserId = referredByUser.Id,
-                        FirstName = referredByUser.FirstName,
-                        Email = referredByUser.Email,
-                        PhoneNumber = referredByUser.PhoneNumber,
-                        FromFirstName = referredFromContact,
-                        IsPaid = false
-                    };
-                    _context.Referrals.Add(referralFromName);
-                }
-                  
-                var referral = new Referral
-                {
-                    VehicleId = id,
-                    VehicleSalePrice = vehicle.PriceSoldAt,
-                    UserId = referredByUser.Id,
-                    FirstName = referredByUser.FirstName,
-                    Email = referredByUser.Email,
-                    PhoneNumber = referredByUser.PhoneNumber,
-                    FromId = referredFromUser.Id,
-                    FromFirstName = referredFromUser.FirstName,
-                    IsPaid = false
-                };
-                _context.Referrals.Add(referral);
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
             // the save happens the database will _replace_ the values in the database with the ones from vehicle
-            _context.Entry(vehicle).State = EntityState.Modified;
+            _context.Entry(dealer).State = EntityState.Modified;
 
             try
             {
@@ -235,7 +108,7 @@ namespace CarSales.Controllers
             {
                 // Ooops, looks like there was an error, so check to see if the record we were
                 // updating no longer exists.
-                if (!VehicleExists(id))
+                if (!DealerExists(id))
                 {
                     // If the record we tried to update was already deleted by someone else,
                     // return a `404` not found
@@ -250,7 +123,7 @@ namespace CarSales.Controllers
             }
 
             // Return a copy of the updated data
-            return Ok(vehicle);
+            return Ok(dealer);
         }
 
         // POST: api/Vehicles
@@ -264,14 +137,11 @@ namespace CarSales.Controllers
         //
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
+        public async Task<ActionResult<Dealer>> PostDealer(Dealer dealer)
         {
-            var currentUser = await _context.Users
-            .Include(user => user.Dealer)
-            .Where(user => user.Id == GetCurrentUserId())
-            .FirstOrDefaultAsync();
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
 
-            if((vehicle.IsListed || vehicle.IsSold) && !currentUser.IsAdmin)
+            if(!currentUser.IsOwner)
             {
                  var response = new
                 {
@@ -282,23 +152,13 @@ namespace CarSales.Controllers
                 // Return our error with the custom response
                 return Unauthorized(response);
             }
-            // Set the UserID to the current user id, this overrides anything the user specifies.
-            vehicle.UserId = currentUser.Id;
-            vehicle.Dealer_Id = currentUser.Dealer.Dealer_Id;
-            vehicle.Dealer_Name = currentUser.Dealer.Dealer_Name;
-            vehicle.Dealer_Phone = currentUser.Dealer.Dealer_Phone;
-            vehicle.AddressId = currentUser.Dealer.AddressId;
-            vehicle.Address = currentUser.Dealer.Address;
-            vehicle.Latitude = currentUser.Dealer.Latitude;
-            vehicle.Longitude = currentUser.Dealer.Longitude;
-            vehicle.Url = currentUser.Dealer.Url;
 
-            _context.Vehicles.Add(vehicle);
+            _context.Dealers.Add(dealer);
             await _context.SaveChangesAsync();
 
             // Return a response that indicates the object was created (status code `201`) and some additional
             // headers with details of the newly created object.
-            return CreatedAtAction("GetVehicle", new { id = vehicle.Id }, vehicle);
+            return CreatedAtAction("GetDealer", new { id = dealer.Id }, dealer);
         }
 
         // DELETE: api/Vehicles/5
@@ -309,13 +169,13 @@ namespace CarSales.Controllers
         //
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> DeleteVehicle(int id)
+        public async Task<IActionResult> DeleteDealer(int id)
         {
             // Find this vehicle by looking for the specific id
-            var vehicle = await _context.Vehicles
-            .Include(vehicle => vehicle.Mileage)
-            .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
-            if (vehicle == null)
+            var dealer = await _context.Dealers
+            .Include(dealer => dealer.Address)
+            .FirstOrDefaultAsync(dealer => dealer.Id == id);
+            if (dealer == null)
             {
                 // There wasn't a vehicle with that id so return a `404` not found
                 return NotFound();
@@ -337,7 +197,7 @@ namespace CarSales.Controllers
             }
 
             // Caputes photos id's of the vehicle being deleted
-            var photos = vehicle.Images
+            var photos = dealer.Media
             .Where(photo => photo.PublicId != "")
             .Select(photo => photo.PublicId).ToList();
 
@@ -350,20 +210,20 @@ namespace CarSales.Controllers
             cloudinaryClient.DeleteResources(delResParams);
 
             // Tell the database we want to remove this record
-            _context.Mileage.Remove(vehicle.Mileage);
-            _context.Vehicles.Remove(vehicle);
+            _context.Addresses.Remove(dealer.Address);
+            _context.Dealers.Remove(dealer);
 
             // Tell the database to perform the deletion
             await _context.SaveChangesAsync();
 
             // Return a copy of the deleted data
-            return Ok(vehicle);
+            return Ok(dealer);
         }
 
         // Private helper method that looks up an existing vehicle by the supplied id
-        private bool VehicleExists(int id)
+        private bool DealerExists(int id)
         {
-            return _context.Vehicles.Any(vehicle => vehicle.Id == id);
+            return _context.Dealers.Any(dealer => dealer.Id == id);
         }
 
         // Private helper method to get the JWT claim related to the user ID

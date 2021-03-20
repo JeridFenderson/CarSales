@@ -4,10 +4,7 @@ namespace CarSales.Models
     {
         public int Id { get; set; }
         public string PublicId { get; set; }
-        public int Version { get; set; }
         public string Signature { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
         public string Format { get; set; }
         public string ResourceType { get; set; }
         public int Bytes { get; set; }
@@ -18,7 +15,6 @@ namespace CarSales.Models
         public User User { get; set; }
         public int VehicleId { get; set;}
         public string InternalDescription { get; set; }
-        public int InternalListOrder { get; set; }
-        public bool IsMaster { get; set; }     
+        public int InternalListOrder { get; set; }   
     }
 }

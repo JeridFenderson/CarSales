@@ -9,6 +9,8 @@ export function VehiclesController({ filterText }) {
   const currentUser = getUser()
   const history = useHistory()
   const { path, id, action } = useParams()
+  const [mileageDisplay, setMileageDisplay] = useState('')
+  const [wasListedOrSearch, setWasListedOrSearch] = useState(false)
   const [dropzoneMessage, setDropzoneMessage] = useState('')
   const [isUploading, setIsUploading] = useState(false)
   const [filesToUpload, setFilesToUpload] = useState([])
@@ -25,18 +27,22 @@ export function VehiclesController({ filterText }) {
     make: '',
     model: '',
     price: '',
-    odometer: '',
+    mileage: { value: 0, unit: '' },
     vin: '',
-    fuelType: 'Gas',
-    drivetrain: 'Automatic',
-    bodyType: 'Sedan',
-    exteriorColor: '',
-    interiorColor: '',
-    engineSize: '',
+    exterior_color: '',
+    interior_color: '',
+    body_style: 'SEDAN',
+    transmission: 'AUTOMATIC',
+    drivetrain: 'RWD',
+    fuel_type: 'GASOLINE',
     description: '',
+    trim: '',
+    condition: 'GOOD',
+    features: [],
+    isSearchRequest: false,
     isListed: false,
     isSold: false,
-    photos: [],
+    images: [],
   })
 
   const {
@@ -44,18 +50,21 @@ export function VehiclesController({ filterText }) {
     make,
     model,
     price,
-    odometer,
     vin,
-    fuelType,
+    exterior_color,
+    interior_color,
+    body_style,
+    transmission,
     drivetrain,
-    bodyType,
-    exteriorColor,
-    interiorColor,
-    engineSize,
+    fuel_type,
     description,
+    trim,
+    condition,
+    features,
+    isSearchRequest,
     isListed,
     isSold,
-    photos,
+    images,
   } = vehicle
 
   useEffect(() => {
@@ -87,7 +96,9 @@ export function VehiclesController({ filterText }) {
       setDropzoneMessage('Drop the files here...')
     }
     if (!isUploading && !isDragActive) {
-      setDropzoneMessage('Click or drag vehicle images here to upload!')
+      setDropzoneMessage(
+        'Click here or drag vehicle images right below to upload!'
+      )
     }
   }, [isDragActive, isUploading])
 
@@ -108,10 +119,10 @@ export function VehiclesController({ filterText }) {
             })
             if (response.status === 200) {
               const apiResponse = await response.json()
-              const photo = apiResponse.photo
+              const image = apiResponse.photo
               setVehicle((vehicle) => ({
                 ...vehicle,
-                photos: [...vehicle.photos, photo],
+                images: [...vehicle.images, image],
               }))
             } else {
               setErrorMessage('Unable to upload an image')
@@ -143,22 +154,36 @@ export function VehiclesController({ filterText }) {
             break
         }
       }
-      await fetch(`${url}`, {
-        method: `${apiAction}`,
-        headers: { 'content-type': 'application/json', ...authHeader() },
-        body: JSON.stringify(vehicle),
-      })
-      history.push('/vehicles')
+      if (id && isSold && isSold !== wasListedOrSearch) {
+        setErrorMessage('Unauthorized ')
+      } else {
+        await fetch(`${url}`, {
+          method: `${apiAction}`,
+          headers: { 'content-type': 'application/json', ...authHeader() },
+          body: JSON.stringify(vehicle),
+        })
+        history.push('/vehicles')
+      }
     }
     if (formTrigger || action === 'delete' || (path === 'create' && id === ''))
       submitForm()
-  }, [formTrigger, action, history, id, vehicle, path])
+  }, [
+    formTrigger,
+    action,
+    history,
+    id,
+    vehicle,
+    path,
+    isSold,
+    wasListedOrSearch,
+  ])
 
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
   }
 
   function handleNumberFieldChange(event) {
+    console.log(event.target.name)
     setVehicle({
       ...vehicle,
       [event.target.name]:
@@ -168,13 +193,70 @@ export function VehiclesController({ filterText }) {
     })
   }
 
+  function handleMileage(event) {
+    setMileageDisplay(event.target.value)
+    setVehicle({
+      ...vehicle,
+      mileage: {
+        unit: 'MI',
+        value:
+          Number(event.target.value) > 0 && Number(event.target.value) < 999999
+            ? Number(event.target.value)
+            : 0,
+      },
+    })
+  }
+
   function handleBooleanFieldChange(event) {
+    console.log(vehicle)
+    if (event.target.name === 'isSearchRequest') {
+      setVehicle({
+        ...vehicle,
+        isSearchRequest: event.target.checked,
+        isListed: !event.target.checked,
+        isSold: !event.target.checked,
+      })
+    } else if (event.target.name === 'isListed') {
+      if (id && vehicle.isListed) {
+        setWasListedOrSearch(true)
+      }
+      setVehicle({
+        ...vehicle,
+        isListed: event.target.checked,
+        isSearchRequest: !event.target.checked,
+        isSold: !event.target.checked,
+      })
+    } else if (event.target.name === 'isSold') {
+      if (id && (vehicle.isSearchRequest || vehicle.isListed)) {
+        setWasListedOrSearch(true)
+      }
+      setVehicle({
+        ...vehicle,
+        isSold: event.target.checked,
+        isSearchRequest: !event.target.checked,
+        isListed: !event.target.checked,
+      })
+    } else {
+      setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
+    }
+  }
+
+  function handleOptionsInputFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
   }
 
   function handleFormSubmit(event) {
     event.preventDefault()
-    setFormTrigger(true)
+
+    // if ((!id && isListed) || (id && isListed !== wasListedOrSearch)) {
+    //   setVehicle({ ...vehicle, date_First_On_Lot: dateAsString })
+    // }
+    // if (id && isSold && isSold === wasListedOrSearch) {
+    //   setVehicle({ ...vehicle, date_Sold: dateAsString })
+    // }
+
+    // //---------------------
+    // setFormTrigger(true)
   }
 
   function Input(packet) {
@@ -216,13 +298,13 @@ export function VehiclesController({ filterText }) {
 
   function OptionsInput(packet) {
     // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
-    // 6 = name, 7 = list of options]
+    // 6 = name, 7 = list of options values]
     return (
       <p>
         <label htmlFor={packet[6]}>{packet[1]}</label>
         <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
           {packet[7].map((choice) => (
-            <option value={choice}>{choice}</option>
+            <option value={choice.value}>{choice.name}</option>
           ))}
         </select>
       </p>
@@ -259,25 +341,89 @@ export function VehiclesController({ filterText }) {
             {Input(['text', 'Make', make, handleStringFieldChange, true])}
             {Input(['text', 'Model', model, handleStringFieldChange, true])}
             {Input(['text', 'Price', price, handleNumberFieldChange, true])}
-            {Input([
+            {BigInput([
               'text',
-              'Odometer',
-              odometer,
-              handleNumberFieldChange,
+              'Mileage',
+              mileageDisplay,
+              handleMileage,
               true,
+              9,
+              'mileage.value',
             ])}
-            {Input(['text', 'VIN', vin, handleStringFieldChange, false])}
-          </section>
-          <section>
+            {Input(['text', 'VIN', vin, handleStringFieldChange, true])}
             {OptionsInput([
               '',
-              'Fuel Type',
-              fuelType,
+              'Condition',
+              condition,
               handleStringFieldChange,
               false,
               '',
-              'fuelType',
-              ['Gas', 'Diesel', 'Electric', 'Hybrid', 'Hydrogen'],
+              'condition',
+              [
+                { name: 'Good', value: 'GOOD' },
+                { name: 'Excellent', value: 'EXCELLENT' },
+                { name: 'Fair', value: 'FAIR' },
+                { name: 'Poor', value: 'POOR' },
+                { name: 'Other', value: 'OTHER' },
+              ],
+            ])}
+          </section>
+          <section>
+            {BigInput([
+              'text',
+              'Exterior Color',
+              exterior_color,
+              handleStringFieldChange,
+              true,
+              '',
+              'exterior_color',
+            ])}
+            {BigInput([
+              'text',
+              'Interior Color',
+              interior_color,
+              handleStringFieldChange,
+              false,
+              '',
+              'interior_color',
+            ])}
+            {Input(['text', 'Trim', trim, handleStringFieldChange, false])}
+            {OptionsInput([
+              '',
+              'Body Style',
+              body_style,
+              handleStringFieldChange,
+              false,
+              '',
+              'body_style',
+              [
+                { name: 'Sedan', value: 'SEDAN' },
+                { name: 'Convertible', value: 'CONVERTIBLE' },
+                { name: 'Coupe', value: 'COUPE' },
+                { name: 'Crossover', value: 'CROSSOVER' },
+                { name: 'Hatchback', value: 'HATCHBACK' },
+                { name: 'Minivan', value: 'MINIVAN' },
+                { name: 'Truck', value: 'TRUCK' },
+                { name: 'Small Car', value: 'SMALL_CAR' },
+                { name: 'SUV', value: 'SUV' },
+                { name: 'Wagon', value: 'WAGON' },
+                { name: 'Full Van', value: 'VAN' },
+                { name: 'Other', value: 'OTHER' },
+              ],
+            ])}
+            {OptionsInput([
+              '',
+              'Transmission',
+              transmission,
+              handleStringFieldChange,
+              false,
+              '',
+              'transmission',
+              [
+                { name: 'Automatic', value: 'AUTOMATIC' },
+                { name: 'Manual', value: 'MANUAL' },
+                { name: 'Other', value: 'OTHER' },
+              ],
             ])}
             {OptionsInput([
               '',
@@ -287,57 +433,31 @@ export function VehiclesController({ filterText }) {
               false,
               '',
               'drivetrain',
-              ['Automatic', 'Manual', 'DCT', 'Direct Drive'],
+              [
+                { name: 'Rear Wheel Drive', value: 'RWD' },
+                { name: 'Front Wheel Drive', value: 'FWD' },
+                { name: 'All Wheel Drive', value: 'AWD' },
+                { name: '4 by 4', value: '4X4' },
+                { name: '4 by 2', value: '4X2' },
+                { name: 'Other', value: 'OTHER' },
+              ],
             ])}
             {OptionsInput([
               '',
-              'Body Type',
-              bodyType,
+              'Fuel Type',
+              fuel_type,
               handleStringFieldChange,
               false,
               '',
-              'bodyType',
+              'fuel_type',
               [
-                'Sedan',
-                'SUV',
-                'Pickup Truck',
-                'Minivan',
-                'Coupe',
-                'Convertible',
-                'Hatchback',
-                'Sports Car',
-                'Station Wagon',
-                'Other',
+                { name: 'Gas', value: 'GASOLINE' },
+                { name: 'Diesel', value: 'DIESEL' },
+                { name: 'Electric', value: 'ELECTRIC' },
+                { name: 'Hybrid', value: 'HYBRID' },
+                { name: 'Flex Fuel', value: 'FLEX' },
+                { name: 'Other', value: 'OTHER' },
               ],
-            ])}
-
-            {BigInput([
-              'text',
-              'Exterior Color',
-              exteriorColor,
-              handleStringFieldChange,
-              false,
-              '',
-              'exteriorColor',
-            ])}
-            {BigInput([
-              'text',
-              'Interior Color',
-              interiorColor,
-              handleStringFieldChange,
-              false,
-              '',
-              'interiorColor',
-            ])}
-
-            {BigInput([
-              'text',
-              'Engine Size',
-              engineSize,
-              handleStringFieldChange,
-              false,
-              '',
-              'engineSize',
             ])}
           </section>
           <section>
@@ -348,16 +468,48 @@ export function VehiclesController({ filterText }) {
                 value={description}
                 onChange={handleStringFieldChange}
                 rows={4}
+                required
               />
+            </p>
+            <p>
+              <label htmlFor="features">Features</label>
+              <button onClick={toggleFeatures}>Features</button>
+              {/* <select
+                name="features"
+                value={[...features]}
+                onChange={handleOptionsInputFieldChange}
+              >
+                <option>
+                  {ButtonInput([
+                    'checkbox',
+                    'ABS Brakes',
+                    [...features],
+                    handleStringFieldChange,
+                    '',
+                    'abs_brakes',
+                  ])}
+                </option>
+                <option>
+                  {ButtonInput([
+                    'checkbox',
+                    'Adaptabe Cruise Control',
+                    [...features],
+                    handleStringFieldChange,
+                    '',
+                    'adaptive_cruise_control',
+                  ])}
+                </option>
+              </select> */}
             </p>
             <div className="file-drop-zone">
               <div {...getRootProps()}>
-                <input {...getInputProps()} required />
+                {/* Make input required -------------------------hello--------------- */}
+                <input {...getInputProps()} />
                 {dropzoneMessage}
               </div>
             </div>
-            {photos.length > 0 &&
-              photos.map((photo, index) => (
+            {images.length > 0 &&
+              images.map((photo, index) => (
                 <figure key={index}>
                   <img alt={`${year}${make} ${model}`} src={photo.url} />
                 </figure>
@@ -368,7 +520,15 @@ export function VehiclesController({ filterText }) {
               <>
                 {ButtonInput([
                   'checkbox',
-                  'List?',
+                  'Vehicle is a search request?',
+                  isSearchRequest,
+                  handleBooleanFieldChange,
+                  '',
+                  'isSearchRequest',
+                ])}
+                {ButtonInput([
+                  'checkbox',
+                  'Vehicle is listed in inventory?',
                   isListed,
                   handleBooleanFieldChange,
                   '',
@@ -376,7 +536,7 @@ export function VehiclesController({ filterText }) {
                 ])}
                 {ButtonInput([
                   'checkbox',
-                  'Sell?',
+                  'Vehicle has been sold?',
                   isSold,
                   handleBooleanFieldChange,
                   '',

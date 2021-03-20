@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,7 +7,18 @@ namespace CarSales.Models
     public class Vehicle
     {
         public int Id { get; set; }
-
+        public string Vehicle_Id 
+        { 
+            get
+            {
+                return Vehicle_Id;
+            } 
+            set
+            {
+                Vehicle_Id = Vin;
+            }
+        }
+         
         [Required]
         public int Year { get; set; }
 
@@ -29,10 +41,11 @@ namespace CarSales.Models
         public string Title { get; set; }
         
         [Required]
-        public string VIN { get; set; }
+        public string Vin { get; set; }
         
         [Required]
         public string Exterior_Color { get; set; }
+        public string Interior_Color { get; set; }
 
         [Required]
         public string Body_Style { get; set; }
@@ -48,40 +61,85 @@ namespace CarSales.Models
         
         [Required]
         public string Description { get; set; }
-
-
+        public string Trim { get; set; }
+        public string Condition { get; set; }
+        public List<string> Features {get; set;}
+        public bool IsSearchRequest { get; set; }
+        public bool IsListed {get; set;}
+        public bool IsSold { get; set; }
+        public string Date_First_On_Lot { 
+            get
+            {
+                return Date_First_On_Lot;
+            } 
+            set
+            {
+                if(this.IsListed)
+                {
+                    this.Date_Sold= DateTime.Now.ToString("yyyy-mm-dd");
+                }
+            } 
+        }
+        public string Date_Sold {
+            get
+            {
+                return Date_Sold;
+            } 
+            set
+            {
+                if(this.IsSold)
+                {
+                    this.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd"); 
+                }
+            } 
+        }
+        public int PriceSoldAt { get; set; }
+        public string Available 
+        { 
+            get
+            {
+                string Availability = IsSold ? "not available" : "available";
+                return IsSold ? "not available" : "available";
+            } 
+        }
+        public string Tag 
+        { 
+            get
+            {
+                return this.Year + " " + this.Make + " " + this.Model;
+            }
+        }
         [Required]
+        public List<Media> Images { get; set; }    
+        
+
+        public int UserId { get; set; }
+        public User User { get; set; }  
+
+
+        //[Required]
         public int Fb_Page_Id { get; set; }
 
-        [Required]
+        //[Required]
         public string Dealer_Id { get; set; }
         
-        [Required]
+        //[Required]
         public string Dealer_Name { get; set; }
         
-        [Required]
+        //[Required]
         public string Dealer_Phone { get; set; }
         
-        [Required]  
+        //[Required]  
         public int AddressId { get; set; }    
         public Address Address {get; set;}
 
-        [Required]
+        //[Required]
         public float Latitude { get; set; }
-        [Required]
+        //[Required]
         public float Longitude { get; set; }
 
-        [Required]
-        public string Url { get; set; }
-
-        public string Tag { get; set; }
-        [Required]
-        public List<Media> Images { get; set; }       
-
-
-        public bool IsListed { get; set; }
-        public bool IsSold { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; }     
+        //[Required]
+        public string Url { get; set; }     
+        public DateTime DateOfEntryCreation { get; } = DateTime.Now;  
     }
 }

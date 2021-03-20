@@ -10,13 +10,7 @@ export function Footer() {
           <Link to="/">Cheap and Easy Auto &#169;</Link>
         </li>
         <li>
-          <a href="tel:+8609990914">Call Us</a>
-        </li>
-        <li>Physical Address</li>
-        <li>
-          <a href="#">
-            <i className="fab fa-facebook-square logo"></i>
-          </a>
+          <a href="#">Find Us on Facebook</a>
         </li>
         <li>
           <a href="https://www.linkedin.com/in/jeridfenderson/">

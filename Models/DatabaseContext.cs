@@ -16,10 +16,11 @@ namespace CarSales.Models
         // Add database tables here
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Mileage> Mileage {get; set;}
+        public DbSet<Referral> Referrals {get; set;}
         public DbSet<User> Users { get; set; }
         public DbSet<Media> Media { get; set; }
-        public DbSet<Dealer> Dealer {get; set; }
-        public DbSet<Address> Address {get; set;}
+        public DbSet<Dealer> Dealers {get; set; }
+        public DbSet<Address> Addresses {get; set;}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

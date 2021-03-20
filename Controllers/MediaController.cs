@@ -51,18 +51,7 @@ namespace CarSales.Controllers
             // them by row id and return them as a JSON array.
             return await _context.Media
             .Include(media => media.User)
-            .Where(media => media.UserId > -1 && !media.IsMaster)
             .ToListAsync();   
-        }
-
-        [HttpGet("Master")]
-        public async Task<ActionResult<Media>> GetMedia()
-        {
-            // Uses the database context in `_context` to request all of the Media, sort
-            // them by row id and return them as a JSON array.
-            return await _context.Media
-            .Include(media => media.User)
-            .FirstOrDefaultAsync(media => media.IsMaster);
         }
 
         [HttpPut("{id}")]

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using CarSales.Models;
 using CarSales.Utils;
+using System;
 
 namespace CarSales.Controllers
 {
@@ -47,7 +48,9 @@ namespace CarSales.Controllers
                     // The is the user details
                     user = foundUser
                 };
-
+                foundUser.LastActive = DateTime.Now;
+                _context.Entry(foundUser).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
                 return Ok(response);
             }
             else

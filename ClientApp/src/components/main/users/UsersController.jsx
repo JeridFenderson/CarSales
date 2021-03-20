@@ -14,8 +14,17 @@ export function UsersController() {
     password: '',
     isAdmin: false,
     isOwner: false,
+    Media: {},
   })
-  const { firstName, lastName, email, password, isAdmin, isOwner } = newUser
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    isAdmin,
+    isOwner,
+    media,
+  } = newUser
   const signup = history.location.pathname === '/signup' ? true : false
   const deleteAccount = history.location.pathname === '/login' ? true : false
 
@@ -163,7 +172,7 @@ export function UsersController() {
           <span></span>
           <input type="submit" value="Submit" className="submit" />
           <span></span>
-          {(isLoggedIn() && currentUser.isOwner) ||
+          {isLoggedIn() ||
             (signup && <Link to="/login">Meant to Log In?</Link>) || (
               <Link to="/signup">Meant to Sign Up?</Link>
             )}

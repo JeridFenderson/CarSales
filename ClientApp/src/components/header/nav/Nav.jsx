@@ -25,81 +25,50 @@ export function Nav() {
             <Link to="/vehicles/view" onClick={() => setOpen(false)}>
               Pre-owned Inventory
             </Link>
-            <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-cars"></i>
-            </Link>
           </li>
           {(isLoggedIn() && currentUser.isAdmin) || (
             <li>
               <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-                Specific Car Request
-              </Link>
-              <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-                <i className="mobile fas fa-car"></i>
+                In search of a specific car?
               </Link>
             </li>
           )}
-          {isLoggedIn() &&
-            ((currentUser.isOwner && (
-              <li>
-                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                  Add A Car
-                </Link>
-                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                  <i className="mobile far fa-car"></i>
-                </Link>
-              </li>
-            )) || (
-              <li>
-                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                  Sell My Car
-                </Link>
-                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                  <i className="mobile far fa-car"></i>
-                </Link>
-              </li>
-            ))}
+          {(isLoggedIn() && currentUser.isAdmin && (
+            <li>
+              <Link to="/vehicles/create" onClick={() => setOpen(false)}>
+                Add A Car
+              </Link>
+              <Link to="/vehicles/create" onClick={() => setOpen(false)}>
+                <i className="mobile far fa-car"></i>
+              </Link>
+            </li>
+          )) || (
+            <li>
+              <Link to="/signup" onClick={() => setOpen(false)}>
+                Want to sell your vehicle through us?
+              </Link>
+            </li>
+          )}
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link to="/about" onClick={() => setOpen(false)}>
               About Us
             </Link>
-            <Link to="/" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-id-card-alt"></i>
-            </Link>
           </li>
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link to="/contact" onClick={() => setOpen(false)}>
               Contact Us
             </Link>
-            <Link to="/" onClick={() => setOpen(false)}>
-              <i className="mobile fas fa-address-card"></i>
-            </Link>
           </li>
-          {isLoggedIn() && currentUser.isOwner && (
-            <li>
-              <Link to="/signup">Add A New User</Link>
-            </li>
-          )}
-          {isLoggedIn() && currentUser.isOwner && (
-            <li>
-              <Link to="/login">Delete A User</Link>
-            </li>
-          )}
-          {isLoggedIn() && (
-            <li>
-              <Link to="/" onClick={handleLogOut}>
-                Sign Out
-              </Link>
-            </li>
-          )}
-          {isLoggedIn() || (
+          {(!isLoggedIn() && (
             <li>
               <Link to="/login" onClick={() => setOpen(false)}>
                 Log In
               </Link>
-              <span> Or </span>
-              <Link to="/signup" onClick={() => setOpen(false)}>
-                Sign Up
+            </li>
+          )) || (
+            <li>
+              <Link to="/" onClick={handleLogOut}>
+                Sign Out
               </Link>
             </li>
           )}
@@ -108,3 +77,14 @@ export function Nav() {
     </nav>
   )
 }
+
+//           {isLoggedIn() && currentUser.isOwner && (
+//             <li>
+//               <Link to="/signup">Add A New User</Link>
+//             </li>
+//           )}
+//           {isLoggedIn() && currentUser.isOwner && (
+//             <li>
+//               <Link to="/login">Delete A User</Link>
+//             </li>
+//           )}

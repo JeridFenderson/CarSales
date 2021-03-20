@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -17,8 +18,9 @@ namespace CarSales.Models
 
         [Required]
         public string Email { get; set; }
-
-         [JsonIgnore]
+        public string PhoneNumber { get; set; }
+        
+        [JsonIgnore]
         public string HashedPassword { get; set; }
         // Define a property for being able to _set_ a password
         public string Password
@@ -39,8 +41,17 @@ namespace CarSales.Models
             // Return True if the verification was a success
             return passwordVerification == PasswordVerificationResult.Success;
         }
-        public bool IsOwner { get; set; }
         public bool IsAdmin{ get; set; }
-        public List<Media> Media { get; set; } 
+        public bool IsOwner { get; set; }
+        public int DealerId {get; set;}
+        public Dealer Dealer { get; set; }
+
+        public DateTime LastActive {get; set; } = DateTime.Now;
+
+        public List<Media> Media { get; set; }
+        public List<int> ReferredById {get; set; }
+        public List<Referral> ReferredBy { get; set; }
+        public List<int> FromId { get; set;}
+        public List<Referral> From { get; set;}   
     }
 }

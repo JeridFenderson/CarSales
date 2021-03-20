@@ -1,4 +1,4 @@
-TRUNCATE TABLE "Vehicles", "Media", "Users", "Content";
+ TABLE "Vehicles", "Media", "Users", "Content";
 
 -- INSERT INTO "Users" ("FirstName", "LastName", "Email", "HashedPassword", "IsAdmin", "IsOwner")
 -- VALUES ('Jerid', 'Fenderson', 'jrfenderson@gmail.com', 'AQAAAAEAACcQAAAAEPz76YM5dn1JBGmQsyK4tS96GjMFPMME6W2ahYU63ceBDjVFpKZpXZ77BxLSJn4wqg', True, True);

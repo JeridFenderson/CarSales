@@ -24,13 +24,17 @@
       flex: row nowrap;
       justify-content: space-between;
     }
+    .file-drop-zone {
+      height: 8em;
+    }
     figure {
       display: flex;
+      flex-flow: row wrap;
       justify-content: center;
       img {
         object-fit: cover;
-        width: 10em;
-        height: 10em;
+        width: 5em;
+        height: 5em;
         border-top: 0.2em solid $font-color;
         border-bottom: 0.2em solid $font-color;
         border-left: 0.1em solid $font-color;
@@ -54,7 +58,8 @@
       section {
         border-radius: 0.5em;
       }
-      p {
+      p,
+      .file-drop-zone {
         width: 16em;
       }
     }
@@ -66,6 +71,7 @@
     form {
       section {
         padding: 1em;
+        border-left: none;
         &:not(:first-of-type) {
           border-left: $standard-body-border;
           border-radius: 0.5em;

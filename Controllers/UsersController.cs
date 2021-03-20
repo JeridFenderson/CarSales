@@ -39,6 +39,48 @@ namespace CarSales.Controllers
             CLOUDINARY_API_SECRET = config["CLOUDINARY_API_SECRET"];
         }
 
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        {
+             var response = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+             // Find the user information of the user that called a delete request
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!currentUser.IsOwner)
+            {
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+            // Uses the database context in `_context` to request all of the Media, sort
+            // them by row id and return them as a JSON array.
+            return await _context.Users.ToListAsync();   
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<User>> GetUser(int id)
+        {
+             var response = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+             // Find the user information of the user that called a delete request
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!currentUser.IsOwner || id != GetCurrentUserId())
+            {
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+            // Uses the database context in `_context` to request all of the Media, sort
+            // them by row id and return them as a JSON array.
+            return await _context.Users.FirstOrDefaultAsync(user => user.Id == id); 
+        }
+
         // PUT: api/Users/5
         //
         // Update an individual user with the requested id. The id is specified in the URL
@@ -60,7 +102,6 @@ namespace CarSales.Controllers
                 return BadRequest();
             }
 
-
             // Make a custom error response
             var response = new
             {
@@ -75,19 +116,13 @@ namespace CarSales.Controllers
                 return Unauthorized(response);
             }
 
-            if (currentUser.IsAdmin != user.IsAdmin)
+            if ((currentUser.IsAdmin != user.IsAdmin) && !currentUser.IsOwner)
             {
-                if(!currentUser.IsOwner)
-                {
                     return Unauthorized(response);
-                }
             }
-            if (currentUser.IsOwner != user.IsOwner)
+            if ((currentUser.IsOwner != user.IsOwner) && !currentUser.IsOwner)
             {
-                if(!currentUser.IsOwner)
-                {
                     return Unauthorized(response);
-                }
             }
 
             // Tell the database to consider everything in user to be _updated_ values. When
@@ -159,13 +194,7 @@ namespace CarSales.Controllers
             }
         }
 
-        // DELETE: api/Users/5
-        //
-        // Deletes an individual user with the requested id. The id is specified in the URL
-        // In the sample URL above it is the `5`. The "{id} in the [HttpDelete("{id}")] is what tells dotnet
-        // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
-        //
-        [HttpDelete("{email}")]
+        [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DeleteUser(string email)
         {
@@ -174,12 +203,70 @@ namespace CarSales.Controllers
                 status = 404,
                 errors = new List<string>() { "Account Not Found" }
             };
+
+            // Find this user by looking for the specific id
+            var user = await _context.Users.Include(user => user.Media).FirstOrDefaultAsync(user => user.Email == email);
+            if (user == null)
+            {
+                // There wasn't a user with that id so return a `404` not found
+                return NotFound(response);
+            }
+
+            // Caputes photos id's of the vehicle being deleted
+            var photos = user.Media.Select(media => media.PublicId);
+            
+            // Removes Media Files From Cloudinary
+            var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
+            var delResParams = new DelResParams()
+            {
+            PublicIds = new List<string>(photos)
+            };
+            cloudinaryClient.DeleteResources(delResParams);
+
+            // Tell the database we want to remove this record
+            _context.Users.Remove(user);
+
+            // Tell the database to perform the deletion
+            await _context.SaveChangesAsync();
+
+            // Return a copy of the deleted data
+            return Ok(user);
+        }
+
+        // DELETE: api/Users/5
+        //
+        // Deletes an individual user with the requested id. The id is specified in the URL
+        // In the sample URL above it is the `5`. The "{id} in the [HttpDelete("{id}")] is what tells dotnet
+        // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
+        //
+        [HttpDelete("{email}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> DeleteUserByEmail(string email)
+        {
+            var response = new
+            {
+                status = 404,
+                errors = new List<string>() { "Account Not Found" }
+            };
+
+            var otherResponse = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+
             // Find this user by looking for the specific id
             var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
             if (user == null)
             {
                 // There wasn't a user with that id so return a `404` not found
                 return NotFound(response);
+            }
+
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            if (!currentUser.IsOwner)
+            {
+                return Unauthorized(response);
             }
 
             // Caputes photos id's of the vehicle being deleted

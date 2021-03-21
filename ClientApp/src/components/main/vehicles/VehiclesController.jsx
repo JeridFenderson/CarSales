@@ -41,7 +41,7 @@ export function VehiclesController({ filterText }) {
     features: [],
     mileage: { value: 0, unit: '' },
     images: [],
-    status: 'SEARCH_REQUEST',
+    status: '',
     searchPrice: '',
     offerCost: '',
     purchaseCost: '',
@@ -211,8 +211,31 @@ export function VehiclesController({ filterText }) {
 
   function handleFormSubmit(event) {
     event.preventDefault()
-
-    // setFormTrigger(true)
+    if (
+      vehicle.status === 'PURCHASED' &&
+      (vehicle.purchaseCost === '' || Number(vehicle.purchaseCost) < 0)
+    ) {
+      setErrorMessage(
+        `How'd you find this deal ${currentUser.firstName}? Purchase it for at least a few dollars.`
+      )
+    } else if (
+      vehicle.status === 'LISTED' &&
+      (vehicle.listPrice === '' || Number(vehicle.listPrice) < 0)
+    ) {
+      setErrorMessage(
+        `You can't list a vehicle for free ${currentUser.firstName}. You also must have a vehicle on record from a purchase action to list it.`
+      )
+    } else if (
+      vehicle.status === 'SOLD' &&
+      (vehicle.purchaseCost === '' || Number(vehicle.salePrice) < 0)
+    ) {
+      setErrorMessage(
+        `Are you sure you meant to sell this vehicle for free? If so, sell it for $1, but be by the phone ${currentUser.firstName}.`
+      )
+    } else {
+      console.log(vehicle)
+      // setFormTrigger(true)
+    }
   }
 
   function Input(packet) {
@@ -238,7 +261,7 @@ export function VehiclesController({ filterText }) {
     // 6 = name, 7 = list of options]
     return (
       <p>
-        <label htmlFor={packet[1].toLowerCase()}>{packet[1]}</label>
+        <label htmlFor={packet[6]}>{packet[1]}</label>
         <input
           type={packet[0]}
           name={packet[6]}
@@ -286,11 +309,11 @@ export function VehiclesController({ filterText }) {
   }
 
   if (path === 'view') {
-    return <SelectVehicles vehicles={vehicles} />
+    return SelectVehicles({ vehicles })
   } else {
     return (
       <>
-        {errorMessage && <p>{errorMessage}</p>}
+        {errorMessage && <h3 className="errorMessage">{errorMessage}</h3>}
         <form onSubmit={handleFormSubmit}>
           <section>
             {Input(['text', 'VIN', vin, handleStringFieldChange, true])}
@@ -321,6 +344,25 @@ export function VehiclesController({ filterText }) {
                 { name: 'Certified Pre-Owned', value: 'CPO' },
               ],
             ])}
+            {OptionsInput([
+              '',
+              'Vehicle Type',
+              vehicle_type,
+              handleStringFieldChange,
+              false,
+              '',
+              'vehicle_type',
+              [
+                { name: 'Car', value: 'CAR_TRUCK' },
+                // { name: 'Motorcycle', value: 'MOTORCYCLE' },
+                // { name: 'Boat', value: 'BOAT' },
+                // { name: 'Power Sport', value: 'POWERSPORT' },
+                // { name: 'RV', value: 'RV_CAMPER' },
+                // { name: 'Commercial', value: 'COMMERCIAL' },
+                // { name: 'Trailer', value: 'TRAILER' },
+                // { name: 'Other', value: 'OTHER' },
+              ],
+            ])}
           </section>
           <section>
             {BigInput([
@@ -340,25 +382,6 @@ export function VehiclesController({ filterText }) {
               false,
               '',
               'interior_color',
-            ])}
-            {OptionsInput([
-              '',
-              'Vehicle Type',
-              vehicle_type,
-              handleStringFieldChange,
-              false,
-              '',
-              'vehicle_type',
-              [
-                { name: 'Car', value: 'CAR_TRUCK' },
-                // { name: 'Motorcycle', value: 'MOTORCYCLE' },
-                // { name: 'Boat', value: 'BOAT' },
-                // { name: 'Power Sport', value: 'POWERSPORT' },
-                // { name: 'RV', value: 'RV_CAMPER' },
-                // { name: 'Commercial', value: 'COMMERCIAL' },
-                // { name: 'Trailer', value: 'TRAILER' },
-                // { name: 'Other', value: 'OTHER' },
-              ],
             ])}
             {OptionsInput([
               '',
@@ -447,36 +470,16 @@ export function VehiclesController({ filterText }) {
                 { name: 'Other', value: 'OTHER' },
               ],
             ])}
+            {isLoggedIn() && currentUser.isAdmin && (
+              <p>
+                <button>Did A Little Maintenance Already? Log it!</button>
+              </p>
+            )}
           </section>
           <section>
+            {/* Handle features window */}
             <p>
               <button>Features</button>
-              {/* <select
-                name="features"
-                value={[...features]}
-                onChange={handleOptionsInputFieldChange}
-              >
-                <option>
-                  {ButtonInput([
-                    'checkbox',
-                    'ABS Brakes',
-                    [...features],
-                    handleStringFieldChange,
-                    '',
-                    'abs_brakes',
-                  ])}
-                </option>
-                <option>
-                  {ButtonInput([
-                    'checkbox',
-                    'Adaptabe Cruise Control',
-                    [...features],
-                    handleStringFieldChange,
-                    '',
-                    'adaptive_cruise_control',
-                  ])}
-                </option>
-              </select> */}
             </p>
             <div className="file-drop-zone">
               <div {...getRootProps()}>
@@ -495,41 +498,40 @@ export function VehiclesController({ filterText }) {
           <section>
             {OptionsInput([
               '',
-              'Status',
+              'Status Changer',
               status,
               handleStringFieldChange,
-              false,
+              true,
               '',
               'status',
               [
+                { name: null, value: null },
                 { name: 'Search Request', value: 'SEARCH_REQUESTED' },
                 { name: 'Offer', value: 'OFFERED' },
                 isLoggedIn() &&
-                  currentUser.isAdmin({ name: 'Reject', value: 'REJECTED' }),
+                  currentUser.isAdmin && { name: 'Reject', value: 'REJECTED' },
                 isLoggedIn() &&
-                  currentUser.isAdmin({ name: 'Purchase', value: 'PURCHASED' }),
+                  currentUser.isAdmin && {
+                    name: 'Purchase',
+                    value: 'PURCHASED',
+                  },
                 isLoggedIn() &&
-                  currentUser.isAdmin({
+                  currentUser.isAdmin && {
                     name: 'Maintain',
                     value: 'MAINTAINED',
-                  }),
+                  },
                 isLoggedIn() &&
-                  currentUser.isAdmin({ name: 'List', value: 'LISTED' }),
+                  currentUser.isAdmin && { name: 'List', value: 'LISTED' },
                 isLoggedIn() &&
-                  currentUser.isAdmin({ name: 'Sell', value: 'SOLD' }),
+                  currentUser.isAdmin && { name: 'Sell', value: 'SOLD' },
               ],
             ])}
-            {isLoggedIn() && currentUser.isAdmin && (
-              <p>
-                <button>Maintenance</button>
-              </p>
-            )}
 
             {isLoggedIn() &&
               status === 'SEARCH_REQUESTED' &&
               BigInput([
-                'About how much would you pay for it?',
-                '',
+                'text',
+                'How much would you pay?',
                 searchPrice,
                 handleNumberFieldChange,
                 false,
@@ -539,8 +541,8 @@ export function VehiclesController({ filterText }) {
             {isLoggedIn() &&
               status === 'OFFERED' &&
               BigInput([
-                'About how much do you want for it?',
-                '',
+                'text',
+                'How much do you want?',
                 offerCost,
                 handleNumberFieldChange,
                 false,
@@ -551,8 +553,8 @@ export function VehiclesController({ filterText }) {
               currentUser.isAdmin &&
               status === 'PURCHASED' &&
               BigInput([
+                'text',
                 'Purchase Cost',
-                '',
                 purchaseCost,
                 handleNumberFieldChange,
                 false,
@@ -563,9 +565,10 @@ export function VehiclesController({ filterText }) {
               currentUser.isAdmin &&
               id &&
               status === 'LISTED' &&
+              Number(vehicle.purchaseCost) > 0 &&
               BigInput([
+                'text',
                 'List For?',
-                '',
                 listPrice,
                 handleNumberFieldChange,
                 false,
@@ -576,15 +579,17 @@ export function VehiclesController({ filterText }) {
               currentUser.isAdmin &&
               id &&
               status === 'SOLD' &&
+              Number(vehicle.listPrice) > 0 &&
               BigInput([
+                'text',
                 'Sold For?',
-                '',
                 salePrice,
                 handleNumberFieldChange,
                 false,
                 '',
                 'salePrice',
               ]) &&
+              // Handle referral window
               ButtonInput([
                 'checkbox',
                 'Referred by someone?',

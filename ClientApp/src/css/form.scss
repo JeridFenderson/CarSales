@@ -19,13 +19,15 @@
     }
     p,
     .file-drop-zone {
-      width: 22em;
+      min-width: 16em;
+      max-width: 22em;
       display: flex;
       flex: row nowrap;
       justify-content: space-between;
     }
     .file-drop-zone {
       height: 8em;
+      width: 16em;
     }
     figure {
       display: flex;
@@ -49,6 +51,10 @@
       color: white;
       padding-bottom: 1em;
     }
+  }
+  .errorMessage {
+    color: $foreground-color;
+    text-align: center;
   }
 }
 

@@ -47,9 +47,22 @@ namespace CarSales.Controllers
             // Uses the database context in `_context` to request all of the Media, sort
             // them by row id and return them as a JSON array.
             return await _context.Referrals
-            .Where(referral => referral.IsPaid == false)
+            .Where(referral => !referral.IsPaid && !referral.IsCredit)
             .ToListAsync();
         }
+
+        [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<IEnumerable<Referral>>> GetReferralsByIndividual()
+        {
+            // Uses the database context in `_context` to request all of the Media, sort
+            // them by row id and return them as a JSON array.
+            return await _context.Referrals
+            .Where(referral => (!referral.IsPaid && !referral.IsCredit) && referral.UserId == GetCurrentUserId())
+            .ToListAsync();
+        }
+
+        
 
         [HttpGet("all")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -70,6 +83,60 @@ namespace CarSales.Controllers
             // Uses the database context in `_context` to request all of the Media, sort
             // them by row id and return them as a JSON array.
             return await _context.Referrals.ToListAsync();
+        }
+
+
+        [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<Referral>> PutReferralsByIndividual(int id, Referral referral)
+        {
+             var response = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+            
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            var referralFromDatabase =  await _context.Referrals
+            .Where(referralDb => (referralDb.UserId == GetCurrentUserId()) && (referralDb.Id == referral.Id))
+            .FirstOrDefaultAsync();
+
+            if ((!currentUser.IsOwner && currentUser.Id != referralFromDatabase.Id)|| referralFromDatabase.IsPaid)
+            {
+                return Unauthorized(response);
+            }
+
+             _context.Entry(referral).State = EntityState.Modified;
+
+             try
+            {
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ooops, looks like there was an error, so check to see if the record we were
+                // updating no longer exists.
+                if (!ReferralExists(referral.Id))
+                {
+                    // If the record we tried to update was already deleted by someone else,
+                    // return a `404` not found
+                    return NotFound();
+                }
+                else
+                {
+                    // Otherwise throw the error back, which will cause the request to fail
+                    // and generate an error to the client.
+                    throw;
+                }
+            }
+            // Return a copy of the updated data
+            return Ok();
+        }
+        
+        private bool ReferralExists(int id)
+        {
+            return _context.Referrals.Any(referral => referral.Id == id);
         }
 
          private int GetCurrentUserId()

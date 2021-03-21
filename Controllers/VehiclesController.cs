@@ -51,14 +51,14 @@ namespace CarSales.Controllers
                 return await _context.Vehicles
                 .Include(vehicle => vehicle.Images)
                 .Include(vehicle => vehicle.User)
-                .Where(vehicle => vehicle.IsListed)
+                .Where(vehicle => vehicle.Status == "LISTED")
                 .ToListAsync();
             }
             else
             {
             return await _context.Vehicles
             .Include(vehicle => vehicle.User)
-            .Where(vehicle => (vehicle.IsListed && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
+            .Where(vehicle => (vehicle.Status == "LISTED" && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
             .ToListAsync();
             }        
         }
@@ -160,17 +160,18 @@ namespace CarSales.Controllers
 
             if(vehicleFromDatabase.PurchaseCost > 0) vehicle.PurchaseCost = vehicleFromDatabase.PurchaseCost;
 
-            if (vehicleFromDatabase.IsSold)
+            if (vehicleFromDatabase.Status == "SOLD")
             {
                 return Unauthorized(response);
             }
 
-            if (vehicle.IsListed && !vehicleFromDatabase.IsListed)
+            if (vehicle.Status == "LISTED" && vehicleFromDatabase.Status != "LISTED")
             {
                 vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
-            if(vehicle.IsSold && (vehicle.SalePrice < 1))
+            //Future margin tracker
+            if(vehicle.Status == "SOLD" && (vehicle.SalePrice < 1))
             {
                 var otherResponse = new
                 {
@@ -180,12 +181,12 @@ namespace CarSales.Controllers
                 return Unauthorized(response);
             }
 
-            if(vehicle.IsSold)
+            if(vehicle.Status == "SOLD")
             {
                 vehicle.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
-            if(vehicle.IsSold && referredByEmail != null)
+            if(vehicle.Status == "SOLD" && referredByEmail != null)
             {
 
                 var otherResponse = new
@@ -219,20 +220,22 @@ namespace CarSales.Controllers
                     };
                     _context.Referrals.Add(referralFromName);
                 }
-                  
-                var referral = new Referral
-                {
-                    VehicleId = id,
-                    VehicleSalePrice = vehicle.SalePrice,
-                    UserId = referredByUser.Id,
-                    FirstName = referredByUser.FirstName,
-                    Email = referredByUser.Email,
-                    PhoneNumber = referredByUser.PhoneNumber,
-                    FromId = referredFromUser.Id,
-                    FromFirstName = referredFromUser.FirstName,
-                    IsPaid = false
-                };
-                _context.Referrals.Add(referral);
+                else 
+                {  
+                    var referral = new Referral
+                    {
+                        VehicleId = id,
+                        VehicleSalePrice = vehicle.SalePrice,
+                        UserId = referredByUser.Id,
+                        FirstName = referredByUser.FirstName,
+                        Email = referredByUser.Email,
+                        PhoneNumber = referredByUser.PhoneNumber,
+                        FromId = referredFromUser.Id,
+                        FromFirstName = referredFromUser.FirstName,
+                        IsPaid = false
+                    };
+                    _context.Referrals.Add(referral);
+                }
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
@@ -284,22 +287,18 @@ namespace CarSales.Controllers
             .Where(user => user.Id == GetCurrentUserId())
             .FirstOrDefaultAsync();
 
-            if((vehicle.IsListed || vehicle.IsSold) && !currentUser.IsAdmin)
+            
+
+            if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
                  var response = new
                 {
                     status = 401,
-                    errors = new List<string>() { "Not Authorized" }
+                    errors = new List<string>() { "Not Authorized, Must Purchase Vehicle First" }
                 };
-
-                // Return our error with the custom response
                 return Unauthorized(response);
             }
 
-            if (vehicle.IsListed)
-            {
-                vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
-            }
             // Set the UserID to the current user id, this overrides anything the user specifies.
             vehicle.UserId = currentUser.Id;
             vehicle.Dealer_Id = currentUser.Dealer.Dealer_Id;
@@ -367,6 +366,14 @@ namespace CarSales.Controllers
             PublicIds = new List<string>(photos)
             };
             cloudinaryClient.DeleteResources(delResParams);
+
+            var deletionInfo = new DeletedVehicle 
+            {
+                UserId = GetCurrentUserId(),
+                VehicleInfo = $"{vehicle.Year} {vehicle.Make} {vehicle.Model}",
+                MonetaryInfo = $"Search: ${vehicle.SearchPrice}, Offer: ${vehicle.OfferCost}, Purchase: ${vehicle.PurchaseCost}, List: ${vehicle.ListPrice}, Sale: ${vehicle.SalePrice}"
+            };
+            _context.DeletedVehicles.Add(deletionInfo);
 
             // Tell the database we want to remove this record
             _context.Mileage.Remove(vehicle.Mileage);

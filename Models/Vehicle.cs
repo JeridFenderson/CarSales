@@ -21,62 +21,63 @@ namespace CarSales.Models
                 return Trim != "" ? $"{Year} {Make} {Model} {Trim}" :  $"{Year} {Make} {Model}";
             }
         }
-
-        [Required]
-        public int Year { get; set; }
-        [Required]
-        public string Make { get; set; }
-        [Required]
-        public string Model { get; set; }
         public string Price { 
             get
             {
                 return $"{String.Format("{0:0.00}", ListPrice)} USD";
             }
         }
-        public int MileageId { get; set; }
-        public Mileage Mileage { get; set; }
 
         [Required]
         public string Vin { get; set; }
-        public string State_Of_Vehicle {
-            get
-            {
-                return IsCpo ? "CPO" : "Used";
-            }
-        }
-        
+        [Required]
+        public int Year { get; set; }
+        [Required]
+        public string Make { get; set; }
+        [Required]
+        public string Model { get; set; } 
+        public string Trim { get; set; }
         [Required]
         public string Exterior_Color { get; set; }
         public string Interior_Color { get; set; }
-
         [Required]
         public string Body_Style { get; set; }
-
         [Required]
         public string Transmission { get; set; }
-
         [Required]
-        public string Drivetrain { get; set; }
-        
+        public string Drivetrain { get; set; }  
         [Required]
         public string Fuel_Type { get; set; }
-        
         [Required]
-        public string Description { get; set; }
         public string Vehicle_Type { get; set; }
-        public string Trim { get; set; }
         public string Condition { get; set; }
+        public string State_Of_Vehicle { get; set; }
+        public string Description { get; set; }
         public List<string> Features {get; set;}
-        public bool IsSearchRequest { get; set; }
+        public int MileageId { get; set; }
+        public Mileage Mileage { get; set; }
+        public List<int> ImagesId { get; set; }
+        public List<Media> Images { get; set; }  
+
+
+        public string Status { get; set; }
+        public double SearchPrice {get; set;}
+        public double OfferCost {get; set;}
         public double PurchaseCost {get; set;}
-        public bool IsListed {get; set;}
         public double ListPrice {get; set;}
-        public bool IsSold { get; set; }
-        public bool IsReferral {get; set; }
         public double SalePrice { get; set; }
+        public bool IsReferral {get; set; } 
         public string Date_First_On_Lot { get; set; }
-        public bool IsCpo { get; set; }
+        public string Date_Sold { get; set; }
+        public string Available 
+        { 
+            get
+            {
+                return Status == "SOLD" ? "not available" : "available";  
+            } 
+        }
+
+
         public List<int> MaintenanceId { get; set; }
         public List<Maintenance> Maintenance {get; set;}
         public double MaintenanceCost { 
@@ -85,7 +86,7 @@ namespace CarSales.Models
                 return Maintenance.Aggregate(0.00, (currentTotal, maintenance) => currentTotal + maintenance.Cost);
             }
         }
-        public string Date_Sold { get; set; }
+
 
         public double MarginAmount {
             get
@@ -105,23 +106,12 @@ namespace CarSales.Models
                 return SalePrice * 1.05 - PurchaseCost - MaintenanceCost;
             }
         }
-
         public double MarginPercentageWithReferral{
             get
             {
                 return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
             }
         }
-        public string Available 
-        { 
-            get
-            {
-                return IsSold ? "not available" : "available";  
-            } 
-        }
-       
-        public List<int> ImagesId { get; set; }
-        public List<Media> Images { get; set; }  
 
 
         public int UserId { get; set; }

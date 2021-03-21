@@ -20,6 +20,7 @@ namespace CarSales.Models
                 PaymentAmountDue = (VehicleSalePrice * 0.05);
             }
         }
+        public bool IsCredit{ get; set; }
 
         [NotMapped]
         public int UserId { get; set; }

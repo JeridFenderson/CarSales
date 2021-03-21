@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using CarSales.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210320213616_JustChecking")]
+    partial class JustChecking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,29 +93,6 @@ namespace CarSales.Migrations
                     b.HasIndex("AddressId");
 
                     b.ToTable("Dealers");
-                });
-
-            modelBuilder.Entity("CarSales.Models.DeletedVehicle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("MonetaryInfo")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("VehicleInfo")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("DeletedVehicles");
                 });
 
             modelBuilder.Entity("CarSales.Models.Maintenance", b =>
@@ -353,6 +332,7 @@ namespace CarSales.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Drivetrain")
@@ -379,7 +359,19 @@ namespace CarSales.Migrations
                     b.Property<string>("Interior_Color")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsCpo")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsListed")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsReferral")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSearchRequest")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSold")
                         .HasColumnType("boolean");
 
                     b.Property<float>("Latitude")
@@ -405,23 +397,11 @@ namespace CarSales.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("OfferCost")
-                        .HasColumnType("double precision");
-
                     b.Property<double>("PurchaseCost")
                         .HasColumnType("double precision");
 
                     b.Property<double>("SalePrice")
                         .HasColumnType("double precision");
-
-                    b.Property<double>("SearchPrice")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("State_Of_Vehicle")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("text");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
@@ -437,7 +417,6 @@ namespace CarSales.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Vehicle_Type")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Vin")
@@ -467,17 +446,6 @@ namespace CarSales.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("CarSales.Models.DeletedVehicle", b =>
-                {
-                    b.HasOne("CarSales.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CarSales.Models.Maintenance", b =>

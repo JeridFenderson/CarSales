@@ -10,7 +10,7 @@ export function VehiclesController({ filterText }) {
   const history = useHistory()
   const { path, id, action } = useParams()
   const [mileageDisplay, setMileageDisplay] = useState('')
-  const [wasListedOrSearch, setWasListedOrSearch] = useState(false)
+  const [requiredOnSale, setRequiredOnSale] = useState(false)
   const [dropzoneMessage, setDropzoneMessage] = useState('')
   const [isUploading, setIsUploading] = useState(false)
   const [filesToUpload, setFilesToUpload] = useState([])
@@ -23,52 +23,59 @@ export function VehiclesController({ filterText }) {
   const [vehicles, setVehicles] = useState([{ id: 0 }])
 
   const [vehicle, setVehicle] = useState({
+    vin: '',
     year: '',
     make: '',
     model: '',
-    mileage: { value: 0, unit: '' },
-    vin: '',
+    trim: '',
     exterior_color: '',
     interior_color: '',
     body_style: 'SEDAN',
     transmission: 'AUTOMATIC',
     drivetrain: 'RWD',
     fuel_type: 'GASOLINE',
-    description: '',
-    trim: '',
+    vehicle_type: 'CAR_TRUCK',
     condition: 'GOOD',
+    state_of_vehicle: 'Used',
+    description: '',
     features: [],
-    isSearchRequest: false,
-    purchaseCost: '',
-    isListed: false,
-    listPrice: '',
-    isSold: false,
-    salePrice: '',
+    mileage: { value: 0, unit: '' },
     images: [],
+    status: 'SEARCH_REQUEST',
+    searchPrice: '',
+    offerCost: '',
+    purchaseCost: '',
+    listPrice: '',
+    salePrice: '',
+    isReferral: false,
+    maintenance: { task: '', description: '', cost: 0 },
   })
 
   const {
+    vin,
     year,
     make,
     model,
-    vin,
+    trim,
     exterior_color,
     interior_color,
     body_style,
     transmission,
     drivetrain,
     fuel_type,
-    description,
-    trim,
+    vehicle_type,
     condition,
+    state_of_vehicle,
     features,
-    isSearchRequest,
-    purchaseCost,
-    isListed,
-    listPrice,
-    isSold,
-    salePrice,
     images,
+    status,
+    searchPrice,
+    offerCost,
+    purchaseCost,
+    listPrice,
+    salePrice,
+    isReferral,
+    maintenance,
   } = vehicle
 
   useEffect(() => {
@@ -80,7 +87,7 @@ export function VehiclesController({ filterText }) {
       const response = await fetch(url)
       const json = await response.json()
       setVehicles(json)
-      if (path === 'create' && id) {
+      if (path === 'create' && id && status !== 'SOLD') {
         setVehicle(json)
       }
     }
@@ -90,7 +97,7 @@ export function VehiclesController({ filterText }) {
     ) {
       loadVehicles()
     }
-  }, [id, action, filterText, path])
+  }, [id, action, filterText, path, status])
 
   useEffect(() => {
     if (isUploading) {
@@ -158,29 +165,15 @@ export function VehiclesController({ filterText }) {
             break
         }
       }
-      if (id && isSold && isSold !== wasListedOrSearch) {
-        setErrorMessage('Unauthorized ')
-      } else {
-        await fetch(`${url}`, {
-          method: `${apiAction}`,
-          headers: { 'content-type': 'application/json', ...authHeader() },
-          body: JSON.stringify(vehicle),
-        })
-        history.push('/vehicles')
-      }
+      await fetch(`${url}`, {
+        method: `${apiAction}`,
+        headers: { 'content-type': 'application/json', ...authHeader() },
+        body: JSON.stringify(vehicle),
+      })
+      history.push('/vehicles')
     }
-    if (formTrigger || action === 'delete' || (path === 'create' && id === ''))
-      submitForm()
-  }, [
-    formTrigger,
-    action,
-    history,
-    id,
-    vehicle,
-    path,
-    isSold,
-    wasListedOrSearch,
-  ])
+    if (formTrigger || action === 'delete') submitForm()
+  }, [formTrigger, action, history, id, vehicle, path])
 
   function handleStringFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.value })
@@ -213,54 +206,12 @@ export function VehiclesController({ filterText }) {
   }
 
   function handleBooleanFieldChange(event) {
-    console.log(vehicle)
-    if (event.target.name === 'isSearchRequest') {
-      setVehicle({
-        ...vehicle,
-        isSearchRequest: event.target.checked,
-        isListed: !event.target.checked,
-        isSold: !event.target.checked,
-      })
-    } else if (event.target.name === 'isListed') {
-      if (id && vehicle.isListed) {
-        setWasListedOrSearch(true)
-      }
-      setVehicle({
-        ...vehicle,
-        isListed: event.target.checked,
-        isSearchRequest: !event.target.checked,
-        isSold: !event.target.checked,
-      })
-    } else if (event.target.name === 'isSold') {
-      if (id && (vehicle.isSearchRequest || vehicle.isListed)) {
-        setWasListedOrSearch(true)
-      }
-      setVehicle({
-        ...vehicle,
-        isSold: event.target.checked,
-        isSearchRequest: !event.target.checked,
-        isListed: !event.target.checked,
-      })
-    } else {
-      setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
-    }
-  }
-
-  function handleOptionsInputFieldChange(event) {
     setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
   }
 
   function handleFormSubmit(event) {
     event.preventDefault()
 
-    // if ((!id && isListed) || (id && isListed !== wasListedOrSearch)) {
-    //   setVehicle({ ...vehicle, date_First_On_Lot: dateAsString })
-    // }
-    // if (id && isSold && isSold === wasListedOrSearch) {
-    //   setVehicle({ ...vehicle, date_Sold: dateAsString })
-    // }
-
-    // //---------------------
     // setFormTrigger(true)
   }
 
@@ -342,10 +293,11 @@ export function VehiclesController({ filterText }) {
         {errorMessage && <p>{errorMessage}</p>}
         <form onSubmit={handleFormSubmit}>
           <section>
+            {Input(['text', 'VIN', vin, handleStringFieldChange, true])}
             {Input(['text', 'Year', year, handleNumberFieldChange, true, 4])}
             {Input(['text', 'Make', make, handleStringFieldChange, true])}
             {Input(['text', 'Model', model, handleStringFieldChange, true])}
-            {Input(['text', 'Price', price, handleNumberFieldChange, true])}
+            {Input(['text', 'Trim', trim, handleStringFieldChange, true])}
             {BigInput([
               'text',
               'Mileage',
@@ -355,21 +307,18 @@ export function VehiclesController({ filterText }) {
               9,
               'mileage.value',
             ])}
-            {Input(['text', 'VIN', vin, handleStringFieldChange, true])}
             {OptionsInput([
               '',
-              'Condition',
-              condition,
+              'Vehicle State',
+              state_of_vehicle,
               handleStringFieldChange,
               false,
               '',
               'condition',
               [
-                { name: 'Good', value: 'GOOD' },
-                { name: 'Excellent', value: 'EXCELLENT' },
-                { name: 'Fair', value: 'FAIR' },
-                { name: 'Poor', value: 'POOR' },
-                { name: 'Other', value: 'OTHER' },
+                // { name: 'New', value: 'New' },
+                { name: 'Used', value: 'Used' },
+                { name: 'Certified Pre-Owned', value: 'CPO' },
               ],
             ])}
           </section>
@@ -392,7 +341,25 @@ export function VehiclesController({ filterText }) {
               '',
               'interior_color',
             ])}
-            {Input(['text', 'Trim', trim, handleStringFieldChange, false])}
+            {OptionsInput([
+              '',
+              'Vehicle Type',
+              vehicle_type,
+              handleStringFieldChange,
+              false,
+              '',
+              'vehicle_type',
+              [
+                { name: 'Car', value: 'CAR_TRUCK' },
+                // { name: 'Motorcycle', value: 'MOTORCYCLE' },
+                // { name: 'Boat', value: 'BOAT' },
+                // { name: 'Power Sport', value: 'POWERSPORT' },
+                // { name: 'RV', value: 'RV_CAMPER' },
+                // { name: 'Commercial', value: 'COMMERCIAL' },
+                // { name: 'Trailer', value: 'TRAILER' },
+                // { name: 'Other', value: 'OTHER' },
+              ],
+            ])}
             {OptionsInput([
               '',
               'Body Style',
@@ -464,21 +431,26 @@ export function VehiclesController({ filterText }) {
                 { name: 'Other', value: 'OTHER' },
               ],
             ])}
+            {OptionsInput([
+              '',
+              'Condition',
+              condition,
+              handleStringFieldChange,
+              false,
+              '',
+              'condition',
+              [
+                { name: 'Good', value: 'GOOD' },
+                { name: 'Excellent', value: 'EXCELLENT' },
+                { name: 'Fair', value: 'FAIR' },
+                { name: 'Poor', value: 'POOR' },
+                { name: 'Other', value: 'OTHER' },
+              ],
+            ])}
           </section>
           <section>
             <p>
-              <label htmlFor="description">Description</label>
-              <textarea
-                name="description"
-                value={description}
-                onChange={handleStringFieldChange}
-                rows={4}
-                required
-              />
-            </p>
-            <p>
-              <label htmlFor="features">Features</label>
-              <button onClick={toggleFeatures}>Features</button>
+              <button>Features</button>
               {/* <select
                 name="features"
                 value={[...features]}
@@ -521,34 +493,105 @@ export function VehiclesController({ filterText }) {
               ))}
           </section>
           <section>
+            {OptionsInput([
+              '',
+              'Status',
+              status,
+              handleStringFieldChange,
+              false,
+              '',
+              'status',
+              [
+                { name: 'Search Request', value: 'SEARCH_REQUESTED' },
+                { name: 'Offer', value: 'OFFERED' },
+                isLoggedIn() &&
+                  currentUser.isAdmin({ name: 'Reject', value: 'REJECTED' }),
+                isLoggedIn() &&
+                  currentUser.isAdmin({ name: 'Purchase', value: 'PURCHASED' }),
+                isLoggedIn() &&
+                  currentUser.isAdmin({
+                    name: 'Maintain',
+                    value: 'MAINTAINED',
+                  }),
+                isLoggedIn() &&
+                  currentUser.isAdmin({ name: 'List', value: 'LISTED' }),
+                isLoggedIn() &&
+                  currentUser.isAdmin({ name: 'Sell', value: 'SOLD' }),
+              ],
+            ])}
             {isLoggedIn() && currentUser.isAdmin && (
-              <>
-                {ButtonInput([
-                  'checkbox',
-                  'Vehicle is a search request?',
-                  isSearchRequest,
-                  handleBooleanFieldChange,
-                  '',
-                  'isSearchRequest',
-                ])}
-                {ButtonInput([
-                  'checkbox',
-                  'Vehicle is listed in inventory?',
-                  isListed,
-                  handleBooleanFieldChange,
-                  '',
-                  'isListed',
-                ])}
-                {ButtonInput([
-                  'checkbox',
-                  'Vehicle has been sold?',
-                  isSold,
-                  handleBooleanFieldChange,
-                  '',
-                  'isSold',
-                ])}
-              </>
+              <p>
+                <button>Maintenance</button>
+              </p>
             )}
+
+            {isLoggedIn() &&
+              status === 'SEARCH_REQUESTED' &&
+              BigInput([
+                'About how much would you pay for it?',
+                '',
+                searchPrice,
+                handleNumberFieldChange,
+                false,
+                '',
+                'searchPrice',
+              ])}
+            {isLoggedIn() &&
+              status === 'OFFERED' &&
+              BigInput([
+                'About how much do you want for it?',
+                '',
+                offerCost,
+                handleNumberFieldChange,
+                false,
+                '',
+                'offerCost',
+              ])}
+            {isLoggedIn() &&
+              currentUser.isAdmin &&
+              status === 'PURCHASED' &&
+              BigInput([
+                'Purchase Cost',
+                '',
+                purchaseCost,
+                handleNumberFieldChange,
+                false,
+                '',
+                'purchaseCost',
+              ])}
+            {isLoggedIn() &&
+              currentUser.isAdmin &&
+              id &&
+              status === 'LISTED' &&
+              BigInput([
+                'List For?',
+                '',
+                listPrice,
+                handleNumberFieldChange,
+                false,
+                '',
+                'listPrice',
+              ])}
+            {isLoggedIn() &&
+              currentUser.isAdmin &&
+              id &&
+              status === 'SOLD' &&
+              BigInput([
+                'Sold For?',
+                '',
+                salePrice,
+                handleNumberFieldChange,
+                false,
+                '',
+                'salePrice',
+              ]) &&
+              ButtonInput([
+                'checkbox',
+                'Referred by someone?',
+                isReferral,
+                handleBooleanFieldChange,
+                'isReferral',
+              ])}
             {id && (
               <p className="back-arrow">
                 <span></span>

@@ -4,23 +4,30 @@ footer {
   background-color: $background-color;
   color: $font-color;
   padding: 1em;
-  ul {
+  nav {
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-flow: row nowrap;
     justify-content: center;
-    .logo {
-      font-size: 2em;
+    ul {
+      width: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+      .logo {
+        font-size: 2em;
+      }
     }
   }
 }
 
 @media all and (min-width: $tablet) {
   footer {
-    ul {
-      flex-direction: row;
-      justify-content: space-evenly;
+    nav {
+      ul {
+        flex-flow: row nowrap;
+        justify-content: space-evenly;
+      }
     }
   }
 }

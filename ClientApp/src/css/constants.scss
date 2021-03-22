@@ -1,15 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&display=swap');
 
-$background-color: rgb(228, 81, 36) !default;
-$foreground-color: white !default;
-$font-color: black !default;
+$background-color: rgb(230, 80, 30) !default;
+$foreground-color: rgb(255, 255, 255) !default;
+$font-color: rgb(0, 0, 0) !default;
 $standard-header-border: 0.3em solid $foreground-color;
 $standard-body-border: 0.4em solid $background-color;
 $tablet: 768px;
 $desktop: 959px;
 
 :root {
-  font: 16px / 1 sans-serif;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 html {
@@ -50,21 +51,26 @@ a {
 }
 header,
 footer {
-  color: $foreground-color;
-  a:link {
-    color: $foreground-color;
-  }
   a:visited {
     color: $foreground-color;
   }
-  a:focus {
-    color: yellow;
-  }
-  a:hover {
-    color: green;
-  }
-  a:active {
-    color: red;
+  nav {
+    color: $foreground-color;
+    a:link {
+      color: $foreground-color;
+    }
+    a:visited {
+      color: rgb(0, 130, 0);
+    }
+    a:focus {
+      color: rgb(255, 255, 0);
+    }
+    a:hover {
+      color: rgb(255, 255, 0);
+    }
+    a:active {
+      color: rgb(255, 0, 0);
+    }
   }
 }
 
@@ -76,10 +82,10 @@ main {
     color: $font-color;
   }
   a:focus {
-    color: yellow;
+    color: $background-color;
   }
   a:hover {
-    color: green;
+    color: $background-color;
   }
   a:active {
     color: red;

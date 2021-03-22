@@ -2,27 +2,36 @@ import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { getUser, isLoggedIn, recordAuthentication } from '../../../auth'
 import '../../../css/form.scss'
+import { Input, BigInput, OptionsInput } from '../formInputs'
 
 export function UsersController() {
   const history = useHistory()
   const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
+  const [dealers, setDealers] = useState([
+    {
+      dealer_id: 0,
+      address: {},
+    },
+  ])
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
+    phoneNumber: '',
     email: '',
     password: '',
-    isAdmin: false,
-    isOwner: false,
-    Media: {},
+    role: '',
+    dealerId: '',
+    Media: [{}],
   })
   const {
     firstName,
     lastName,
+    phoneNumber,
     email,
     password,
-    isAdmin,
-    isOwner,
+    role,
+    dealerId,
     media,
   } = newUser
   const signup = history.location.pathname === '/signup' ? true : false
@@ -32,27 +41,24 @@ export function UsersController() {
     setNewUser({ ...newUser, [event.target.name]: event.target.value })
   }
 
-  function handleBooleanFieldChange(event) {
-    if (event.target.name === 'isOwner') {
-      setNewUser({
-        ...newUser,
-        isOwner: event.target.checked,
-        isAdmin: event.target.checked,
-      })
-    } else {
-      setNewUser({ ...newUser, [event.target.name]: event.target.checked })
-    }
+  async function loadDealers() {
+    const response = await fetch(`api/Dealers`)
+    const json = await response.json()
+    setDealers(json)
   }
 
   async function handleFormSubmit(event) {
     event.preventDefault()
+    console.log(newUser)
     let url = signup ? '/api/Users' : '/api/Sessions'
     url =
-      isLoggedIn() && currentUser.isOwner && deleteAccount
+      isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount
         ? `/api/Users/${email}`
         : url
     const action =
-      isLoggedIn() && currentUser.isOwner && deleteAccount ? 'DELETE' : 'POST'
+      isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount
+        ? 'DELETE'
+        : 'POST'
 
     const response = await fetch(`${url}`, {
       method: `${action}`,
@@ -62,11 +68,13 @@ export function UsersController() {
     const apiResponse = await response.json()
 
     if (apiResponse.status === 400) {
+      // @ts-ignore
       setErrorMessage(Object.values(apiResponse.errors).join(' '))
     } else if (apiResponse.status === 404) {
+      // @ts-ignore
       setErrorMessage(Object.values(apiResponse.errors).join(' '))
     } else {
-      if (isLoggedIn() && currentUser.isOwner && deleteAccount) {
+      if (isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount) {
       } else if (signup) {
         history.push('/')
       } else {
@@ -78,105 +86,113 @@ export function UsersController() {
 
   return (
     <main className="main-form">
-      {errorMessage && <p>{errorMessage}</p>}
+      {errorMessage && <h3 className="errorMessage">{errorMessage}</h3>}
       <form onSubmit={handleFormSubmit}>
-        {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
-          <h3>Create Another User, {currentUser.firstName}?</h3>
-        )}
-        {isLoggedIn() && currentUser.isOwner && deleteAccount && (
-          <section>
-            <h3>Delete A User, {currentUser.firstName}?</h3>
-            <p>What's the email address of the account you'd like to delete?</p>
-          </section>
-        )}
-        {signup && (
-          <section>
-            <p className="form-input">
-              <label htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                placeholder="Jerid"
-                value={firstName}
-                onChange={handleStringFieldChange}
-                required
-              />
-            </p>
-            <p className="form-input">
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Fenderson"
-                value={lastName}
-                onChange={handleStringFieldChange}
-                required
-              />
-            </p>
-          </section>
-        )}
         <section>
-          <p className="form-input">
-            <label htmlFor="model">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="jerid@cea.com"
-              value={email}
-              onChange={handleStringFieldChange}
-              required
-            />
-          </p>
-          {(!isLoggedIn() ||
-            (isLoggedIn() && currentUser.isOwner && !deleteAccount)) && (
-            <p className="form-input">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="******"
-                value={password}
-                onChange={handleStringFieldChange}
-                required
-              />
-            </p>
+          {isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount && (
+            <h3>Create Another User, {currentUser.firstName}?</h3>
+          )}
+          {isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount && (
+            <>
+              <h3>Delete A User, {currentUser.firstName}?</h3>
+              <p>
+                What's the email address of the account you'd like to delete?
+              </p>
+            </>
+          )}
+          {signup && (
+            <>
+              {BigInput([
+                'text',
+                'First Name',
+                firstName,
+                handleStringFieldChange,
+                true,
+                '',
+                'firstName',
+              ])}
+              {BigInput([
+                'text',
+                'Last Name',
+                lastName,
+                handleStringFieldChange,
+                true,
+                '',
+                'lastName',
+              ])}
+              <p>
+                <label htmlFor="phoneNumber">Phone</label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="xxx-xxx-xxxx"
+                  value={phoneNumber}
+                  onChange={handleStringFieldChange}
+                  required
+                />
+              </p>
+            </>
           )}
         </section>
-        {isLoggedIn() && currentUser.isOwner && !deleteAccount && (
-          <section>
-            <p className="form-input">
-              <span></span>
-              <label htmlFor="isOwner">Owner</label>
-              <input
-                type="checkbox"
-                name="isOwner"
-                checked={isOwner}
-                onChange={handleBooleanFieldChange}
-              />
-              <span></span>
-            </p>
-            <p className="form-input">
-              <span></span>
-              <label htmlFor="isAdmin">Admin</label>
-              <input
-                type="checkbox"
-                name="isAdmin"
-                checked={isAdmin}
-                onChange={handleBooleanFieldChange}
-              />
-              <span></span>
-            </p>
-          </section>
-        )}
-        <p>
-          <span></span>
-          <input type="submit" value="Submit" className="submit" />
-          <span></span>
-          {isLoggedIn() ||
-            (signup && <Link to="/login">Meant to Log In?</Link>) || (
-              <Link to="/signup">Meant to Sign Up?</Link>
-            )}
-        </p>
+        <section>
+          {Input(['email', 'Email', email, handleStringFieldChange, true])}
+          {OptionsInput([
+            '',
+            'Main Site',
+            dealerId,
+            handleStringFieldChange,
+            true,
+            '',
+            'dealerId',
+            [
+              dealers &&
+                dealers.map((dealer) => ({
+                  name: `${dealer.address.addr1} ${dealer.address.city} ${dealer.address.region}`,
+                  value: dealer.id,
+                })),
+            ],
+          ])}
+          {(!isLoggedIn() ||
+            (isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount)) &&
+            Input([
+              'password',
+              'Password',
+              password,
+              handleStringFieldChange,
+              true,
+            ])}
+        </section>
+        <section>
+          {isLoggedIn() &&
+            currentUser.role === 'OWNER' &&
+            !deleteAccount &&
+            OptionsInput([
+              '',
+              'Role',
+              role,
+              handleStringFieldChange,
+              false,
+              '',
+              'role',
+              [
+                { name: '', value: '' },
+                { name: 'Admin', value: 'ADMIN' },
+                { name: 'Site Manager', value: 'MANAGER' },
+                { name: 'Owner', value: 'OWNER' },
+              ],
+            ])}
+          <p>
+            <span></span>
+            <button type="submit" value="Submit" className="submit">
+              Done!
+            </button>
+            <span></span>
+            {isLoggedIn() ||
+              (signup && <Link to="/login">Meant to Log In?</Link>) || (
+                <Link to="/signup">Meant to Sign Up?</Link>
+              )}
+          </p>
+        </section>
       </form>
     </main>
   )

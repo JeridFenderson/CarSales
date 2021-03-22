@@ -8,16 +8,14 @@ namespace CarSales.Models
 {
     public class User
     {
-        public int Id { get; set; }
-        
+        public int Id { get; set; }     
         [Required]
-        public string FirstName { get; set; }
-        
+        public string FirstName { get; set; }     
         [Required]
         public string LastName { get; set; }
-
         [Required]
         public string Email { get; set; }
+        [Required]
         public string PhoneNumber { get; set; }
         
         [JsonIgnore]
@@ -41,18 +39,12 @@ namespace CarSales.Models
             // Return True if the verification was a success
             return passwordVerification == PasswordVerificationResult.Success;
         }
-        public bool IsAdmin{ get; set; }
-        public bool IsOwner { get; set; }
-        public int DealerId {get; set;}
+        public string Role { get; set; }
+        public int DealerId { get; set; }
         public Dealer Dealer { get; set; }
-
         public DateTime LastActive {get; set; } = DateTime.Now;
-
         public List<Media> Media { get; set; }
-        public List<int> ReferredById {get; set; }
-        public List<Referral> ReferredBy { get; set; }
-        public List<int> FromId { get; set;}
-        public List<Referral> From { get; set;}   
-        public DateTime DateOfEntryCreation { get; } = DateTime.Now; 
+        public List<Referral> Referrals { get; set; }
+        public DateTime CreationDate { get; private set;} = DateTime.Now; 
     }
 }

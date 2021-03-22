@@ -38,8 +38,8 @@ namespace CarSales.Controllers
                 errors = new List<string>() { "Not Authorized" }
             };
              // Find the user information of the user that called a delete request
-            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsAdmin)
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (user.Role != "MANAGER")
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -74,8 +74,8 @@ namespace CarSales.Controllers
                 errors = new List<string>() { "Not Authorized" }
             };
              // Find the user information of the user that called a delete request
-            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsOwner)
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (user.Role != "OWNER")
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -96,12 +96,12 @@ namespace CarSales.Controllers
                 errors = new List<string>() { "Not Authorized" }
             };
             
-            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
             var referralFromDatabase =  await _context.Referrals
             .Where(referralDb => (referralDb.UserId == GetCurrentUserId()) && (referralDb.Id == referral.Id))
             .FirstOrDefaultAsync();
 
-            if ((!currentUser.IsOwner && currentUser.Id != referralFromDatabase.Id)|| referralFromDatabase.IsPaid)
+            if (user.Role != "OWNER" || user.Id != referralFromDatabase.Id|| referralFromDatabase.IsPaid)
             {
                 return Unauthorized(response);
             }

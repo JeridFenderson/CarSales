@@ -11,7 +11,7 @@ namespace CarSales.Models
         private static string DEVELOPMENT_DATABASE_NAME = "CarSalesDatabase";
 
         // Change this to true if you want to have logging of SQL statements in development
-        private static bool LOG_SQL_STATEMENTS_IN_DEVELOPMENT = false;
+        private static bool LOG_SQL_STATEMENTS_IN_DEVELOPMENT = true;
 
         // Add database tables here
         public DbSet<Vehicle> Vehicles { get; set; }
@@ -26,7 +26,7 @@ namespace CarSales.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasIndex(user => user.Email) .IsUnique();
+            modelBuilder.Entity<User>().HasIndex(user => user.Email).IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

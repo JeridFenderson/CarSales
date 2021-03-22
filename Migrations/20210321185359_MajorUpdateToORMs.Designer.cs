@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using CarSales.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210321185359_MajorUpdateToORMs")]
+    partial class MajorUpdateToORMs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,9 +64,6 @@ namespace CarSales.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("DateOfEntryCreation")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("Dealer_Id")
                         .HasColumnType("text");
 
@@ -82,9 +81,6 @@ namespace CarSales.Migrations
 
                     b.Property<float>("Longitude")
                         .HasColumnType("real");
-
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Url")
                         .HasColumnType("text");
@@ -131,9 +127,6 @@ namespace CarSales.Migrations
 
                     b.Property<double>("Cost")
                         .HasColumnType("double precision");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -298,6 +291,12 @@ namespace CarSales.Migrations
                     b.Property<string>("HashedPassword")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOwner")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("LastActive")
                         .HasColumnType("timestamp without time zone");
 
@@ -307,9 +306,6 @@ namespace CarSales.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Role")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -529,7 +525,7 @@ namespace CarSales.Migrations
             modelBuilder.Entity("CarSales.Models.User", b =>
                 {
                     b.HasOne("CarSales.Models.Dealer", "Dealer")
-                        .WithMany("Users")
+                        .WithMany()
                         .HasForeignKey("DealerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -567,8 +563,6 @@ namespace CarSales.Migrations
             modelBuilder.Entity("CarSales.Models.Dealer", b =>
                 {
                     b.Navigation("Media");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("CarSales.Models.User", b =>

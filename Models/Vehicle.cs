@@ -125,6 +125,6 @@ namespace CarSales.Models
         public float Latitude { get; set; }
         public float Longitude { get; set; }
         public string Url { get; set; }     
-        public DateTime DateOfEntryCreation { get; } = DateTime.Now;  
+        public DateTime CreationDate { get; private set;} = DateTime.Now;   
     }
 }

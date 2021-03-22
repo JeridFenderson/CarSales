@@ -13,7 +13,8 @@ namespace CarSales.Models
         public string SecureUrl { get; set; } 
         public int UserId { get; set; }
         public User User { get; set; }
-        public int VehicleId { get; set;}
+        public int DealerId { get; set; }
+        public int VehicleId { get; set; }
         public string InternalDescription { get; set; }
         public int InternalListOrder { get; set; }   
     }

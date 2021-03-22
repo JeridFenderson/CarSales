@@ -21,31 +21,33 @@ export function Nav() {
 
         <ul id="menu">
           {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
+          {(isLoggedIn() && currentUser.isAdmin) ||
+            (isLoggedIn() && (
+              <li>
+                <Link to="/vehicles/create" onClick={() => setOpen(false)}>
+                  In search of a specific vehicle?
+                  <br />
+                  Want to sell your vehicle?
+                </Link>
+              </li>
+            )) || (
+              <li>
+                <Link to="/signup" onClick={() => setOpen(false)}>
+                  In search of a specific vehicle?
+                  <br />
+                  Want to sell your vehicle?
+                </Link>
+              </li>
+            )}
           <li>
             <Link to="/vehicles/view" onClick={() => setOpen(false)}>
               Pre-owned Inventory
             </Link>
           </li>
-          {(isLoggedIn() && currentUser.isAdmin) || (
-            <li>
-              <Link to="/vehicles/view" onClick={() => setOpen(false)}>
-                In search of a specific car?
-              </Link>
-            </li>
-          )}
-          {(isLoggedIn() && currentUser.isAdmin && (
+          {isLoggedIn() && currentUser.isAdmin && (
             <li>
               <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                Add A Car
-              </Link>
-              <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                <i className="mobile far fa-car"></i>
-              </Link>
-            </li>
-          )) || (
-            <li>
-              <Link to="/signup" onClick={() => setOpen(false)}>
-                Want to sell your vehicle through us?
+                Add A Vehicle
               </Link>
             </li>
           )}

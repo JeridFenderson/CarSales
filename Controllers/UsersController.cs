@@ -50,7 +50,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsOwner)
+            if (currentUser.Role != "OWNER")
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -71,7 +71,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsOwner || id != GetCurrentUserId())
+            if (currentUser.Role != "OWNER" || id != GetCurrentUserId())
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -110,19 +110,10 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsOwner || GetCurrentUserId() != id)
+            if (currentUser.Id != user.Id && currentUser.Id != id)
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
-            }
-
-            if ((currentUser.IsAdmin != user.IsAdmin) && !currentUser.IsOwner)
-            {
-                    return Unauthorized(response);
-            }
-            if ((currentUser.IsOwner != user.IsOwner) && !currentUser.IsOwner)
-            {
-                    return Unauthorized(response);
             }
 
             // Tell the database to consider everything in user to be _updated_ values. When
@@ -169,8 +160,7 @@ namespace CarSales.Controllers
         public async Task<ActionResult<User>> PostUser(User user)
         {
             // Security measure overwrites front end entries for first time users
-            user.IsAdmin = false;
-            user.IsOwner = false;
+            user.Role = "";
 
             try
             {
@@ -181,7 +171,46 @@ namespace CarSales.Controllers
                 // headers with details of the newly created object.
                 return CreatedAtAction("GetUser", new { id = user.Id }, user);
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            catch (DbUpdateException)
+            {
+                // Make a custom error response
+                var response = new
+                {
+                    status = 400,
+                    errors = new List<string>() { "This account already exists!" }
+                };
+                // Return our error with the custom response
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<User>> PostUserWithRights(User user)
+        {
+             // Find the user information of the user that called a delete request
+            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
+            if (currentUser.Role != "OWNER" || user.Role == "OWNER")
+            {
+                var response = new
+                {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+                };
+                // Return our error with the custom response
+                return Unauthorized(response);
+            }
+
+            try
+            {
+                // Indicate to the database context we want to add this new record
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                // Return a response that indicates the object was created (status code `201`) and some additional
+                // headers with details of the newly created object.
+                return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            }
+            catch (DbUpdateException)
             {
                 // Make a custom error response
                 var response = new
@@ -264,7 +293,7 @@ namespace CarSales.Controllers
             }
 
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!currentUser.IsOwner)
+            if (currentUser.Role != "OWNER")
             {
                 return Unauthorized(response);
             }

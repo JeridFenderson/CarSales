@@ -4,13 +4,14 @@ import { useDropzone } from 'react-dropzone'
 import { authHeader, getUser, isLoggedIn } from '../../../auth'
 import '../../../css/form.scss'
 import { SelectVehicles } from './SelectVehicles'
+import { Input, BigInput, OptionsInput, ButtonInput } from '../formInputs'
 
 export function VehiclesController({ filterText }) {
+  // @ts-ignore
+  const { path, id, action } = useParams()
   const currentUser = getUser()
   const history = useHistory()
-  const { path, id, action } = useParams()
   const [mileageDisplay, setMileageDisplay] = useState('')
-  const [requiredOnSale, setRequiredOnSale] = useState(false)
   const [dropzoneMessage, setDropzoneMessage] = useState('')
   const [isUploading, setIsUploading] = useState(false)
   const [filesToUpload, setFilesToUpload] = useState([])
@@ -37,7 +38,6 @@ export function VehiclesController({ filterText }) {
     vehicle_type: 'CAR_TRUCK',
     condition: 'GOOD',
     state_of_vehicle: 'Used',
-    description: '',
     features: [],
     mileage: { value: 0, unit: '' },
     images: [],
@@ -238,76 +238,6 @@ export function VehiclesController({ filterText }) {
     }
   }
 
-  function Input(packet) {
-    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit]
-    return (
-      <p>
-        <label htmlFor={packet[1].toLowerCase()}>{packet[1]}</label>
-        <input
-          type={packet[0]}
-          name={packet[1].toLowerCase()}
-          placeholder={packet[1]}
-          value={packet[2]}
-          onChange={packet[3]}
-          required={packet[4]}
-          maxLength={packet[5]}
-        />
-      </p>
-    )
-  }
-
-  function BigInput(packet) {
-    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
-    // 6 = name, 7 = list of options]
-    return (
-      <p>
-        <label htmlFor={packet[6]}>{packet[1]}</label>
-        <input
-          type={packet[0]}
-          name={packet[6]}
-          placeholder={packet[1]}
-          value={packet[2]}
-          onChange={packet[3]}
-          required={packet[4]}
-          maxLength={packet[5]}
-        />
-      </p>
-    )
-  }
-
-  function OptionsInput(packet) {
-    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
-    // 6 = name, 7 = list of options values]
-    return (
-      <p>
-        <label htmlFor={packet[6]}>{packet[1]}</label>
-        <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
-          {packet[7].map((choice) => (
-            <option value={choice.value}>{choice.name}</option>
-          ))}
-        </select>
-      </p>
-    )
-  }
-
-  function ButtonInput(packet) {
-    // packet [0 = type, 1 = Name, 2 = value,  3 = onChange, 4 = required, 5 = characterLimit,
-    // 6 = name]
-    return (
-      <p>
-        <span></span>
-        <label htmlFor={packet[6]}>{packet[1]}</label>
-        <input
-          type={packet[0]}
-          name={packet[6]}
-          checked={packet[2]}
-          onChange={packet[3]}
-        />
-        <span></span>
-      </p>
-    )
-  }
-
   if (path === 'view') {
     return SelectVehicles({ vehicles })
   } else {
@@ -337,11 +267,15 @@ export function VehiclesController({ filterText }) {
               handleStringFieldChange,
               false,
               '',
-              'condition',
+              'state_of_vehicle',
               [
-                // { name: 'New', value: 'New' },
                 { name: 'Used', value: 'Used' },
                 { name: 'Certified Pre-Owned', value: 'CPO' },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'New',
+                    value: 'New',
+                  },
               ],
             ])}
             {OptionsInput([
@@ -354,13 +288,41 @@ export function VehiclesController({ filterText }) {
               'vehicle_type',
               [
                 { name: 'Car', value: 'CAR_TRUCK' },
-                // { name: 'Motorcycle', value: 'MOTORCYCLE' },
-                // { name: 'Boat', value: 'BOAT' },
-                // { name: 'Power Sport', value: 'POWERSPORT' },
-                // { name: 'RV', value: 'RV_CAMPER' },
-                // { name: 'Commercial', value: 'COMMERCIAL' },
-                // { name: 'Trailer', value: 'TRAILER' },
-                // { name: 'Other', value: 'OTHER' },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Motorcycle',
+                    value: 'MOTORCYCLE',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Boat',
+                    value: 'BOAT',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Power Sport',
+                    value: 'POWERSPORT',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'RV',
+                    value: 'RV_CAMPER',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Commercial',
+                    value: 'COMMERCIAL',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Trailer',
+                    value: 'TRAILER',
+                  },
+                isLoggedIn() &&
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Other',
+                    value: 'OTHER',
+                  },
               ],
             ])}
           </section>
@@ -470,17 +432,16 @@ export function VehiclesController({ filterText }) {
                 { name: 'Other', value: 'OTHER' },
               ],
             ])}
-            {isLoggedIn() && currentUser.isAdmin && (
+            <p>
+              <button>Features</button>
+            </p>
+          </section>
+          <section>
+            {isLoggedIn() && currentUser.role === 'ADMIN' && (
               <p>
                 <button>Did A Little Maintenance Already? Log it!</button>
               </p>
             )}
-          </section>
-          <section>
-            {/* Handle features window */}
-            <p>
-              <button>Features</button>
-            </p>
             <div className="file-drop-zone">
               <div {...getRootProps()}>
                 {/* Make input required -------------------------hello--------------- */}
@@ -498,7 +459,7 @@ export function VehiclesController({ filterText }) {
           <section>
             {OptionsInput([
               '',
-              'Status Changer',
+              'Status',
               status,
               handleStringFieldChange,
               true,
@@ -509,24 +470,32 @@ export function VehiclesController({ filterText }) {
                 { name: 'Search Request', value: 'SEARCH_REQUESTED' },
                 { name: 'Offer', value: 'OFFERED' },
                 isLoggedIn() &&
-                  currentUser.isAdmin && { name: 'Reject', value: 'REJECTED' },
+                  currentUser.role === 'MANAGER' && {
+                    name: 'Reject',
+                    value: 'REJECTED',
+                  },
                 isLoggedIn() &&
-                  currentUser.isAdmin && {
+                  currentUser.role === 'ADMIN' && {
                     name: 'Purchase',
                     value: 'PURCHASED',
                   },
                 isLoggedIn() &&
-                  currentUser.isAdmin && {
+                  currentUser.role === 'ADMIN' && {
                     name: 'Maintain',
                     value: 'MAINTAINED',
                   },
                 isLoggedIn() &&
-                  currentUser.isAdmin && { name: 'List', value: 'LISTED' },
+                  currentUser.role === 'ADMIN' && {
+                    name: 'List',
+                    value: 'LISTED',
+                  },
                 isLoggedIn() &&
-                  currentUser.isAdmin && { name: 'Sell', value: 'SOLD' },
+                  currentUser.role === 'SOLD' && {
+                    name: 'Sell',
+                    value: 'SOLD',
+                  },
               ],
             ])}
-
             {isLoggedIn() &&
               status === 'SEARCH_REQUESTED' &&
               BigInput([
@@ -550,7 +519,7 @@ export function VehiclesController({ filterText }) {
                 'offerCost',
               ])}
             {isLoggedIn() &&
-              currentUser.isAdmin &&
+              currentUser.role === 'ADMIN' &&
               status === 'PURCHASED' &&
               BigInput([
                 'text',
@@ -562,7 +531,7 @@ export function VehiclesController({ filterText }) {
                 'purchaseCost',
               ])}
             {isLoggedIn() &&
-              currentUser.isAdmin &&
+              currentUser.role === 'ADMIN' &&
               id &&
               status === 'LISTED' &&
               Number(vehicle.purchaseCost) > 0 &&
@@ -576,7 +545,7 @@ export function VehiclesController({ filterText }) {
                 'listPrice',
               ])}
             {isLoggedIn() &&
-              currentUser.isAdmin &&
+              currentUser.role === 'MANAGER' &&
               id &&
               status === 'SOLD' &&
               Number(vehicle.listPrice) > 0 &&
@@ -607,7 +576,9 @@ export function VehiclesController({ filterText }) {
             )}
             <p>
               <span></span>
-              <input type="submit" value="Submit" />
+              <button type="submit" value="Submit">
+                Done!
+              </button>
               <span></span>
             </p>
           </section>

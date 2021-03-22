@@ -22,7 +22,6 @@ namespace CarSales.Models
         }
         public bool IsCredit{ get; set; }
 
-        [NotMapped]
         public int UserId { get; set; }
         public string FirstName { get; set; }
         public string Email { get; set; }
@@ -32,6 +31,6 @@ namespace CarSales.Models
         public int FromId { get; set; }
         public string FromFirstName { get; set; }
         public bool IsPaid { get; set; }  
-        public DateTime DateOfEntryCreation { get; } = DateTime.Now;      
+        public DateTime CreationDate { get; private set;} = DateTime.Now;     
     }
 }

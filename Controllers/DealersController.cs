@@ -44,7 +44,7 @@ namespace CarSales.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Dealer>>> GetDealers()
         {   
-            return await _context.Dealers.ToListAsync();
+            return await _context.Dealers.Include(dealer => dealer.Address).ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -90,7 +90,7 @@ namespace CarSales.Controllers
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!user.IsOwner)
+            if (dealer.OwnerId != user.Id)
             {
                 return Unauthorized(response);
             }
@@ -141,7 +141,7 @@ namespace CarSales.Controllers
         {
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
 
-            if(!currentUser.IsOwner)
+            if(currentUser.Role != "OWNER")
             {
                  var response = new
                 {
@@ -152,6 +152,8 @@ namespace CarSales.Controllers
                 // Return our error with the custom response
                 return Unauthorized(response);
             }
+
+            dealer.OwnerId = GetCurrentUserId();
 
             _context.Dealers.Add(dealer);
             await _context.SaveChangesAsync();
@@ -183,7 +185,7 @@ namespace CarSales.Controllers
 
             // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!user.IsOwner)
+            if (user.Role != "OWNER")
             {
                 // Make a custom error response
                 var response = new

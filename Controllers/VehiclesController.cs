@@ -67,16 +67,14 @@ namespace CarSales.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<IEnumerable<Vehicle>>> GetAllVehicles(string filterMake)
         {
-            var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if(!currentUser.IsAdmin)
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if(user.Role != "MANAGER")
             {
                  var response = new
                 {
                     status = 401,
                     errors = new List<string>() { "Not Authorized" }
                 };
-
-                // Return our error with the custom response
                 return Unauthorized(response);
             }
             // Uses the database context in `_context` to request all of the Vehicles, sort
@@ -90,10 +88,10 @@ namespace CarSales.Controllers
             }
             else
             {
-            return await _context.Vehicles
-            .Include(vehicle => vehicle.User)
-            .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
-            .ToListAsync();
+                return await _context.Vehicles
+                .Include(vehicle => vehicle.User)
+                .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
+                .ToListAsync();
             }        
         }
 
@@ -118,8 +116,6 @@ namespace CarSales.Controllers
                 // Return a `404` response to the client indicating we could not find a vehicle with this id
                 return NotFound();
             }
-
-            //  Return the vehicle as a JSON object.
             return vehicle;
         }
 
@@ -139,46 +135,39 @@ namespace CarSales.Controllers
         public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referredByEmail, string referredFromContact)
         {
             var response = new
-                {
-                    status = 401,
-                    errors = new List<string>() { "Not Authorized" }
-                };
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
             // If the ID in the URL does not match the ID in the supplied request body, return a bad request
             if (id != vehicle.Id)
-            {
                 return BadRequest();
-            }
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!user.IsAdmin)
-            {
+            if (user.Role != "MANAGER")
                 return Unauthorized(response);
-            }
 
             var vehicleFromDatabase = await _context.Vehicles.FindAsync(id);
 
-            if(vehicleFromDatabase.PurchaseCost > 0) vehicle.PurchaseCost = vehicleFromDatabase.PurchaseCost;
-
-            if (vehicleFromDatabase.Status == "SOLD")
-            {
+            if(vehicleFromDatabase.Status == "SOLD")
                 return Unauthorized(response);
-            }
+
+            if(vehicleFromDatabase.PurchaseCost > 0)
+                vehicle.PurchaseCost = vehicleFromDatabase.PurchaseCost;
+
+            if(vehicle.Status == "SOLD" && vehicleFromDatabase.PurchaseCost < 1) 
+                return Unauthorized(response);
+
+            if (vehicle.Status == "SOLD" && vehicleFromDatabase.MarginPercentage < 0.15) 
+                return Unauthorized(response);
+
+            if (vehicleFromDatabase.Status == "SOLD" && vehicle.IsReferral && vehicleFromDatabase.MarginPercentageWithReferral < 0.15)
+                return Unauthorized(response);
 
             if (vehicle.Status == "LISTED" && vehicleFromDatabase.Status != "LISTED")
             {
                 vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
-            }
-
-            //Future margin tracker
-            if(vehicle.Status == "SOLD" && (vehicle.SalePrice < 1))
-            {
-                var otherResponse = new
-                {
-                    status = 401,
-                    errors = new List<string>() { "No sale, no changing to sold" }
-                };
-                return Unauthorized(response);
             }
 
             if(vehicle.Status == "SOLD")
@@ -282,33 +271,31 @@ namespace CarSales.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
-            var currentUser = await _context.Users
+            var user = await _context.Users
             .Include(user => user.Dealer)
             .Where(user => user.Id == GetCurrentUserId())
             .FirstOrDefaultAsync();
-
-            
 
             if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
                  var response = new
                 {
                     status = 401,
-                    errors = new List<string>() { "Not Authorized, Must Purchase Vehicle First" }
+                    errors = new List<string>() { "Not Authorized, must purchase vehicle first" }
                 };
                 return Unauthorized(response);
             }
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
-            vehicle.UserId = currentUser.Id;
-            vehicle.Dealer_Id = currentUser.Dealer.Dealer_Id;
-            vehicle.Dealer_Name = currentUser.Dealer.Dealer_Name;
-            vehicle.Dealer_Phone = currentUser.Dealer.Dealer_Phone;
-            vehicle.AddressId = currentUser.Dealer.AddressId;
-            vehicle.Address = currentUser.Dealer.Address;
-            vehicle.Latitude = currentUser.Dealer.Latitude;
-            vehicle.Longitude = currentUser.Dealer.Longitude;
-            vehicle.Url = currentUser.Dealer.Url;
+            vehicle.UserId = user.Id;
+            vehicle.Dealer_Id = user.Dealer.Dealer_Id;
+            vehicle.Dealer_Name = user.Dealer.Dealer_Name;
+            vehicle.Dealer_Phone = user.Dealer.Dealer_Phone;
+            vehicle.AddressId = user.Dealer.AddressId;
+            vehicle.Address = user.Dealer.Address;
+            vehicle.Latitude = user.Dealer.Latitude;
+            vehicle.Longitude = user.Dealer.Longitude;
+            vehicle.Url = user.Dealer.Url;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
@@ -341,7 +328,7 @@ namespace CarSales.Controllers
 
             // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (!user.IsOwner)
+            if (user.Role != "OWNER")
             {
                 // Make a custom error response
                 var response = new

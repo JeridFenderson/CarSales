@@ -5,7 +5,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
-    public partial class RefreshedDatabaseForProduction : Migration
+    public partial class RestartedDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,11 +15,12 @@ namespace CarSales.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Addr1 = table.Column<string>(type: "text", nullable: false),
-                    City = table.Column<string>(type: "text", nullable: false),
-                    Region = table.Column<string>(type: "text", nullable: false),
-                    Country = table.Column<string>(type: "text", nullable: false),
-                    Postal_Code = table.Column<string>(type: "text", nullable: false)
+                    DealerId = table.Column<int>(type: "integer", nullable: false),
+                    Addr1 = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: true),
+                    Region = table.Column<string>(type: "text", nullable: true),
+                    Country = table.Column<string>(type: "text", nullable: true),
+                    Postal_Code = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -51,19 +52,22 @@ namespace CarSales.Migrations
                     Dealer_Name = table.Column<string>(type: "text", nullable: true),
                     Dealer_Phone = table.Column<string>(type: "text", nullable: true),
                     AddressId = table.Column<int>(type: "integer", nullable: false),
+                    AddressId1 = table.Column<int>(type: "integer", nullable: true),
                     Latitude = table.Column<float>(type: "real", nullable: false),
                     Longitude = table.Column<float>(type: "real", nullable: false),
-                    Url = table.Column<string>(type: "text", nullable: true)
+                    Url = table.Column<string>(type: "text", nullable: true),
+                    OwnerId = table.Column<int>(type: "integer", nullable: false),
+                    DateOfEntryCreation = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Dealers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Dealers_Addresses_AddressId",
-                        column: x => x.AddressId,
+                        name: "FK_Dealers_Addresses_AddressId1",
+                        column: x => x.AddressId1,
                         principalTable: "Addresses",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,14 +79,12 @@ namespace CarSales.Migrations
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
                     HashedPassword = table.Column<string>(type: "text", nullable: true),
-                    IsAdmin = table.Column<bool>(type: "boolean", nullable: false),
-                    IsOwner = table.Column<bool>(type: "boolean", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: true),
                     DealerId = table.Column<int>(type: "integer", nullable: false),
                     LastActive = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    ReferredById = table.Column<List<int>>(type: "integer[]", nullable: true),
-                    FromId = table.Column<List<int>>(type: "integer[]", nullable: true)
+                    CreationDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,37 +98,54 @@ namespace CarSales.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeletedVehicles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    VehicleInfo = table.Column<string>(type: "text", nullable: true),
+                    MonetaryInfo = table.Column<string>(type: "text", nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeletedVehicles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeletedVehicles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Referrals",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     VehicleId = table.Column<int>(type: "integer", nullable: false),
-                    VehicleSalePrice = table.Column<int>(type: "integer", nullable: false),
+                    VehicleSalePrice = table.Column<double>(type: "double precision", nullable: false),
                     PaymentAmountDue = table.Column<double>(type: "double precision", nullable: false),
+                    IsCredit = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
                     PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     FromFirstName = table.Column<string>(type: "text", nullable: true),
                     IsPaid = table.Column<bool>(type: "boolean", nullable: false),
-                    UserId1 = table.Column<int>(type: "integer", nullable: true),
-                    UserId2 = table.Column<int>(type: "integer", nullable: true)
+                    CreationDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Referrals", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Referrals_Users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_Referrals_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Referrals_Users_UserId2",
-                        column: x => x.UserId2,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,30 +154,34 @@ namespace CarSales.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Vehicle_Id = table.Column<string>(type: "text", nullable: true),
+                    Vin = table.Column<string>(type: "text", nullable: false),
                     Year = table.Column<int>(type: "integer", nullable: false),
                     Make = table.Column<string>(type: "text", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: false),
-                    Price = table.Column<int>(type: "integer", nullable: false),
-                    MileageId = table.Column<int>(type: "integer", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Vin = table.Column<string>(type: "text", nullable: false),
+                    Trim = table.Column<string>(type: "text", nullable: true),
                     Exterior_Color = table.Column<string>(type: "text", nullable: false),
                     Interior_Color = table.Column<string>(type: "text", nullable: true),
                     Body_Style = table.Column<string>(type: "text", nullable: false),
                     Transmission = table.Column<string>(type: "text", nullable: false),
                     Drivetrain = table.Column<string>(type: "text", nullable: false),
                     Fuel_Type = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Trim = table.Column<string>(type: "text", nullable: true),
+                    Vehicle_Type = table.Column<string>(type: "text", nullable: false),
                     Condition = table.Column<string>(type: "text", nullable: true),
+                    State_Of_Vehicle = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     Features = table.Column<List<string>>(type: "text[]", nullable: true),
-                    IsSearchRequest = table.Column<bool>(type: "boolean", nullable: false),
-                    IsListed = table.Column<bool>(type: "boolean", nullable: false),
-                    IsSold = table.Column<bool>(type: "boolean", nullable: false),
+                    MileageId = table.Column<int>(type: "integer", nullable: false),
+                    ImagesId = table.Column<List<int>>(type: "integer[]", nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: true),
+                    SearchPrice = table.Column<double>(type: "double precision", nullable: false),
+                    OfferCost = table.Column<double>(type: "double precision", nullable: false),
+                    PurchaseCost = table.Column<double>(type: "double precision", nullable: false),
+                    ListPrice = table.Column<double>(type: "double precision", nullable: false),
+                    SalePrice = table.Column<double>(type: "double precision", nullable: false),
+                    IsReferral = table.Column<bool>(type: "boolean", nullable: false),
                     Date_First_On_Lot = table.Column<string>(type: "text", nullable: true),
                     Date_Sold = table.Column<string>(type: "text", nullable: true),
-                    PriceSoldAt = table.Column<int>(type: "integer", nullable: false),
+                    MaintenanceId = table.Column<List<int>>(type: "integer[]", nullable: true),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Fb_Page_Id = table.Column<int>(type: "integer", nullable: false),
                     Dealer_Id = table.Column<string>(type: "text", nullable: true),
@@ -167,7 +190,8 @@ namespace CarSales.Migrations
                     AddressId = table.Column<int>(type: "integer", nullable: false),
                     Latitude = table.Column<float>(type: "real", nullable: false),
                     Longitude = table.Column<float>(type: "real", nullable: false),
-                    Url = table.Column<string>(type: "text", nullable: true)
+                    Url = table.Column<string>(type: "text", nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,6 +217,29 @@ namespace CarSales.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Maintenance",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    VehicleId = table.Column<int>(type: "integer", nullable: false),
+                    Task = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Cost = table.Column<double>(type: "double precision", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Maintenance", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Maintenance_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Media",
                 columns: table => new
                 {
@@ -207,6 +254,7 @@ namespace CarSales.Migrations
                     Url = table.Column<string>(type: "text", nullable: true),
                     SecureUrl = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<int>(type: "integer", nullable: false),
+                    DealerId = table.Column<int>(type: "integer", nullable: false),
                     VehicleId = table.Column<int>(type: "integer", nullable: false),
                     InternalDescription = table.Column<string>(type: "text", nullable: true),
                     InternalListOrder = table.Column<int>(type: "integer", nullable: false)
@@ -214,6 +262,12 @@ namespace CarSales.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Media", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Media_Dealers_DealerId",
+                        column: x => x.DealerId,
+                        principalTable: "Dealers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Media_Users_UserId",
                         column: x => x.UserId,
@@ -229,9 +283,24 @@ namespace CarSales.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Dealers_AddressId",
+                name: "IX_Dealers_AddressId1",
                 table: "Dealers",
-                column: "AddressId");
+                column: "AddressId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeletedVehicles_UserId",
+                table: "DeletedVehicles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Maintenance_VehicleId",
+                table: "Maintenance",
+                column: "VehicleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Media_DealerId",
+                table: "Media",
+                column: "DealerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Media_UserId",
@@ -244,14 +313,9 @@ namespace CarSales.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Referrals_UserId1",
+                name: "IX_Referrals_UserId",
                 table: "Referrals",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Referrals_UserId2",
-                table: "Referrals",
-                column: "UserId2");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_DealerId",
@@ -282,6 +346,12 @@ namespace CarSales.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DeletedVehicles");
+
+            migrationBuilder.DropTable(
+                name: "Maintenance");
+
             migrationBuilder.DropTable(
                 name: "Media");
 

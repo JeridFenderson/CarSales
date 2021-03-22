@@ -21,7 +21,6 @@ export function UsersController() {
     email: '',
     password: '',
     role: '',
-    dealerId: '',
     Media: [{}],
   })
   const {
@@ -31,7 +30,6 @@ export function UsersController() {
     email,
     password,
     role,
-    dealerId,
     media,
   } = newUser
   const signup = history.location.pathname === '/signup' ? true : false
@@ -45,6 +43,7 @@ export function UsersController() {
     const response = await fetch(`api/Dealers`)
     const json = await response.json()
     setDealers(json)
+    console.log(json)
   }
 
   async function handleFormSubmit(event) {
@@ -100,7 +99,7 @@ export function UsersController() {
               </p>
             </>
           )}
-          {signup && (
+          {signup && loadDealers() && (
             <>
               {BigInput([
                 'text',
@@ -136,7 +135,7 @@ export function UsersController() {
         </section>
         <section>
           {Input(['email', 'Email', email, handleStringFieldChange, true])}
-          {OptionsInput([
+          {/* {OptionsInput([
             '',
             'Main Site',
             dealerId,
@@ -151,7 +150,7 @@ export function UsersController() {
                   value: dealer.id,
                 })),
             ],
-          ])}
+          ])} */}
           {(!isLoggedIn() ||
             (isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount)) &&
             Input([

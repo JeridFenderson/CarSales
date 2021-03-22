@@ -28,23 +28,21 @@ namespace CarSales.Migrations
                         .UseIdentityByDefaultColumn();
 
                     b.Property<string>("Addr1")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Country")
-                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("DealerId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Postal_Code")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Region")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -60,6 +58,9 @@ namespace CarSales.Migrations
                         .UseIdentityByDefaultColumn();
 
                     b.Property<int>("AddressId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AddressId1")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DateOfEntryCreation")
@@ -91,7 +92,7 @@ namespace CarSales.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex("AddressId1");
 
                     b.ToTable("Dealers");
                 });
@@ -467,9 +468,7 @@ namespace CarSales.Migrations
                 {
                     b.HasOne("CarSales.Models.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressId1");
 
                     b.Navigation("Address");
                 });

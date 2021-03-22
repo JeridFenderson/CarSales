@@ -41,7 +41,10 @@ namespace CarSales.Models
         public string Exterior_Color { get; set; }
         public string Interior_Color { get; set; }
         [Required]
+        public float EngineDisplacement { get; set; }
         public string Body_Style { get; set; }
+        [Required]
+        public int Seats {get; set;}
         [Required]
         public string Transmission { get; set; }
         [Required]

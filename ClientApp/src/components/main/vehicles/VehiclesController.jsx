@@ -31,7 +31,9 @@ export function VehiclesController({ filterText }) {
     trim: '',
     exterior_color: '',
     interior_color: '',
+    engineDisplacement: '',
     body_style: 'SEDAN',
+    seats: '',
     transmission: 'AUTOMATIC',
     drivetrain: 'RWD',
     fuel_type: 'GASOLINE',
@@ -59,7 +61,9 @@ export function VehiclesController({ filterText }) {
     trim,
     exterior_color,
     interior_color,
+    engineDisplacement,
     body_style,
+    seats,
     transmission,
     drivetrain,
     fuel_type,
@@ -325,6 +329,15 @@ export function VehiclesController({ filterText }) {
                   },
               ],
             ])}
+            {BigInput([
+              'text',
+              'Engine Displacement (liters)',
+              engineDisplacement,
+              handleNumberFieldChange,
+              true,
+              3,
+              'seats',
+            ])}
           </section>
           <section>
             {BigInput([
@@ -367,6 +380,15 @@ export function VehiclesController({ filterText }) {
                 { name: 'Full Van', value: 'VAN' },
                 { name: 'Other', value: 'OTHER' },
               ],
+            ])}
+            {BigInput([
+              'text',
+              'Seats',
+              seats,
+              handleNumberFieldChange,
+              true,
+              2,
+              'seats',
             ])}
             {OptionsInput([
               '',

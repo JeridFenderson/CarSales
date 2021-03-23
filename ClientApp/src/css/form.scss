@@ -53,6 +53,10 @@
       height: 18em;
       width: 16em;
     }
+    .dealerSelector {
+      display: flex;
+      flex-flow: column wrap;
+    }
     input {
       height: 1.1em;
     }

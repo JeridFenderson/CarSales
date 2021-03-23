@@ -8,7 +8,16 @@ export function UsersController() {
   const history = useHistory()
   const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
-  const [dealers, setDealers] = useState([])
+  const [dealers, setDealers] = useState([
+    {
+      id: '',
+      addr1: '',
+      city: '',
+      region: '',
+      country: '',
+      postal_Code: '',
+    },
+  ])
 
   const [newUser, setNewUser] = useState({
     firstName: '',
@@ -16,6 +25,7 @@ export function UsersController() {
     phoneNumber: '',
     email: '',
     password: '',
+    dealerId: '',
     role: '',
     Media: [{}],
   })
@@ -25,6 +35,7 @@ export function UsersController() {
     phoneNumber,
     email,
     password,
+    dealerId,
     role,
     media,
   } = newUser
@@ -36,7 +47,6 @@ export function UsersController() {
       const response = await fetch(`api/Dealers`)
       const json = await response.json()
       setDealers(json)
-      console.log(json)
     }
     loadDealers()
   }, [])
@@ -45,9 +55,18 @@ export function UsersController() {
     setNewUser({ ...newUser, [event.target.name]: event.target.value })
   }
 
+  function handleNumberFieldChange(event) {
+    setNewUser({
+      ...newUser,
+      [event.target.name]: event.target.value,
+    })
+  }
+
   async function handleFormSubmit(event) {
     event.preventDefault()
-    console.log(newUser)
+    if (Number.isNaN(dealerId)) {
+      setNewUser({ ...newUser, dealerId: dealers[0].id })
+    }
     let url = signup ? '/api/Users' : '/api/Sessions'
     url =
       isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount
@@ -65,10 +84,8 @@ export function UsersController() {
     })
 
     if (response.status === 400) {
-      // @ts-ignore
       setErrorMessage(Object.values(response.errors).join(' '))
     } else if (response.status === 404) {
-      // @ts-ignore
       setErrorMessage(Object.values(response.errors).join(' '))
     } else {
       if (isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount) {
@@ -85,50 +102,7 @@ export function UsersController() {
     <main className="main-form">
       {errorMessage && <h3 className="errorMessage">{errorMessage}</h3>}
       <form onSubmit={handleFormSubmit}>
-        <section>
-          {isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount && (
-            <h3>Create Another User, {currentUser.firstName}?</h3>
-          )}
-          {isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount && (
-            <>
-              <h3>Delete A User, {currentUser.firstName}?</h3>
-              <p>
-                What's the email address of the account you'd like to delete?
-              </p>
-            </>
-          )}
-          {signup &&
-            BigInput([
-              'text',
-              'First Name',
-              firstName,
-              handleStringFieldChange,
-              true,
-              '',
-              'firstName',
-            ]) &&
-            BigInput([
-              'text',
-              'Last Name',
-              lastName,
-              handleStringFieldChange,
-              true,
-              '',
-              'lastName',
-            ]) && (
-              <p>
-                <label htmlFor="phoneNumber">Phone</label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  placeholder="xxx-xxx-xxxx"
-                  value={phoneNumber}
-                  onChange={handleStringFieldChange}
-                  required
-                />
-              </p>
-            )}
-        </section>
+        <section></section>
         <section>
           {Input(['email', 'Email', email, handleStringFieldChange, true])}
           {/* {OptionsInput([
@@ -156,6 +130,67 @@ export function UsersController() {
               handleStringFieldChange,
               true,
             ])}
+          {isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount && (
+            <h3>Create Another User, {currentUser.firstName}?</h3>
+          )}
+          {isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount && (
+            <>
+              <h3>Delete A User, {currentUser.firstName}?</h3>
+              <p>
+                What's the email address of the account you'd like to delete?
+              </p>
+            </>
+          )}
+          {signup &&
+            BigInput([
+              'text',
+              'First Name',
+              firstName,
+              handleStringFieldChange,
+              true,
+              '',
+              'firstName',
+            ])}
+          {signup &&
+            BigInput([
+              'text',
+              'Last Name',
+              lastName,
+              handleStringFieldChange,
+              true,
+              '',
+              'lastName',
+            ])}
+          {signup && (
+            <>
+              <p>
+                <label htmlFor="phoneNumber">Phone</label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="xxx-xxx-xxxx"
+                  value={phoneNumber}
+                  onChange={handleStringFieldChange}
+                  required
+                />
+              </p>
+              <p className="dealerSelector">
+                <label htmlFor="dealerId">Main Location</label>
+                <select
+                  name="dealerId"
+                  value={dealerId}
+                  onChange={handleNumberFieldChange}
+                >
+                  {dealers.map((dealer) => (
+                    <option key={dealer.id} value={dealer.id}>
+                      {dealer.addr1}, {dealer.city}, {dealer.region}{' '}
+                      {dealer.postal_Code}
+                    </option>
+                  ))}
+                </select>
+              </p>
+            </>
+          )}
         </section>
         <section>
           {isLoggedIn() &&

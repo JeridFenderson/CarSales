@@ -9,8 +9,6 @@ namespace CarSales.Models
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
-        public Vehicle Vehicle { get; set; }
-
         public double VehicleSalePrice {get; set;}
         public double PaymentAmountDue 
         {

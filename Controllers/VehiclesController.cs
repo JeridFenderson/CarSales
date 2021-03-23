@@ -192,7 +192,7 @@ namespace CarSales.Controllers
                 }
                 var referral = new Referral
                 {
-                    Vehicle = vehicleFromDatabase,
+                    VehicleId = vehicleFromDatabase.Id,
                     VehicleSalePrice = vehicle.SalePrice,
                     FromId = referredFromId,
                     User = referredUser,    

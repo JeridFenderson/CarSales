@@ -203,7 +203,6 @@ export function VehiclesController({ filterText }) {
   }
 
   function handleNumberFieldChange(event) {
-    console.log(event.target.name)
     setVehicle({
       ...vehicle,
       [event.target.name]:
@@ -561,7 +560,7 @@ export function VehiclesController({ filterText }) {
                     type="button"
                     onClick={() => (modal.style.display = 'block')}
                   >
-                    Did A Little Maintenance Already? Log it!{' '}
+                    Did A Little Maintenance Already? Log it!
                   </button>
 
                   {/* The Modal */}

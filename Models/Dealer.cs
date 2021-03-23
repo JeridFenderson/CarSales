@@ -21,6 +21,7 @@ namespace CarSales.Models
         public float Longitude { get; set; }
         public string Url { get; set; }
         public List<Media> Media { get; set; }
+        public List<Vehicle> Vehicles { get; set; }
         public List<User> Users { get; set; }
         public DateTime DateOfEntryCreation { get; private set; } = DateTime.Now; 
     }

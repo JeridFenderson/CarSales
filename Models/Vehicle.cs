@@ -103,7 +103,12 @@ namespace CarSales.Models
         public User Purchaser { get; set; }
         public int BuyerId { get; set; }
         public User Buyer { get; set; } 
+
+        //Internal Id
+        public int DealerId { get; set; }
         public int Fb_Page_Id { get; set; }
+
+        //External Id
         public string Dealer_Id { get; set; }
         public string Dealer_Name { get; set; }
         public string Dealer_Phone { get; set; }

@@ -50,7 +50,6 @@ namespace CarSales.Controllers
             // Uses the database context in `_context` to request all of the Media, sort
             // them by row id and return them as a JSON array.
             return await _context.Media
-            .Include(media => media.User)
             .ToListAsync();   
         }
 

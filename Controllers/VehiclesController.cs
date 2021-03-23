@@ -130,9 +130,9 @@ namespace CarSales.Controllers
         // supplies to the names of the attributes of our Vehicle POCO class. This represents the
         // new values for the record.
         //
-        [HttpPut("{id}/{referralEmail}/{referredFromEmail}")]
+        [HttpPut("{id}/{referralEmail}/{referredFromId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referralEmail, string referredFromEmail)
+        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referralEmail, int referredFromId)
         {
             var response = new
             {
@@ -179,9 +179,8 @@ namespace CarSales.Controllers
             {
 
                 // Find this user by looking for the specific id
-                var referredFrom = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredFromEmail);
                 var referredUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referralEmail); 
-                if (referredFrom == null)
+                if (referredUser == null)
                 {
                     var otherResponse = new
                     {
@@ -193,10 +192,10 @@ namespace CarSales.Controllers
                 }
                 var referral = new Referral
                 {
-                    VehicleId = id,
+                    Vehicle = vehicleFromDatabase,
                     VehicleSalePrice = vehicle.SalePrice,
-                    ReferralFrom = referredUser,
-                    ReferredUser = referredUser,    
+                    FromId = referredFromId,
+                    User = referredUser,    
                     IsPaid = false
                     };
                     _context.Referrals.Add(referral);
@@ -247,9 +246,10 @@ namespace CarSales.Controllers
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
             var purchaser = await _context.Users
-            .Include(user => user.Dealer)
-            .Where(user => user.Id == GetCurrentUserId())
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
+
+            var purchaserDealer = await _context.Dealers
+            .FirstOrDefaultAsync(dealer => dealer.Id == purchaser.DealerId);
 
             if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
@@ -263,17 +263,17 @@ namespace CarSales.Controllers
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
             vehicle.PurchaserId = purchaser.Id;
-            vehicle.Dealer_Id = purchaser.Dealer.Dealer_Id;
-            vehicle.Dealer_Name = purchaser.Dealer.Dealer_Name;
-            vehicle.Dealer_Phone = purchaser.Dealer.Dealer_Phone;
-            vehicle.Latitude = purchaser.Dealer.Latitude;
-            vehicle.Longitude = purchaser.Dealer.Longitude;
-            vehicle.Url = purchaser.Dealer.Url;
-            vehicle.Address.Addr1 = purchaser.Dealer.Addr1;
-            vehicle.Address.City = purchaser.Dealer.City;
-            vehicle.Address.Region = purchaser.Dealer.Region;
-            vehicle.Address.Postal_Code = purchaser.Dealer.Postal_Code;
-            vehicle.Address.Country = purchaser.Dealer.Country;
+            vehicle.Dealer_Id = purchaserDealer.Dealer_Id;
+            vehicle.Dealer_Name = purchaserDealer.Dealer_Name;
+            vehicle.Dealer_Phone = purchaserDealer.Dealer_Phone;
+            vehicle.Latitude = purchaserDealer.Latitude;
+            vehicle.Longitude = purchaserDealer.Longitude;
+            vehicle.Url = purchaserDealer.Url;
+            vehicle.Address.Addr1 = purchaserDealer.Addr1;
+            vehicle.Address.City = purchaserDealer.City;
+            vehicle.Address.Region = purchaserDealer.Region;
+            vehicle.Address.Postal_Code = purchaserDealer.Postal_Code;
+            vehicle.Address.Country = purchaserDealer.Country;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();

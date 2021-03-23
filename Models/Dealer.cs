@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CarSales.Models
@@ -20,9 +21,6 @@ namespace CarSales.Models
         public float Longitude { get; set; }
         public string Url { get; set; }
         public List<Media> Media { get; set; }
-        public int ManagerId { get; set; }
-        public User Manager { get; set; }
-        public List<User> Admins { get; set; }
         public List<User> Users { get; set; }
         public DateTime DateOfEntryCreation { get; private set; } = DateTime.Now; 
     }

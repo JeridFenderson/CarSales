@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { getUser, isLoggedIn, recordAuthentication } from '../../../auth'
 import '../../../css/form.scss'
@@ -8,12 +8,8 @@ export function UsersController() {
   const history = useHistory()
   const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
-  const [dealers, setDealers] = useState([
-    {
-      dealer_id: 0,
-      address: {},
-    },
-  ])
+  const [dealers, setDealers] = useState([])
+
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -35,15 +31,18 @@ export function UsersController() {
   const signup = history.location.pathname === '/signup' ? true : false
   const deleteAccount = history.location.pathname === '/login' ? true : false
 
+  useEffect(() => {
+    async function loadDealers() {
+      const response = await fetch(`api/Dealers`)
+      const json = await response.json()
+      setDealers(json)
+      console.log(json)
+    }
+    loadDealers()
+  }, [])
+
   function handleStringFieldChange(event) {
     setNewUser({ ...newUser, [event.target.name]: event.target.value })
-  }
-
-  async function loadDealers() {
-    const response = await fetch(`api/Dealers`)
-    const json = await response.json()
-    setDealers(json)
-    console.log(json)
   }
 
   async function handleFormSubmit(event) {
@@ -59,25 +58,24 @@ export function UsersController() {
         ? 'DELETE'
         : 'POST'
 
-    const response = await fetch(`${url}`, {
-      method: `${action}`,
+    const response = await fetch(url, {
+      method: action,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(newUser),
     })
-    const apiResponse = await response.json()
 
-    if (apiResponse.status === 400) {
+    if (response.status === 400) {
       // @ts-ignore
-      setErrorMessage(Object.values(apiResponse.errors).join(' '))
-    } else if (apiResponse.status === 404) {
+      setErrorMessage(Object.values(response.errors).join(' '))
+    } else if (response.status === 404) {
       // @ts-ignore
-      setErrorMessage(Object.values(apiResponse.errors).join(' '))
+      setErrorMessage(Object.values(response.errors).join(' '))
     } else {
       if (isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount) {
       } else if (signup) {
         history.push('/')
       } else {
-        recordAuthentication(apiResponse)
+        recordAuthentication(response)
         window.location.assign('/')
       }
     }
@@ -99,26 +97,25 @@ export function UsersController() {
               </p>
             </>
           )}
-          {signup && loadDealers() && (
-            <>
-              {BigInput([
-                'text',
-                'First Name',
-                firstName,
-                handleStringFieldChange,
-                true,
-                '',
-                'firstName',
-              ])}
-              {BigInput([
-                'text',
-                'Last Name',
-                lastName,
-                handleStringFieldChange,
-                true,
-                '',
-                'lastName',
-              ])}
+          {signup &&
+            BigInput([
+              'text',
+              'First Name',
+              firstName,
+              handleStringFieldChange,
+              true,
+              '',
+              'firstName',
+            ]) &&
+            BigInput([
+              'text',
+              'Last Name',
+              lastName,
+              handleStringFieldChange,
+              true,
+              '',
+              'lastName',
+            ]) && (
               <p>
                 <label htmlFor="phoneNumber">Phone</label>
                 <input
@@ -130,8 +127,7 @@ export function UsersController() {
                   required
                 />
               </p>
-            </>
-          )}
+            )}
         </section>
         <section>
           {Input(['email', 'Email', email, handleStringFieldChange, true])}

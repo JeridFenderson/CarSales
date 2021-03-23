@@ -57,8 +57,10 @@ namespace CarSales.Controllers
         {
             // Uses the database context in `_context` to request all of the Media, sort
             // them by row id and return them as a JSON array.
+            var referredUser = await _context.Users.FindAsync(GetCurrentUserId());
+
             return await _context.Referrals
-            .Where(referral => (!referral.IsPaid && !referral.IsCredit) && referral.ReferredUserId == GetCurrentUserId())
+            .Where(referral => (!referral.IsPaid && !referral.IsCredit) && referral.User == referredUser)
             .ToListAsync();
         }
 
@@ -98,7 +100,7 @@ namespace CarSales.Controllers
             
             var user = await _context.Users.FindAsync(GetCurrentUserId());
             var referralFromDatabase =  await _context.Referrals
-            .Where(referralDb => (referralDb.ReferredUserId == GetCurrentUserId()) && (referralDb.Id == referral.Id))
+            .Where(referralDb => (referralDb.User == user) && (referralDb.Id == referral.Id))
             .FirstOrDefaultAsync();
 
             if (user.Role != "OWNER" || user.Id != referralFromDatabase.Id|| referralFromDatabase.IsPaid)

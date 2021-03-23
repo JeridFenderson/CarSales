@@ -40,7 +40,6 @@ namespace CarSales.Models
         }
         public string Role { get; set; }
         public int DealerId { get; set; }
-        public Dealer Dealer { get; set; }
         public List<Media> Media { get; set; }
         public List<Referral> Referrals { get; set; }
         public DateTime LastActive { get;  set; } = DateTime.Now;

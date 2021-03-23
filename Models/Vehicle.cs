@@ -29,41 +29,25 @@ namespace CarSales.Models
             }
         }
         public string LotSpot { get; set; }
-
-        [Required]
         public string Vin { get; set; }
-        [Required]
         public int Year { get; set; }
-        [Required]
         public string Make { get; set; }
-        [Required]
         public string Model { get; set; } 
         public string Trim { get; set; }
-        [Required]
         public string Exterior_Color { get; set; }
         public string Interior_Color { get; set; }
-        [Required]
         public float EngineDisplacement { get; set; }
         public string Body_Style { get; set; }
-        [Required]
         public int Seats {get; set;}
-        [Required]
         public string Transmission { get; set; }
-        [Required]
         public string Drivetrain { get; set; }  
-        [Required]
         public string Fuel_Type { get; set; }
-        [Required]
         public string Vehicle_Type { get; set; }
-        [Required]
         public string Condition { get; set; }
-        [Required]
         public string State_Of_Vehicle { get; set; }
-        [Required]
         public string Description { get; set; }
         public List<Feature> Features {get; set;}
         public int MileageId { get; set; }
-        [Required]
         public Mileage Mileage { get; set; }
         public List<int> ImagesId { get; set; }
         public List<Media> Images { get; set; }  
@@ -74,10 +58,6 @@ namespace CarSales.Models
         public double ListPrice { get; set; }
         public double SalePrice { get; set; }
         public bool IsReferral {get; set; }
-        public int ReferredUserId { get; set; }
-        public Referral ReferredUser { get; set; }
-        public int ReferralFromId { get; set; }
-        public Referral ReferralFrom { get; set; }
         public string Date_First_On_Lot { get; set; }
         public string Date_Sold { get; set; }
         public string Available 

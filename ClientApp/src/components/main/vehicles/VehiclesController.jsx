@@ -4,9 +4,26 @@ import { useDropzone } from 'react-dropzone'
 import { authHeader, getUser, isLoggedIn } from '../../../auth'
 import '../../../css/form.scss'
 import { SelectVehicles } from './SelectVehicles'
-import { Input, BigInput, OptionsInput, ButtonInput } from '../formInputs'
+import {
+  Input,
+  BigInput,
+  OptionsInput,
+  ButtonInput,
+  supportedFeatures,
+} from '../formInputs'
 
 export function VehiclesController({ filterText }) {
+  // Get the modal
+  var modal = document.getElementById('myModal')
+
+  // Get the <span> element that closes the modal
+  var span = document.getElementsByClassName('close')[0]
+
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      modal.style.display = 'none'
+    }
+  }
   // @ts-ignore
   const { path, id, action } = useParams()
   const currentUser = getUser()
@@ -20,11 +37,13 @@ export function VehiclesController({ filterText }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: setFilesToUpload,
   })
+  const [vehicleFeatures, setVehicleFeatures] = useState([])
 
   const [vehicles, setVehicles] = useState([{ id: 0 }])
 
   const [vehicle, setVehicle] = useState({
     vin: '',
+    lotSpot: '',
     year: '',
     make: '',
     model: '',
@@ -55,6 +74,7 @@ export function VehiclesController({ filterText }) {
 
   const {
     vin,
+    lotSpot,
     year,
     make,
     model,
@@ -70,7 +90,6 @@ export function VehiclesController({ filterText }) {
     vehicle_type,
     condition,
     state_of_vehicle,
-    features,
     images,
     status,
     searchPrice,
@@ -188,9 +207,9 @@ export function VehiclesController({ filterText }) {
     setVehicle({
       ...vehicle,
       [event.target.name]:
-        Number(event.target.value) > 0 && Number(event.target.value) < 999999
+        Number(event.target.value) > 1 && Number(event.target.value) < 999999
           ? Number(event.target.value)
-          : 0,
+          : null,
     })
   }
 
@@ -201,12 +220,33 @@ export function VehiclesController({ filterText }) {
       mileage: {
         unit: 'MI',
         value:
-          Number(event.target.value) > 0.01 &&
+          Number(event.target.value) > 499 &&
           Number(event.target.value) < 999999
             ? Number(event.target.value)
-            : 0.01,
+            : null,
       },
     })
+  }
+
+  function handleFeatureFieldChange(event) {
+    if (event.target.checked) {
+      if (vehicleFeatures.length === 0) {
+        setVehicleFeatures([
+          { value: event.target.value, type: event.target.name },
+        ])
+      } else {
+        const addFeature = vehicleFeatures.concat({
+          value: event.target.value,
+          type: event.target.name,
+        })
+        setVehicleFeatures(addFeature)
+      }
+    } else {
+      const removeFeature = vehicleFeatures.filter(
+        (feature) => feature.value !== event.target.value
+      )
+      setVehicleFeatures(removeFeature)
+    }
   }
 
   function handleBooleanFieldChange(event) {
@@ -215,6 +255,7 @@ export function VehiclesController({ filterText }) {
 
   function handleFormSubmit(event) {
     event.preventDefault()
+    vehicle.features = vehicleFeatures
     if (
       vehicle.status === 'PURCHASED' &&
       (vehicle.purchaseCost === '' || Number(vehicle.purchaseCost) < 0)
@@ -330,13 +371,17 @@ export function VehiclesController({ filterText }) {
               ],
             ])}
             {BigInput([
-              'text',
-              'Engine Displacement (liters)',
+              'number',
+              'Engine Liters',
               engineDisplacement,
               handleNumberFieldChange,
               true,
               3,
-              'seats',
+              'engineDisplacement',
+              '',
+              0.1,
+              10,
+              0.1,
             ])}
           </section>
           <section>
@@ -382,13 +427,17 @@ export function VehiclesController({ filterText }) {
               ],
             ])}
             {BigInput([
-              'text',
+              'number',
               'Seats',
               seats,
               handleNumberFieldChange,
               true,
               2,
               'seats',
+              '',
+              1,
+              15,
+              1,
             ])}
             {OptionsInput([
               '',
@@ -455,7 +504,51 @@ export function VehiclesController({ filterText }) {
               ],
             ])}
             <p>
-              <button>Features</button>
+              {/* Trigger/Open The Modal */}
+              <button
+                id="myBtn"
+                type="button"
+                onClick={() => (modal.style.display = 'block')}
+              >
+                Features
+              </button>
+
+              {/* The Modal */}
+              <div id="myModal" className="modal">
+                {/* Modal content */}
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <span
+                      className="close"
+                      onClick={() => (modal.style.display = 'none')}
+                    >
+                      &times;
+                    </span>
+                    <h2>Features</h2>
+                  </div>
+                  <div className="modal-body">
+                    {supportedFeatures.map((feature, key) =>
+                      BigInput([
+                        'checkbox',
+                        `${feature.value}`,
+                        `${feature.value}`,
+                        handleFeatureFieldChange,
+                        false,
+                        '',
+                        `${feature.type}`,
+                        '',
+                        '',
+                        '',
+                        'features',
+                        key
+                      ])
+                    )}
+                  </div>
+                  <div className="modal-footer">
+                    <h3>Check all that are applicable</h3>
+                  </div>
+                </div>
+              </div>
             </p>
           </section>
           <section>
@@ -565,6 +658,15 @@ export function VehiclesController({ filterText }) {
                 false,
                 '',
                 'listPrice',
+              ]) &&
+              BigInput([
+                'text',
+                'Lot Spot',
+                lotSpot,
+                handleStringFieldChange,
+                false,
+                3,
+                'lotSpot',
               ])}
             {isLoggedIn() &&
               currentUser.role === 'MANAGER' &&
@@ -579,15 +681,42 @@ export function VehiclesController({ filterText }) {
                 false,
                 '',
                 'salePrice',
+                '',
+                0,
               ]) &&
-              // Handle referral window
-              ButtonInput([
-                'checkbox',
-                'Referred by someone?',
-                isReferral,
-                handleBooleanFieldChange,
-                'isReferral',
-              ])}
+
+<p>
+              {/* Trigger/Open The Modal */}
+              <button
+                id="myBtn"
+                type="button"
+                onClick={() => (modal.style.display = 'block')}
+              >
+                Referred By Someone?
+              </button>
+
+              {/* The Modal */}
+              <div id="myModal" className="modal">
+                {/* Modal content */}
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <span
+                      className="close"
+                      onClick={() => (modal.style.display = 'none')}
+                    >
+                      &times;
+                    </span>
+                    <h2>Referral Form</h2>
+                  </div>
+                  <div className="modal-body">
+                    Referral lookup form here
+                  </div>
+                  <div className="modal-footer">
+                    <h3>Your friend gets 5% of what you spend!</h3>
+                  </div>
+                </div>
+              </div>
+            </p>
             {id && (
               <p className="back-arrow">
                 <span></span>

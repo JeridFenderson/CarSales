@@ -27,6 +27,7 @@ namespace CarSales.Models
                 return $"{String.Format("{0:0.00}", ListPrice)} USD";
             }
         }
+        public string LotSpot { get; set; }
 
         [Required]
         public string Vin { get; set; }
@@ -56,13 +57,11 @@ namespace CarSales.Models
         public string Condition { get; set; }
         public string State_Of_Vehicle { get; set; }
         public string Description { get; set; }
-        public List<string> Features {get; set;}
+        public List<Feature> Features {get; set;}
         public int MileageId { get; set; }
         public Mileage Mileage { get; set; }
         public List<int> ImagesId { get; set; }
         public List<Media> Images { get; set; }  
-
-
         public string Status { get; set; }
         public double SearchPrice {get; set;}
         public double OfferCost {get; set;}

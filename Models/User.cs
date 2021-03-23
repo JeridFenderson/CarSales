@@ -16,8 +16,7 @@ namespace CarSales.Models
         [Required]
         public string Email { get; set; }
         [Required]
-        public string PhoneNumber { get; set; }
-        
+        public string PhoneNumber { get; set; }     
         [JsonIgnore]
         public string HashedPassword { get; set; }
         // Define a property for being able to _set_ a password
@@ -42,9 +41,9 @@ namespace CarSales.Models
         public string Role { get; set; }
         public int DealerId { get; set; }
         public Dealer Dealer { get; set; }
-        public DateTime LastActive {get; set; } = DateTime.Now;
         public List<Media> Media { get; set; }
         public List<Referral> Referrals { get; set; }
+        public DateTime LastActive { get;  set; } = DateTime.Now;
         public DateTime CreationDate { get; private set;} = DateTime.Now; 
     }
 }

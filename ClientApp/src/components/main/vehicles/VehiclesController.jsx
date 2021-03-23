@@ -540,7 +540,7 @@ export function VehiclesController({ filterText }) {
                         '',
                         '',
                         'features',
-                        key
+                        key,
                       ])
                     )}
                   </div>
@@ -554,7 +554,38 @@ export function VehiclesController({ filterText }) {
           <section>
             {isLoggedIn() && currentUser.role === 'ADMIN' && (
               <p>
-                <button>Did A Little Maintenance Already? Log it!</button>
+                <p>
+                  {/* Trigger/Open The Modal */}
+                  <button
+                    id="myBtn"
+                    type="button"
+                    onClick={() => (modal.style.display = 'block')}
+                  >
+                    Did A Little Maintenance Already? Log it!{' '}
+                  </button>
+
+                  {/* The Modal */}
+                  <div id="myModal" className="modal">
+                    {/* Modal content */}
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <span
+                          className="close"
+                          onClick={() => (modal.style.display = 'none')}
+                        >
+                          &times;
+                        </span>
+                        <h2>Referral Form</h2>
+                      </div>
+                      <div className="modal-body">
+                        Referral lookup form here
+                      </div>
+                      <div className="modal-footer">
+                        <h3>Refer a friend, get 5% of what they spend!</h3>
+                      </div>
+                    </div>
+                  </div>
+                </p>
               </p>
             )}
             <div className="file-drop-zone">
@@ -684,47 +715,14 @@ export function VehiclesController({ filterText }) {
                 '',
                 0,
               ]) &&
-
-<p>
-              {/* Trigger/Open The Modal */}
-              <button
-                id="myBtn"
-                type="button"
-                onClick={() => (modal.style.display = 'block')}
-              >
-                Referred By Someone?
-              </button>
-
-              {/* The Modal */}
-              <div id="myModal" className="modal">
-                {/* Modal content */}
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <span
-                      className="close"
-                      onClick={() => (modal.style.display = 'none')}
-                    >
-                      &times;
-                    </span>
-                    <h2>Referral Form</h2>
-                  </div>
-                  <div className="modal-body">
-                    Referral lookup form here
-                  </div>
-                  <div className="modal-footer">
-                    <h3>Your friend gets 5% of what you spend!</h3>
-                  </div>
-                </div>
-              </div>
-            </p>
-            {id && (
-              <p className="back-arrow">
-                <span></span>
-                <Link to={`/vehicles/view/${id}`}>
-                  <i className="fas fa-backward"></i>
-                </Link>
-              </p>
-            )}
+              id && (
+                <p className="back-arrow">
+                  <span></span>
+                  <Link to={`/vehicles/view/${id}`}>
+                    <i className="fas fa-backward"></i>
+                  </Link>
+                </p>
+              )}
             <p>
               <span></span>
               <button type="submit" value="Submit">

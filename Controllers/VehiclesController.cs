@@ -50,14 +50,14 @@ namespace CarSales.Controllers
             {
                 return await _context.Vehicles
                 .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.User)
+                .Include(vehicle => vehicle.Purchaser)
                 .Where(vehicle => vehicle.Status == "LISTED")
                 .ToListAsync();
             }
             else
             {
             return await _context.Vehicles
-            .Include(vehicle => vehicle.User)
+            .Include(vehicle => vehicle.Purchaser)
             .Where(vehicle => (vehicle.Status == "LISTED" && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
             .ToListAsync();
             }        
@@ -83,13 +83,13 @@ namespace CarSales.Controllers
             {
                 return await _context.Vehicles
                 .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.User)
+                .Include(vehicle => vehicle.Purchaser)
                 .ToListAsync();
             }
             else
             {
                 return await _context.Vehicles
-                .Include(vehicle => vehicle.User)
+                .Include(vehicle => vehicle.Purchaser)
                 .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
                 .ToListAsync();
             }        
@@ -107,7 +107,7 @@ namespace CarSales.Controllers
             // Find the vehicle in the database using `FindAsync` to look it up by id
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Images)
-            .Include(vehicle => vehicle.User)
+            .Include(vehicle => vehicle.Purchaser)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
 
             // If we didn't find anything, we receive a `null` in return
@@ -130,9 +130,9 @@ namespace CarSales.Controllers
         // supplies to the names of the attributes of our Vehicle POCO class. This represents the
         // new values for the record.
         //
-        [HttpPut("{id}/{referredByEmail}/{referredFromContact}")]
+        [HttpPut("{id}/{referralEmail}/{referredFromEmail}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referredByEmail, string referredFromContact)
+        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referralEmail, string referredFromEmail)
         {
             var response = new
             {
@@ -175,56 +175,31 @@ namespace CarSales.Controllers
                 vehicle.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
-            if(vehicle.Status == "SOLD" && referredByEmail != null)
+            if(vehicle.Status == "SOLD" && referralEmail != null)
             {
 
-                var otherResponse = new
-                {
-                    status = 404,
-                    errors = new List<string>() { "User Not Found" }
-                };
-
                 // Find this user by looking for the specific id
-                var referredByUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredByEmail);
-                if (referredByUser == null)
+                var referredFrom = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredFromEmail);
+                var referredUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referralEmail); 
+                if (referredFrom == null)
                 {
+                    var otherResponse = new
+                    {
+                        status = 404,
+                        errors = new List<string>() { "User Not Found" }
+                    };
                     // There wasn't a user with that id so return a `404` not found
                     return NotFound(otherResponse);
                 }
-
-            
-                var referredFromUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referredFromContact);
-                if (referredFromUser == null)
+                var referral = new Referral
                 {
-                    var referralFromName = new Referral
-                    {
-                        VehicleId = id,
-                        VehicleSalePrice = vehicle.SalePrice,
-                        UserId = referredByUser.Id,
-                        FirstName = referredByUser.FirstName,
-                        Email = referredByUser.Email,
-                        PhoneNumber = referredByUser.PhoneNumber,
-                        FromFirstName = referredFromContact,
-                        IsPaid = false
-                    };
-                    _context.Referrals.Add(referralFromName);
-                }
-                else 
-                {  
-                    var referral = new Referral
-                    {
-                        VehicleId = id,
-                        VehicleSalePrice = vehicle.SalePrice,
-                        UserId = referredByUser.Id,
-                        FirstName = referredByUser.FirstName,
-                        Email = referredByUser.Email,
-                        PhoneNumber = referredByUser.PhoneNumber,
-                        FromId = referredFromUser.Id,
-                        FromFirstName = referredFromUser.FirstName,
-                        IsPaid = false
+                    VehicleId = id,
+                    VehicleSalePrice = vehicle.SalePrice,
+                    ReferralFrom = referredUser,
+                    ReferredUser = referredUser,    
+                    IsPaid = false
                     };
                     _context.Referrals.Add(referral);
-                }
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
@@ -271,7 +246,7 @@ namespace CarSales.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
-            var user = await _context.Users
+            var purchaser = await _context.Users
             .Include(user => user.Dealer)
             .Where(user => user.Id == GetCurrentUserId())
             .FirstOrDefaultAsync();
@@ -287,15 +262,18 @@ namespace CarSales.Controllers
             }
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
-            vehicle.UserId = user.Id;
-            vehicle.Dealer_Id = user.Dealer.Dealer_Id;
-            vehicle.Dealer_Name = user.Dealer.Dealer_Name;
-            vehicle.Dealer_Phone = user.Dealer.Dealer_Phone;
-            vehicle.AddressId = user.Dealer.AddressId;
-            vehicle.Address = user.Dealer.Address;
-            vehicle.Latitude = user.Dealer.Latitude;
-            vehicle.Longitude = user.Dealer.Longitude;
-            vehicle.Url = user.Dealer.Url;
+            vehicle.PurchaserId = purchaser.Id;
+            vehicle.Dealer_Id = purchaser.Dealer.Dealer_Id;
+            vehicle.Dealer_Name = purchaser.Dealer.Dealer_Name;
+            vehicle.Dealer_Phone = purchaser.Dealer.Dealer_Phone;
+            vehicle.Latitude = purchaser.Dealer.Latitude;
+            vehicle.Longitude = purchaser.Dealer.Longitude;
+            vehicle.Url = purchaser.Dealer.Url;
+            vehicle.Address.Addr1 = purchaser.Dealer.Addr1;
+            vehicle.Address.City = purchaser.Dealer.City;
+            vehicle.Address.Region = purchaser.Dealer.Region;
+            vehicle.Address.Postal_Code = purchaser.Dealer.Postal_Code;
+            vehicle.Address.Country = purchaser.Dealer.Country;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
@@ -356,7 +334,7 @@ namespace CarSales.Controllers
 
             var deletionInfo = new DeletedVehicle 
             {
-                UserId = GetCurrentUserId(),
+                Deleter = await _context.Users.FindAsync(GetCurrentUserId()),
                 VehicleInfo = $"{vehicle.Year} {vehicle.Make} {vehicle.Model}",
                 MonetaryInfo = $"Search: ${vehicle.SearchPrice}, Offer: ${vehicle.OfferCost}, Purchase: ${vehicle.PurchaseCost}, List: ${vehicle.ListPrice}, Sale: ${vehicle.SalePrice}"
             };
@@ -365,6 +343,7 @@ namespace CarSales.Controllers
             // Tell the database we want to remove this record
             _context.Mileage.Remove(vehicle.Mileage);
             _context.Maintenance.RemoveRange(vehicle.Maintenance);
+            _context.Features.RemoveRange(vehicle.Features);
             _context.Vehicles.Remove(vehicle);
 
             // Tell the database to perform the deletion

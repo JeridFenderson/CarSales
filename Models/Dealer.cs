@@ -11,14 +11,18 @@ namespace CarSales.Models
         public string Dealer_Id { get; set; }
         public string Dealer_Name { get; set; }
         public string Dealer_Phone { get; set; }   
-        public int AddressId { get; set; } 
-        public Address Address { get; set; }
+        public string Addr1 { get; set; }
+        public string City { get; set; }
+        public string Region {get;set;}
+        public string Country { get; set; }
+        public string Postal_Code { get; set; }   
         public float Latitude { get; set; }
         public float Longitude { get; set; }
         public string Url { get; set; }
-    
-        public int OwnerId { get; set; }
         public List<Media> Media { get; set; }
+        public int ManagerId { get; set; }
+        public User Manager { get; set; }
+        public List<User> Admins { get; set; }
         public List<User> Users { get; set; }
         public DateTime DateOfEntryCreation { get; private set; } = DateTime.Now; 
     }

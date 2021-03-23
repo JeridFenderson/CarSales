@@ -22,7 +22,6 @@ namespace CarSales.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Media> Media { get; set; }
         public DbSet<Dealer> Dealers { get; set; }
-        public DbSet<Address> Addresses { get; set; }
         public DbSet<DeletedVehicle> DeletedVehicles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

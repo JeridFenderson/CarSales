@@ -44,7 +44,7 @@ namespace CarSales.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Dealer>>> GetDealers()
         {   
-            return await _context.Dealers.Include(dealer => dealer.Address).ToListAsync();
+            return await _context.Dealers.ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -90,7 +90,7 @@ namespace CarSales.Controllers
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (dealer.OwnerId != user.Id)
+            if (dealer.ManagerId != user.Id)
             {
                 return Unauthorized(response);
             }
@@ -153,7 +153,7 @@ namespace CarSales.Controllers
                 return Unauthorized(response);
             }
 
-            dealer.OwnerId = GetCurrentUserId();
+            dealer.ManagerId = GetCurrentUserId();
 
             _context.Dealers.Add(dealer);
             await _context.SaveChangesAsync();
@@ -175,7 +175,6 @@ namespace CarSales.Controllers
         {
             // Find this vehicle by looking for the specific id
             var dealer = await _context.Dealers
-            .Include(dealer => dealer.Address)
             .FirstOrDefaultAsync(dealer => dealer.Id == id);
             if (dealer == null)
             {
@@ -212,7 +211,6 @@ namespace CarSales.Controllers
             cloudinaryClient.DeleteResources(delResParams);
 
             // Tell the database we want to remove this record
-            _context.Addresses.Remove(dealer.Address);
             _context.Dealers.Remove(dealer);
 
             // Tell the database to perform the deletion

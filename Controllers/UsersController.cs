@@ -50,7 +50,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (currentUser.Role != "OWNER")
+            if (currentUser.Tier < 3)
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -71,7 +71,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (currentUser.Role != "OWNER" || id != GetCurrentUserId())
+            if (currentUser.Tier < 3 || id != GetCurrentUserId())
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -160,7 +160,7 @@ namespace CarSales.Controllers
         public async Task<ActionResult<User>> PostUser(User user)
         {
             // Security measure overwrites front end entries for first time users
-            user.Role = "";
+            user.Tier = 0;
 
             try
             {
@@ -190,7 +190,7 @@ namespace CarSales.Controllers
         {
              // Find the user information of the user that called a delete request
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (currentUser.Role != "OWNER" || user.Role == "OWNER")
+            if (currentUser.Tier < 3)
             {
                 var response = new
                 {
@@ -293,7 +293,7 @@ namespace CarSales.Controllers
             }
 
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
-            if (currentUser.Role != "OWNER")
+            if (currentUser.Tier < 3)
             {
                 return Unauthorized(response);
             }

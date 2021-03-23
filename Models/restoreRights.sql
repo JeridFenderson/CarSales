@@ -1,5 +1,5 @@
 UPDATE "Users"
-SET "Role" = 'OWNER'
+SET "Tier" = 7
 WHERE "FirstName" = 'Jerid';
 
 

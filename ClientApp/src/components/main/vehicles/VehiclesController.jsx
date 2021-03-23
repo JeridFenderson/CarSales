@@ -316,7 +316,7 @@ export function VehiclesController({ filterText }) {
                 { name: 'Used', value: 'Used' },
                 { name: 'Certified Pre-Owned', value: 'CPO' },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'New',
                     value: 'New',
                   },
@@ -333,37 +333,37 @@ export function VehiclesController({ filterText }) {
               [
                 { name: 'Car', value: 'CAR_TRUCK' },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Motorcycle',
                     value: 'MOTORCYCLE',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Boat',
                     value: 'BOAT',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Power Sport',
                     value: 'POWERSPORT',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'RV',
                     value: 'RV_CAMPER',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Commercial',
                     value: 'COMMERCIAL',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Trailer',
                     value: 'TRAILER',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Other',
                     value: 'OTHER',
                   },
@@ -551,7 +551,7 @@ export function VehiclesController({ filterText }) {
             </p>
           </section>
           <section>
-            {isLoggedIn() && currentUser.role === 'ADMIN' && (
+            {isLoggedIn() && currentUser.tier <= 1 && (
               <p>
                 <p>
                   {/* Trigger/Open The Modal */}
@@ -615,27 +615,27 @@ export function VehiclesController({ filterText }) {
                 { name: 'Search Request', value: 'SEARCH_REQUESTED' },
                 { name: 'Offer', value: 'OFFERED' },
                 isLoggedIn() &&
-                  currentUser.role === 'MANAGER' && {
+                  currentUser.tier <= 2 && {
                     name: 'Reject',
                     value: 'REJECTED',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'ADMIN' && {
+                  currentUser.tier <= 1 && {
                     name: 'Purchase',
                     value: 'PURCHASED',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'ADMIN' && {
+                  currentUser.tier <= 1 && {
                     name: 'Maintain',
                     value: 'MAINTAINED',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'ADMIN' && {
+                  currentUser.tier <= 1 && {
                     name: 'List',
                     value: 'LISTED',
                   },
                 isLoggedIn() &&
-                  currentUser.role === 'SOLD' && {
+                  currentUser.tier === 'SOLD' && {
                     name: 'Sell',
                     value: 'SOLD',
                   },
@@ -664,7 +664,7 @@ export function VehiclesController({ filterText }) {
                 'offerCost',
               ])}
             {isLoggedIn() &&
-              currentUser.role === 'ADMIN' &&
+              currentUser.tier <= 1 &&
               status === 'PURCHASED' &&
               BigInput([
                 'text',
@@ -676,7 +676,7 @@ export function VehiclesController({ filterText }) {
                 'purchaseCost',
               ])}
             {isLoggedIn() &&
-              currentUser.role === 'ADMIN' &&
+              currentUser.tier <= 1 &&
               id &&
               status === 'LISTED' &&
               Number(vehicle.purchaseCost) > 0 &&
@@ -699,7 +699,7 @@ export function VehiclesController({ filterText }) {
                 'lotSpot',
               ])}
             {isLoggedIn() &&
-              currentUser.role === 'MANAGER' &&
+              currentUser.tier <= 2 &&
               id &&
               status === 'SOLD' &&
               Number(vehicle.listPrice) > 0 &&

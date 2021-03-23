@@ -38,7 +38,7 @@ namespace CarSales.Models
             // Return True if the verification was a success
             return passwordVerification == PasswordVerificationResult.Success;
         }
-        public string Role { get; set; }
+        public int Tier { get; set; }
         public int DealerId { get; set; }
         public List<Media> Media { get; set; }
         public List<Referral> Referrals { get; set; }

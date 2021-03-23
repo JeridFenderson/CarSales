@@ -92,7 +92,7 @@ namespace CarSales.Controllers
             var user = await _context.Users.FindAsync(GetCurrentUserId());
             var dealerFromDatabase = await _context.Dealers.Include(dealer => dealer.Users.Where(users => users.Id == GetCurrentUserId())).FirstOrDefaultAsync();
         
-            if (dealerFromDatabase == null || dealerFromDatabase.Id != user.DealerId || user.Role != "MANAGER")
+            if (dealerFromDatabase == null || dealerFromDatabase.Id != user.DealerId || user.Tier < 2)
             {
                 return Unauthorized(response);
             }
@@ -143,7 +143,7 @@ namespace CarSales.Controllers
         {
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
 
-            if(currentUser.Role != "OWNER")
+            if(currentUser.Tier < 3)
             {
                  var response = new
                 {
@@ -184,7 +184,7 @@ namespace CarSales.Controllers
 
             // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "OWNER")
+            if (user.Tier < 2)
             {
                 // Make a custom error response
                 var response = new

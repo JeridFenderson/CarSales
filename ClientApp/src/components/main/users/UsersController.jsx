@@ -69,13 +69,11 @@ export function UsersController() {
     }
     let url = signup ? '/api/Users' : '/api/Sessions'
     url =
-      isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount
+      isLoggedIn() && currentUser.tier <= 3 && deleteAccount
         ? `/api/Users/${email}`
         : url
     const action =
-      isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount
-        ? 'DELETE'
-        : 'POST'
+      isLoggedIn() && currentUser.tier <= 3 && deleteAccount ? 'DELETE' : 'POST'
 
     const response = await fetch(url, {
       method: action,
@@ -88,7 +86,7 @@ export function UsersController() {
     } else if (response.status === 404) {
       setErrorMessage(Object.values(response.errors).join(' '))
     } else {
-      if (isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount) {
+      if (isLoggedIn() && currentUser.tier <= 3 && deleteAccount) {
       } else if (signup) {
         history.push('/')
       } else {
@@ -122,7 +120,7 @@ export function UsersController() {
             ],
           ])} */}
           {(!isLoggedIn() ||
-            (isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount)) &&
+            (isLoggedIn() && currentUser.tier <= 3 && !deleteAccount)) &&
             Input([
               'password',
               'Password',
@@ -130,10 +128,10 @@ export function UsersController() {
               handleStringFieldChange,
               true,
             ])}
-          {isLoggedIn() && currentUser.role === 'OWNER' && !deleteAccount && (
+          {isLoggedIn() && currentUser.tier <= 3 && !deleteAccount && (
             <h3>Create Another User, {currentUser.firstName}?</h3>
           )}
-          {isLoggedIn() && currentUser.role === 'OWNER' && deleteAccount && (
+          {isLoggedIn() && currentUser.tier <= 3 && deleteAccount && (
             <>
               <h3>Delete A User, {currentUser.firstName}?</h3>
               <p>
@@ -194,7 +192,7 @@ export function UsersController() {
         </section>
         <section>
           {isLoggedIn() &&
-            currentUser.role === 'OWNER' &&
+            currentUser.tier <= 2 &&
             !deleteAccount &&
             OptionsInput([
               '',
@@ -203,12 +201,12 @@ export function UsersController() {
               handleStringFieldChange,
               false,
               '',
-              'role',
+              'tier',
               [
                 { name: '', value: '' },
-                { name: 'Admin', value: 'ADMIN' },
-                { name: 'Site Manager', value: 'MANAGER' },
-                { name: 'Owner', value: 'OWNER' },
+                { name: 'Admin', value: 1 },
+                currentUser.tier <= 3 && { name: 'Site Manager', value: 2 },
+                currentUser.tier <= 4 && { name: 'Owner', value: 3 },
               ],
             ])}
           <p>

@@ -65,7 +65,7 @@ namespace CarSales.Controllers
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "ADMIN")
+            if (user.Tier < 1)
             {
                 // Make a custom error response
                 var response = new

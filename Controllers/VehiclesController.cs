@@ -68,7 +68,7 @@ namespace CarSales.Controllers
         public async Task<ActionResult<IEnumerable<Vehicle>>> GetAllVehicles(string filterMake)
         {
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if(user.Role != "MANAGER")
+            if(user.Tier < 2)
             {
                  var response = new
                 {
@@ -145,7 +145,7 @@ namespace CarSales.Controllers
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "MANAGER")
+            if (user.Tier < 2)
                 return Unauthorized(response);
 
             var vehicleFromDatabase = await _context.Vehicles.FindAsync(id);
@@ -306,7 +306,7 @@ namespace CarSales.Controllers
 
             // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "OWNER")
+            if (user.Tier < 3)
             {
                 // Make a custom error response
                 var response = new

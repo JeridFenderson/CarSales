@@ -39,7 +39,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "MANAGER")
+            if (user.Tier < 2)
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -77,7 +77,7 @@ namespace CarSales.Controllers
             };
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Role != "OWNER")
+            if (user.Tier < 3)
             {
                 // Return our error with the custom response
                 return Unauthorized(response);
@@ -103,7 +103,7 @@ namespace CarSales.Controllers
             .Where(referralDb => (referralDb.User == user) && (referralDb.Id == referral.Id))
             .FirstOrDefaultAsync();
 
-            if (user.Role != "OWNER" || user.Id != referralFromDatabase.Id|| referralFromDatabase.IsPaid)
+            if (user.Tier < 2 || user.Id != referralFromDatabase.Id|| referralFromDatabase.IsPaid)
             {
                 return Unauthorized(response);
             }

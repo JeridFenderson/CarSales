@@ -23,6 +23,8 @@ namespace CarSales.Models
 
         [NotMapped]
         public int ManagerId { get; set; }
+        [NotMapped]
+        public User Manager { get; set; }
         public List<Media> Media { get; set; }
         public List<Vehicle> Vehicles { get; set; }
         public List<User> Users { get; set; }

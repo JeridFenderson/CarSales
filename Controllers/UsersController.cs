@@ -161,11 +161,6 @@ namespace CarSales.Controllers
         {
             // Security measure overwrites front end entries for first time users
             user.Tier = 0;
-            var firstAddress = _context.Addresses.FirstOrDefaultAsync();
-            if (user.AddressId < 0)
-            {
-                user.AddressId = firstAddress.Id;
-            }
 
             try
             {
@@ -303,7 +298,7 @@ namespace CarSales.Controllers
                 return Unauthorized(response);
             }
 
-            // Caputes photos id's of the vehicle being deleted
+            //Caputes photos id's of the vehicle being deleted
             var photos = user.Media
             .Where(photo => photo.PublicId != "")
             .Select(photo => photo.PublicId).ToList();

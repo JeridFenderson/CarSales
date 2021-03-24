@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarSales.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210324030002_RefreshedDatabase")]
-    partial class RefreshedDatabase
+    [Migration("20210324134546_AddedManager")]
+    partial class AddedManager
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

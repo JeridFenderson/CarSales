@@ -61,16 +61,16 @@ export function Nav() {
               Contact Us
             </Link>
           </li>
-          {(!isLoggedIn() && (
+          {(isLoggedIn() && (
             <li>
-              <Link to="/login" onClick={() => setOpen(false)}>
-                Log In
+              <Link to="/" onClick={handleLogOut}>
+                Sign Out
               </Link>
             </li>
           )) || (
             <li>
-              <Link to="/" onClick={handleLogOut}>
-                Sign Out
+              <Link to="/login" onClick={() => setOpen(false)}>
+                Log In
               </Link>
             </li>
           )}
@@ -79,14 +79,3 @@ export function Nav() {
     </nav>
   )
 }
-
-//           {isLoggedIn() && currentUser.isOwner && (
-//             <li>
-//               <Link to="/signup">Add A New User</Link>
-//             </li>
-//           )}
-//           {isLoggedIn() && currentUser.isOwner && (
-//             <li>
-//               <Link to="/login">Delete A User</Link>
-//             </li>
-//           )}

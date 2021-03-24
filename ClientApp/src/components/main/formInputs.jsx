@@ -46,8 +46,10 @@ export function OptionsInput(packet) {
     <p>
       <label htmlFor={packet[6]}>{packet[1]}</label>
       <select name={packet[6]} value={packet[2]} onChange={packet[3]}>
-        {packet[7].map((choice) => (
-          <option value={choice.value}>{choice.name}</option>
+        {packet[7].map((choice, index) => (
+          <option key={index} value={choice.value}>
+            {choice.name}
+          </option>
         ))}
       </select>
     </p>

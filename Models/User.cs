@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 
@@ -39,6 +40,8 @@ namespace CarSales.Models
             return passwordVerification == PasswordVerificationResult.Success;
         }
         public int Tier { get; set; }
+
+        [ForeignKey("Address")]
         public int AddressId { get; set; }
         public List<Media> Media { get; set; }
         public DateTime LastActive { get;  set; } = DateTime.Now;

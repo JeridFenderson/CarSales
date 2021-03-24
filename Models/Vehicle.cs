@@ -64,7 +64,6 @@ namespace CarSales.Models
         [NotMapped]
         public int BuyerId { get; set; }
         public User Buyer { get; set; } 
-
         public bool IsReferral {get; set; }
         [NotMapped]
         public int ReferrerId { get; set; }

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
-    public partial class RefreshedDatabase : Migration
+    public partial class AddedManager : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

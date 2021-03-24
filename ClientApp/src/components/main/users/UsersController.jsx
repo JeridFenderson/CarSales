@@ -26,7 +26,7 @@ export function UsersController() {
     phoneNumber: '',
     email: '',
     password: '',
-    addressId: -1,
+    addressId: 1,
     role: '',
     Media: [{}],
   })
@@ -62,63 +62,38 @@ export function UsersController() {
       [event.target.name]: event.target.value,
     })
   }
-  useEffect(() => {
-    async function submitForm() {
-      let url = signup ? '/api/Users' : '/api/Sessions'
-      url =
-        isLoggedIn() && currentUser.tier >= 3 && deleteAccount
-          ? `/api/Users/${email}`
-          : url
-      const action =
-        isLoggedIn() && currentUser.tier >= 3 && deleteAccount
-          ? 'DELETE'
-          : 'POST'
 
-      const response = await fetch(url, {
-        method: action,
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(newUser),
-      })
+  async function handleFormSubmit() {
+    let url = signup ? '/api/Users' : '/api/Sessions'
+    url =
+      isLoggedIn() && currentUser.tier >= 3 && deleteAccount
+        ? `/api/Users/${email}`
+        : url
+    const action =
+      isLoggedIn() && currentUser.tier >= 3 && deleteAccount ? 'DELETE' : 'POST'
 
-      if (response.status === 400) {
-        // @ts-ignore
-        setErrorMessage(Object.values(response.errors).join(' '))
-      } else if (response.status === 404) {
-        // @ts-ignore
-        setErrorMessage(Object.values(response.errors).join(' '))
+    const response = await fetch(url, {
+      method: action,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(newUser),
+    })
+
+    if (response.status === 400) {
+      // @ts-ignore
+      setErrorMessage(Object.values(response.errors).join(' '))
+    } else if (response.status === 404) {
+      // @ts-ignore
+      setErrorMessage(Object.values(response.errors).join(' '))
+    } else {
+      if (isLoggedIn() && currentUser.tier >= 3 && deleteAccount) {
+      } else if (signup) {
+        recordAuthentication(response)
+        history.push('/')
       } else {
-        if (isLoggedIn() && currentUser.tier >= 3 && deleteAccount) {
-        } else if (signup) {
-          history.push('/')
-        } else {
-          recordAuthentication(response)
-          window.location.assign('/')
-        }
+        recordAuthentication(response)
+        window.location.assign('/')
       }
     }
-    if (formTrigger === true) {
-      submitForm()
-    }
-  }, [
-    addressId,
-    currentUser,
-    deleteAccount,
-    email,
-    formTrigger,
-    history,
-    newUser,
-    signup,
-  ])
-
-  function handleFormSubmit(event) {
-    if (addressId < 0) {
-      setNewUser({ ...newUser, addressId: addresses[0].id })
-      console.log(newUser)
-    }
-    event.preventDefault()
-    console.log(addresses)
-
-    // setFormTrigger(true)
   }
 
   return (
@@ -127,31 +102,13 @@ export function UsersController() {
       <form onSubmit={handleFormSubmit}>
         <section>
           {Input(['email', 'Email', email, handleStringFieldChange, true])}
-          {/* {OptionsInput([
-            '',
-            'Main Site',
-            dealerId,
+          {Input([
+            'password',
+            'Password',
+            password,
             handleStringFieldChange,
             true,
-            '',
-            'dealerId',
-            [
-              dealers &&
-                dealers.map((dealer) => ({
-                  name: `${dealer.address.addr1} ${dealer.address.city} ${dealer.address.region}`,
-                  value: dealer.id,
-                })),
-            ],
-          ])} */}
-          {(!isLoggedIn() ||
-            (isLoggedIn() && currentUser.tier >= 3 && !deleteAccount)) &&
-            Input([
-              'password',
-              'Password',
-              password,
-              handleStringFieldChange,
-              true,
-            ])}
+          ])}
           {isLoggedIn() && currentUser.tier >= 3 && !deleteAccount && (
             <h3>Create Another User, {currentUser.firstName}?</h3>
           )}
@@ -198,7 +155,11 @@ export function UsersController() {
               </p>
               <p className="addressSelector">
                 <label htmlFor="addressId">Main Location</label>
-                <select name="addressId" onChange={handleNumberFieldChange}>
+                <select
+                  name="addressId"
+                  value={addressId}
+                  onChange={handleNumberFieldChange}
+                >
                   {addresses.map((address) => (
                     <option key={address.id} value={address.id}>
                       {address.addr1}, {address.city}, {address.region}{' '}

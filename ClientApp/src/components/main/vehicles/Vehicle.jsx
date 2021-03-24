@@ -39,8 +39,7 @@ export function Vehicle({ vehicle, display }) {
             </h2>
           </li>
           <li className="tablet">
-            Odometer miles: {mileage.value}. {vin && `VIN: ${vin}. `}
-            {fuel_type} Powered {drivetrain} {body_style}
+            Odometer miles: {mileage && mileage.value}. VIN: {vin}.
           </li>
           <li className="desktop">{description}</li>
           <li>

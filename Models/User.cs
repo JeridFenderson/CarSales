@@ -39,9 +39,8 @@ namespace CarSales.Models
             return passwordVerification == PasswordVerificationResult.Success;
         }
         public int Tier { get; set; }
-        public int DealerId { get; set; }
+        public int AddressId { get; set; }
         public List<Media> Media { get; set; }
-        public List<Referral> Referrals { get; set; }
         public DateTime LastActive { get;  set; } = DateTime.Now;
         public DateTime CreationDate { get; private set;} = DateTime.Now; 
     }

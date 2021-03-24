@@ -21,7 +21,7 @@ export function Nav() {
 
         <ul id="menu">
           {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
-          {(isLoggedIn() && currentUser.isAdmin) ||
+          {(isLoggedIn() && currentUser.tier >= 1) ||
             (isLoggedIn() && (
               <li>
                 <Link to="/vehicles/create" onClick={() => setOpen(false)}>
@@ -44,7 +44,7 @@ export function Nav() {
               Pre-owned Inventory
             </Link>
           </li>
-          {isLoggedIn() && currentUser.isAdmin && (
+          {isLoggedIn() && currentUser.tier >= 1 && (
             <li>
               <Link to="/vehicles/create" onClick={() => setOpen(false)}>
                 Add A Vehicle

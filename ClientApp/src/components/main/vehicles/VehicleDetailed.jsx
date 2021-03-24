@@ -7,23 +7,35 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
   const currentUser = getUser()
   const {
     id,
+    vin,
+    lotSpot,
+    price,
     year,
     make,
     model,
-    price,
-    odometer,
-    vin,
-    fuelType,
+    trim,
+    exterior_color,
+    interior_color,
+    engineDisplacement,
+    body_style,
+    seats,
+    transmission,
     drivetrain,
-    bodyType,
-    exteriorColor,
-    interiorColor,
-    engineSize,
+    fuel_type,
+    vehicle_type,
+    condition,
+    state_of_vehicle,
+    images,
+    status,
+    searchPrice,
+    offerCost,
+    purchaseCost,
+    listPrice,
+    salePrice,
+    isReferral,
+    maintenance,
+    mileage,
     description,
-    isListed,
-    isSold,
-    photos,
-    user,
   } = vehicle
 
   return (
@@ -36,46 +48,36 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
             </Link>
           </p>
           <h2>
-            {year} {make} {model}
+            {year} {make} {model} {trim && trim}
           </h2>
           <span></span>
         </section>
       )) || (
         <h2>
-          {year} {make} {model}
+          {year} {make} {model} {trim && trim}
         </h2>
       )}
       <figure className="vehicle">
-        {(photos && photos.length > 0 && (
-          <img src={photos[0].url} alt={`${year} ${make} ${model}`} />
+        {(images && images.length > 0 && (
+          <img src={images[0].url} alt={`${year} ${make} ${model}`} />
         )) || <img alt={`${year} ${make} ${model}`} />}
       </figure>
       <ul>
-        <li>
-          {odometer && `Odometer miles: ${odometer}. `}
-          {vin && `VIN: ${vin}`}
-          {drivetrain &&
-            `General description: ${fuelType} Powered ${drivetrain} ${bodyType}`}
-        </li>
-        <li>
-          {exteriorColor && `${exteriorColor} exterior color. `}
-          {interiorColor && `${interiorColor} interior color. `}
-          {engineSize && `${engineSize} liter engine. `}
-          {description}
-        </li>
+        <li>{mileage && `Odometer miles: ${mileage.value}. VIN: ${vin}.`}</li>
+        <li>{description}</li>
       </ul>
-      {(isSold && <h3 className="isSold">SOLD</h3>) || (
+      {(status === 'SOLD' && <h3 className="isSold">SOLD</h3>) || (
         <h3>{price && `$${price}`}</h3>
       )}
 
-      {isLoggedIn() && currentUser.isAdmin && !notFound && (
+      {isLoggedIn() && currentUser.tier >= 1 && !notFound && (
         <aside>
           <ul>
-            {user !== undefined && <li>Posted by {user.firstName}</li>}
+            <li>Posted by {currentUser.firstName}</li>
             <li>
               <Link to={`/vehicles/create/${id}/edit`}>Edit</Link>
             </li>
-            {currentUser.isOwner && (
+            {currentUser.tier >= 3 && (
               <li>
                 <Link to={`/vehicles/create/${id}/delete`}>Delete</Link>
               </li>

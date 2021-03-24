@@ -49,7 +49,6 @@ namespace CarSales.Models
         public List<Feature> Features {get; set;}
         public int MileageId { get; set; }
         public Mileage Mileage { get; set; }
-        public List<int> ImagesId { get; set; }
         public List<Media> Images { get; set; }  
         public string Status { get; set; }
         public double SearchPrice { get; set; }
@@ -57,7 +56,32 @@ namespace CarSales.Models
         public double PurchaseCost { get; set; }
         public double ListPrice { get; set; }
         public double SalePrice { get; set; }
+
+        [NotMapped]
+        public int PurchaserId { get; set; }
+        public User Purchaser { get; set; }
+
+        [NotMapped]
+        public int BuyerId { get; set; }
+        public User Buyer { get; set; } 
+
         public bool IsReferral {get; set; }
+        [NotMapped]
+        public int ReferrerId { get; set; }
+        public User Referrer { get; set; }
+        public double PaymentAmountDue 
+        {
+            get
+            {
+                return PaymentAmountDue;
+            }
+            private set
+            {
+                PaymentAmountDue = (SalePrice * 0.05);
+            }
+        }
+        public bool ReferralIsCredit { get; set; }
+        public bool ReferralIsPaid { get; set; } 
         public string Date_First_On_Lot { get; set; }
         public string Date_Sold { get; set; }
         public string Available 
@@ -67,7 +91,6 @@ namespace CarSales.Models
                 return Status == "SOLD" ? "not available" : "available";  
             } 
         }
-        public List<int> MaintenanceId { get; set; }
         public List<Maintenance> Maintenance {get; set;}
         public double MaintenanceCost { 
             get
@@ -99,10 +122,6 @@ namespace CarSales.Models
                 return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
             }
         }
-        public int PurchaserId { get; set; }
-        public User Purchaser { get; set; }
-        public int BuyerId { get; set; }
-        public User Buyer { get; set; } 
 
         //Internal Id
         public int DealerId { get; set; }
@@ -112,7 +131,8 @@ namespace CarSales.Models
         public string Dealer_Id { get; set; }
         public string Dealer_Name { get; set; }
         public string Dealer_Phone { get; set; }
-        public Address Address {get; set;}
+        public int AddressId { get; set; }
+        public Address Address { get; set; }
         public float Latitude { get; set; }
         public float Longitude { get; set; }
         public string Url { get; set; }     

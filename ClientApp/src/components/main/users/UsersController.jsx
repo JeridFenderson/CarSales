@@ -8,9 +8,10 @@ export function UsersController() {
   const history = useHistory()
   const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
-  const [dealers, setDealers] = useState([
+  const [formTrigger, setFormTrigger] = useState(false)
+  const [addresses, setAddresses] = useState([
     {
-      id: '',
+      id: 0,
       addr1: '',
       city: '',
       region: '',
@@ -25,7 +26,7 @@ export function UsersController() {
     phoneNumber: '',
     email: '',
     password: '',
-    dealerId: '',
+    addressId: -1,
     role: '',
     Media: [{}],
   })
@@ -35,7 +36,7 @@ export function UsersController() {
     phoneNumber,
     email,
     password,
-    dealerId,
+    addressId,
     role,
     media,
   } = newUser
@@ -43,12 +44,12 @@ export function UsersController() {
   const deleteAccount = history.location.pathname === '/login' ? true : false
 
   useEffect(() => {
-    async function loadDealers() {
-      const response = await fetch(`api/Dealers`)
+    async function loadAddresses() {
+      const response = await fetch(`api/Addresses`)
       const json = await response.json()
-      setDealers(json)
+      setAddresses(json)
     }
-    loadDealers()
+    loadAddresses()
   }, [])
 
   function handleStringFieldChange(event) {
@@ -61,46 +62,69 @@ export function UsersController() {
       [event.target.name]: event.target.value,
     })
   }
+  useEffect(() => {
+    async function submitForm() {
+      let url = signup ? '/api/Users' : '/api/Sessions'
+      url =
+        isLoggedIn() && currentUser.tier >= 3 && deleteAccount
+          ? `/api/Users/${email}`
+          : url
+      const action =
+        isLoggedIn() && currentUser.tier >= 3 && deleteAccount
+          ? 'DELETE'
+          : 'POST'
 
-  async function handleFormSubmit(event) {
-    event.preventDefault()
-    if (Number.isNaN(dealerId)) {
-      setNewUser({ ...newUser, dealerId: dealers[0].id })
-    }
-    let url = signup ? '/api/Users' : '/api/Sessions'
-    url =
-      isLoggedIn() && currentUser.tier <= 3 && deleteAccount
-        ? `/api/Users/${email}`
-        : url
-    const action =
-      isLoggedIn() && currentUser.tier <= 3 && deleteAccount ? 'DELETE' : 'POST'
+      const response = await fetch(url, {
+        method: action,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(newUser),
+      })
 
-    const response = await fetch(url, {
-      method: action,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(newUser),
-    })
-
-    if (response.status === 400) {
-      setErrorMessage(Object.values(response.errors).join(' '))
-    } else if (response.status === 404) {
-      setErrorMessage(Object.values(response.errors).join(' '))
-    } else {
-      if (isLoggedIn() && currentUser.tier <= 3 && deleteAccount) {
-      } else if (signup) {
-        history.push('/')
+      if (response.status === 400) {
+        // @ts-ignore
+        setErrorMessage(Object.values(response.errors).join(' '))
+      } else if (response.status === 404) {
+        // @ts-ignore
+        setErrorMessage(Object.values(response.errors).join(' '))
       } else {
-        recordAuthentication(response)
-        window.location.assign('/')
+        if (isLoggedIn() && currentUser.tier >= 3 && deleteAccount) {
+        } else if (signup) {
+          history.push('/')
+        } else {
+          recordAuthentication(response)
+          window.location.assign('/')
+        }
       }
     }
+    if (formTrigger === true) {
+      submitForm()
+    }
+  }, [
+    addressId,
+    currentUser,
+    deleteAccount,
+    email,
+    formTrigger,
+    history,
+    newUser,
+    signup,
+  ])
+
+  function handleFormSubmit(event) {
+    if (addressId < 0) {
+      setNewUser({ ...newUser, addressId: addresses[0].id })
+      console.log(newUser)
+    }
+    event.preventDefault()
+    console.log(addresses)
+
+    // setFormTrigger(true)
   }
 
   return (
     <main className="main-form">
       {errorMessage && <h3 className="errorMessage">{errorMessage}</h3>}
       <form onSubmit={handleFormSubmit}>
-        <section></section>
         <section>
           {Input(['email', 'Email', email, handleStringFieldChange, true])}
           {/* {OptionsInput([
@@ -120,7 +144,7 @@ export function UsersController() {
             ],
           ])} */}
           {(!isLoggedIn() ||
-            (isLoggedIn() && currentUser.tier <= 3 && !deleteAccount)) &&
+            (isLoggedIn() && currentUser.tier >= 3 && !deleteAccount)) &&
             Input([
               'password',
               'Password',
@@ -128,10 +152,10 @@ export function UsersController() {
               handleStringFieldChange,
               true,
             ])}
-          {isLoggedIn() && currentUser.tier <= 3 && !deleteAccount && (
+          {isLoggedIn() && currentUser.tier >= 3 && !deleteAccount && (
             <h3>Create Another User, {currentUser.firstName}?</h3>
           )}
-          {isLoggedIn() && currentUser.tier <= 3 && deleteAccount && (
+          {isLoggedIn() && currentUser.tier >= 3 && deleteAccount && (
             <>
               <h3>Delete A User, {currentUser.firstName}?</h3>
               <p>
@@ -172,17 +196,13 @@ export function UsersController() {
                   required
                 />
               </p>
-              <p className="dealerSelector">
-                <label htmlFor="dealerId">Main Location</label>
-                <select
-                  name="dealerId"
-                  value={dealerId}
-                  onChange={handleNumberFieldChange}
-                >
-                  {dealers.map((dealer) => (
-                    <option key={dealer.id} value={dealer.id}>
-                      {dealer.addr1}, {dealer.city}, {dealer.region}{' '}
-                      {dealer.postal_Code}
+              <p className="addressSelector">
+                <label htmlFor="addressId">Main Location</label>
+                <select name="addressId" onChange={handleNumberFieldChange}>
+                  {addresses.map((address) => (
+                    <option key={address.id} value={address.id}>
+                      {address.addr1}, {address.city}, {address.region}{' '}
+                      {address.postal_Code}
                     </option>
                   ))}
                 </select>
@@ -192,7 +212,7 @@ export function UsersController() {
         </section>
         <section>
           {isLoggedIn() &&
-            currentUser.tier <= 2 &&
+            currentUser.tier >= 2 &&
             !deleteAccount &&
             OptionsInput([
               '',
@@ -205,8 +225,8 @@ export function UsersController() {
               [
                 { name: '', value: '' },
                 { name: 'Admin', value: 1 },
-                currentUser.tier <= 3 && { name: 'Site Manager', value: 2 },
-                currentUser.tier <= 4 && { name: 'Owner', value: 3 },
+                currentUser.tier >= 3 && { name: 'Site Manager', value: 2 },
+                currentUser.tier >= 4 && { name: 'Owner', value: 3 },
               ],
             ])}
           <p>

@@ -11,7 +11,9 @@ export function Footer() {
             <Link to="/">Cheap and Easy Auto &#169;</Link>
           </li>
           <li>
-            <a href="#">Find Us on Facebook</a>
+            <a href="https://www.facebook.com/cheapandeasyautoinc">
+              Find Us on Facebook
+            </a>
           </li>
           <li>
             <a href="https://www.linkedin.com/in/jeridfenderson/">

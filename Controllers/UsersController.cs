@@ -161,6 +161,11 @@ namespace CarSales.Controllers
         {
             // Security measure overwrites front end entries for first time users
             user.Tier = 0;
+            var firstAddress = _context.Addresses.FirstOrDefaultAsync();
+            if (user.AddressId < 0)
+            {
+                user.AddressId = firstAddress.Id;
+            }
 
             try
             {

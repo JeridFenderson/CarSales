@@ -179,8 +179,8 @@ namespace CarSales.Controllers
             {
 
                 // Find this user by looking for the specific id
-                var referredUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referralEmail); 
-                if (referredUser == null)
+                var referrerUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == referralEmail); 
+                if (referrerUser == null)
                 {
                     var otherResponse = new
                     {
@@ -190,15 +190,7 @@ namespace CarSales.Controllers
                     // There wasn't a user with that id so return a `404` not found
                     return NotFound(otherResponse);
                 }
-                var referral = new Referral
-                {
-                    VehicleId = vehicleFromDatabase.Id,
-                    VehicleSalePrice = vehicle.SalePrice,
-                    FromId = referredFromId,
-                    User = referredUser,    
-                    IsPaid = false
-                    };
-                    _context.Referrals.Add(referral);
+                vehicle.Referrer = referrerUser;
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
@@ -248,8 +240,8 @@ namespace CarSales.Controllers
             var purchaser = await _context.Users
             .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
 
-            var purchaserDealer = await _context.Dealers
-            .FirstOrDefaultAsync(dealer => dealer.Id == purchaser.DealerId);
+            var purchaserDealer = await _context.Addresses
+            .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
 
             if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
@@ -296,7 +288,7 @@ namespace CarSales.Controllers
             // Find this vehicle by looking for the specific id
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Mileage)
-            .Include(vehicle => vehicle.MaintenanceId)
+            .Include(vehicle => vehicle.Maintenance)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
             if (vehicle == null)
             {
@@ -334,7 +326,7 @@ namespace CarSales.Controllers
 
             var deletionInfo = new DeletedVehicle 
             {
-                Deleter = await _context.Users.FindAsync(GetCurrentUserId()),
+                DeleterId = GetCurrentUserId(),
                 VehicleInfo = $"{vehicle.Year} {vehicle.Make} {vehicle.Model}",
                 MonetaryInfo = $"Search: ${vehicle.SearchPrice}, Offer: ${vehicle.OfferCost}, Purchase: ${vehicle.PurchaseCost}, List: ${vehicle.ListPrice}, Sale: ${vehicle.SalePrice}"
             };

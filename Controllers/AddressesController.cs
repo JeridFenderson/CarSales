@@ -19,7 +19,7 @@ namespace CarSales.Controllers
     // in this case VehiclesController to determine the URL
     [Route("api/[controller]")]
     [ApiController]
-    public class DealersController : ControllerBase
+    public class AddressesController : ControllerBase
     {
         // This is the variable you use to have access to your database
         private readonly DatabaseContext _context;
@@ -29,7 +29,7 @@ namespace CarSales.Controllers
 
         // Constructor that recives a reference to your database context
         // and stores it in _context for you to use in your API methods
-        public DealersController(DatabaseContext context, IConfiguration config)
+        public AddressesController(DatabaseContext context, IConfiguration config)
         {
             _context = context;
             CLOUDINARY_CLOUD_NAME = config["CLOUDINARY_CLOUD_NAME"];
@@ -42,22 +42,21 @@ namespace CarSales.Controllers
         // Returns a list of all your Vehicles
         //
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Dealer>>> GetDealers()
+        public async Task<ActionResult<IEnumerable<Address>>> GetAddresses()
         {   
-            return await _context.Dealers.ToListAsync();
+            return await _context.Addresses.ToListAsync();
         }
 
         [HttpGet("{id}")]
     
-        public async Task<ActionResult<Dealer>> GetDealer(int id)
+        public async Task<ActionResult<Address>> GetAddress(int id)
         {
-            var dealer = await _context.Dealers.FirstOrDefaultAsync(vehicle => vehicle.Id == id);
+            var dealer = await _context.Addresses.FirstOrDefaultAsync(address => address.Id == id);
             if (dealer == null)
             {
                 // Return a `404` response to the client indicating we could not find a vehicle with this id
                 return NotFound();
             }
-
             //  Return the vehicle as a JSON object.
             return dealer;
         }
@@ -75,7 +74,7 @@ namespace CarSales.Controllers
         //
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutDealer(int id, Dealer dealer)
+        public async Task<IActionResult> PutDealer(int id, Address dealer)
         {
             var response = new
                 {
@@ -90,9 +89,9 @@ namespace CarSales.Controllers
 
              // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            var dealerFromDatabase = await _context.Dealers.Include(dealer => dealer.Users.Where(users => users.Id == GetCurrentUserId())).FirstOrDefaultAsync();
+            var addressFromDatabase = await _context.Addresses.Include(address => address.Users.Where(users => users.Id == GetCurrentUserId())).FirstOrDefaultAsync();
         
-            if (dealerFromDatabase == null || dealerFromDatabase.Id != user.DealerId || user.Tier < 2)
+            if (addressFromDatabase == null || addressFromDatabase.Id != user.AddressId || user.Tier < 2)
             {
                 return Unauthorized(response);
             }
@@ -139,7 +138,7 @@ namespace CarSales.Controllers
         //
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<Dealer>> PostDealer(Dealer dealer)
+        public async Task<ActionResult<Address>> PostAddress(Address address)
         {
             var currentUser = await _context.Users.FindAsync(GetCurrentUserId());
 
@@ -155,12 +154,12 @@ namespace CarSales.Controllers
                 return Unauthorized(response);
             }
 
-            _context.Dealers.Add(dealer);
+            _context.Addresses.Add(address);
             await _context.SaveChangesAsync();
 
             // Return a response that indicates the object was created (status code `201`) and some additional
             // headers with details of the newly created object.
-            return CreatedAtAction("GetDealer", new { id = dealer.Id }, dealer);
+            return CreatedAtAction("GetAddress", new { id = address.Id }, address);
         }
 
         // DELETE: api/Vehicles/5
@@ -171,12 +170,12 @@ namespace CarSales.Controllers
         //
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> DeleteDealer(int id)
+        public async Task<IActionResult> DeleteAddress(int id)
         {
             // Find this vehicle by looking for the specific id
-            var dealer = await _context.Dealers
+            var address = await _context.Addresses
             .FirstOrDefaultAsync(dealer => dealer.Id == id);
-            if (dealer == null)
+            if (address == null)
             {
                 // There wasn't a vehicle with that id so return a `404` not found
                 return NotFound();
@@ -184,7 +183,7 @@ namespace CarSales.Controllers
 
             // Find the user information of the user that called a delete request
             var user = await _context.Users.FindAsync(GetCurrentUserId());
-            if (user.Tier < 2)
+            if (user.Tier < 3)
             {
                 // Make a custom error response
                 var response = new
@@ -198,7 +197,7 @@ namespace CarSales.Controllers
             }
 
             // Caputes photos id's of the vehicle being deleted
-            var photos = dealer.Media
+            var photos = address.Media
             .Where(photo => photo.PublicId != "")
             .Select(photo => photo.PublicId).ToList();
 
@@ -211,19 +210,19 @@ namespace CarSales.Controllers
             cloudinaryClient.DeleteResources(delResParams);
 
             // Tell the database we want to remove this record
-            _context.Dealers.Remove(dealer);
+            _context.Addresses.Remove(address);
 
             // Tell the database to perform the deletion
             await _context.SaveChangesAsync();
 
             // Return a copy of the deleted data
-            return Ok(dealer);
+            return Ok(address);
         }
 
         // Private helper method that looks up an existing vehicle by the supplied id
         private bool DealerExists(int id)
         {
-            return _context.Dealers.Any(dealer => dealer.Id == id);
+            return _context.Addresses.Any(address => address.Id == id);
         }
 
         // Private helper method to get the JWT claim related to the user ID

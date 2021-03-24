@@ -6,7 +6,6 @@ namespace CarSales.Models
     {
         public int Id { get; set; }
         public int DeleterId { get; set; }
-        public User Deleter { get; set; }
         public string VehicleInfo { get; set; }
         public string MonetaryInfo { get; set; }
         public DateTime CreationDate { get; private set;} = DateTime.Now; 

@@ -3,15 +3,17 @@ using System;
 using CarSales.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CarSales.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210325042937_MoreFatTrimming")]
+    partial class MoreFatTrimming
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,16 +40,16 @@ namespace CarSales.Migrations
                     b.Property<DateTime>("DateOfEntryCreation")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Dealer_id")
+                    b.Property<string>("Dealer_Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("Dealer_name")
+                    b.Property<string>("Dealer_Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("Dealer_phone")
+                    b.Property<string>("Dealer_Phone")
                         .HasColumnType("text");
 
-                    b.Property<int>("Fb_page_id")
+                    b.Property<int>("Fb_Page_Id")
                         .HasColumnType("integer");
 
                     b.Property<float>("Latitude")
@@ -56,7 +58,7 @@ namespace CarSales.Migrations
                     b.Property<float>("Longitude")
                         .HasColumnType("real");
 
-                    b.Property<string>("Postal_code")
+                    b.Property<string>("Postal_Code")
                         .HasColumnType("text");
 
                     b.Property<string>("Region")
@@ -273,7 +275,7 @@ namespace CarSales.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Body_style")
+                    b.Property<string>("Body_Style")
                         .HasColumnType("text");
 
                     b.Property<string>("Condition")
@@ -282,10 +284,10 @@ namespace CarSales.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Date_first_on_lot")
+                    b.Property<string>("Date_First_On_Lot")
                         .HasColumnType("text");
 
-                    b.Property<string>("Date_sold")
+                    b.Property<string>("Date_Sold")
                         .HasColumnType("text");
 
                     b.Property<string>("Drivetrain")
@@ -294,13 +296,13 @@ namespace CarSales.Migrations
                     b.Property<float>("EngineDisplacement")
                         .HasColumnType("real");
 
-                    b.Property<string>("Exterior_color")
+                    b.Property<string>("Exterior_Color")
                         .HasColumnType("text");
 
-                    b.Property<string>("Fuel_type")
+                    b.Property<string>("Fuel_Type")
                         .HasColumnType("text");
 
-                    b.Property<string>("Interior_color")
+                    b.Property<string>("Interior_Color")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsReferral")
@@ -342,7 +344,7 @@ namespace CarSales.Migrations
                     b.Property<int>("Seats")
                         .HasColumnType("integer");
 
-                    b.Property<string>("State_of_vehicle")
+                    b.Property<string>("State_Of_Vehicle")
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
@@ -354,7 +356,7 @@ namespace CarSales.Migrations
                     b.Property<string>("Trim")
                         .HasColumnType("text");
 
-                    b.Property<string>("Vehicle_type")
+                    b.Property<string>("Vehicle_Type")
                         .HasColumnType("text");
 
                     b.Property<string>("Vin")

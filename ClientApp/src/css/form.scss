@@ -1,7 +1,6 @@
 @import 'constants';
 
 .main-form {
-  padding-top: 1em;
   background-color: $background-color;
   align-items: center;
   color: $font-color;
@@ -14,8 +13,8 @@
     justify-content: space-evenly;
     align-items: center;
     section {
-      min-height: 10em;
-      min-width: 16em;
+      min-height: 20em;
+      min-width: 18em;
       padding: 1em;
       border-left: $standard-body-border;
     }

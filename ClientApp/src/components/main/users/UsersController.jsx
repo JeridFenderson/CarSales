@@ -8,7 +8,6 @@ export function UsersController() {
   const history = useHistory()
   const currentUser = getUser()
   const [errorMessage, setErrorMessage] = useState()
-  const [formTrigger, setFormTrigger] = useState(false)
   const [addresses, setAddresses] = useState([
     {
       id: 0,
@@ -26,8 +25,8 @@ export function UsersController() {
     phoneNumber: '',
     email: '',
     password: '',
+    tier: 0,
     addressId: 1,
-    role: '',
     Media: [{}],
   })
   const {
@@ -36,8 +35,8 @@ export function UsersController() {
     phoneNumber,
     email,
     password,
+    tier,
     addressId,
-    role,
     media,
   } = newUser
   const signup = history.location.pathname === '/signup' ? true : false
@@ -63,7 +62,8 @@ export function UsersController() {
     })
   }
 
-  async function handleFormSubmit() {
+  async function handleFormSubmit(event) {
+    event.preventDefault()
     let url = signup ? '/api/Users' : '/api/Sessions'
     url =
       isLoggedIn() && currentUser.tier >= 3 && deleteAccount
@@ -72,25 +72,24 @@ export function UsersController() {
     const action =
       isLoggedIn() && currentUser.tier >= 3 && deleteAccount ? 'DELETE' : 'POST'
 
-    const response = await fetch(url, {
-      method: action,
+    const response = await fetch(`${url}`, {
+      method: `${action}`,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(newUser),
     })
+    const apiResponse = await response.json()
 
-    if (response.status === 400) {
+    if (apiResponse.status === 400) {
       // @ts-ignore
-      setErrorMessage(Object.values(response.errors).join(' '))
-    } else if (response.status === 404) {
+      setErrorMessage(Object.values(apiResponse.errors).join(' '))
+    } else if (apiResponse.status === 404) {
       // @ts-ignore
-      setErrorMessage(Object.values(response.errors).join(' '))
+      setErrorMessage(Object.values(apiResponse.errors).join(' '))
     } else {
-      if (isLoggedIn() && currentUser.tier >= 3 && deleteAccount) {
-      } else if (signup) {
-        recordAuthentication(response)
+      if ((isLoggedIn() && currentUser.tier >= 3 && deleteAccount) || signup) {
         history.push('/')
       } else {
-        recordAuthentication(response)
+        recordAuthentication(apiResponse)
         window.location.assign('/')
       }
     }
@@ -177,9 +176,9 @@ export function UsersController() {
             !deleteAccount &&
             OptionsInput([
               '',
-              'Role',
-              role,
-              handleStringFieldChange,
+              'Tier',
+              tier,
+              handleNumberFieldChange,
               false,
               '',
               'tier',

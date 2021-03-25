@@ -49,15 +49,14 @@ namespace CarSales.Controllers
             if (filterMake == null)
             {
                 return await _context.Vehicles
-                .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.Purchaser)
-                .Where(vehicle => vehicle.Status == "LISTED")
                 .ToListAsync();
+
+                 //.Include(vehicle => vehicle.Images)
+                // .Where(vehicle => vehicle.Status == "LISTED")
             }
             else
             {
             return await _context.Vehicles
-            .Include(vehicle => vehicle.Purchaser)
             .Where(vehicle => (vehicle.Status == "LISTED" && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
             .ToListAsync();
             }        
@@ -83,13 +82,11 @@ namespace CarSales.Controllers
             {
                 return await _context.Vehicles
                 .Include(vehicle => vehicle.Images)
-                .Include(vehicle => vehicle.Purchaser)
                 .ToListAsync();
             }
             else
             {
                 return await _context.Vehicles
-                .Include(vehicle => vehicle.Purchaser)
                 .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
                 .ToListAsync();
             }        
@@ -107,7 +104,6 @@ namespace CarSales.Controllers
             // Find the vehicle in the database using `FindAsync` to look it up by id
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Images)
-            .Include(vehicle => vehicle.Purchaser)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
 
             // If we didn't find anything, we receive a `null` in return
@@ -159,20 +155,20 @@ namespace CarSales.Controllers
             if(vehicle.Status == "SOLD" && vehicleFromDatabase.PurchaseCost < 1) 
                 return Unauthorized(response);
 
-            if (vehicle.Status == "SOLD" && vehicleFromDatabase.MarginPercentage < 0.15) 
-                return Unauthorized(response);
+            // if (vehicle.Status == "SOLD" && vehicleFromDatabase.MarginPercentage < 0.15) 
+            //     return Unauthorized(response);
 
-            if (vehicleFromDatabase.Status == "SOLD" && vehicle.IsReferral && vehicleFromDatabase.MarginPercentageWithReferral < 0.15)
-                return Unauthorized(response);
+            // if (vehicleFromDatabase.Status == "SOLD" && vehicle.IsReferral && vehicleFromDatabase.MarginPercentageWithReferral < 0.15)
+            //     return Unauthorized(response);
 
             if (vehicle.Status == "LISTED" && vehicleFromDatabase.Status != "LISTED")
             {
-                vehicle.Date_First_On_Lot = DateTime.Now.ToString("yyyy-mm-dd");
+                vehicle.Date_first_on_lot = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
             if(vehicle.Status == "SOLD")
             {
-                vehicle.Date_Sold = DateTime.Now.ToString("yyyy-mm-dd");
+                vehicle.Date_sold = DateTime.Now.ToString("yyyy-mm-dd");
             }
 
             if(vehicle.Status == "SOLD" && referralEmail != null)
@@ -190,7 +186,7 @@ namespace CarSales.Controllers
                     // There wasn't a user with that id so return a `404` not found
                     return NotFound(otherResponse);
                 }
-                vehicle.Referrer = referrerUser;
+                vehicle.ReferrerId = referrerUser.Id;
             }
 
             // Tell the database to consider everything in vehicle to be _updated_ values. When
@@ -234,14 +230,14 @@ namespace CarSales.Controllers
         // new values for the record.
         //
         [HttpPost]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
-            var purchaser = await _context.Users
-            .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
+            // var purchaser = await _context.Users
+            // .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
 
-            var purchaserAddress = await _context.Addresses
-            .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
+            // var purchaserAddress = await _context.Addresses
+            // .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
 
             if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
@@ -254,14 +250,8 @@ namespace CarSales.Controllers
             }
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
-            vehicle.PurchaserId = purchaser.Id;
-            vehicle.Dealer_Id = purchaserAddress.Dealer_Id;
-            vehicle.Dealer_Name = purchaserAddress.Dealer_Name;
-            vehicle.Dealer_Phone = purchaserAddress.Dealer_Phone;
-            vehicle.Latitude = purchaserAddress.Latitude;
-            vehicle.Longitude = purchaserAddress.Longitude;
-            vehicle.Url = purchaserAddress.Url;
-            vehicle.AddressId = purchaser.AddressId;
+            // vehicle.PurchaserId = purchaser.Id;
+            // vehicle.AddressId = purchaser.AddressId;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();

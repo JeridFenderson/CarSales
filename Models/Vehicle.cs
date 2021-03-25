@@ -19,7 +19,7 @@ namespace CarSales.Models
         public string Title { 
             get
             {
-                return Trim != "" ? $"{Year} {Make} {Model} {Trim}" :  $"{Year} {Make} {Model}";
+                return Trim == "" || Trim == null ? $"{Year} {Make} {Model}" :  $"{Year} {Make} {Model} {Trim}";
             }
         }
         public string Price { 
@@ -34,18 +34,17 @@ namespace CarSales.Models
         public string Make { get; set; }
         public string Model { get; set; } 
         public string Trim { get; set; }
-        public string Exterior_Color { get; set; }
-        public string Interior_Color { get; set; }
+        public string Exterior_color { get; set; }
+        public string Interior_color { get; set; }
         public float EngineDisplacement { get; set; }
-        public string Body_Style { get; set; }
+        public string Body_style { get; set; }
         public int Seats {get; set;}
         public string Transmission { get; set; }
         public string Drivetrain { get; set; }  
-        public string Fuel_Type { get; set; }
-        public string Vehicle_Type { get; set; }
+        public string Fuel_type { get; set; }
+        public string Vehicle_type { get; set; }
         public string Condition { get; set; }
-        public string State_Of_Vehicle { get; set; }
-        public string Description { get; set; }
+        public string State_of_vehicle { get; set; }
         public List<Feature> Features {get; set;}
         public int MileageId { get; set; }
         public Mileage Mileage { get; set; }
@@ -59,30 +58,22 @@ namespace CarSales.Models
 
         [NotMapped]
         public int PurchaserId { get; set; }
-        public User Purchaser { get; set; }
-
         [NotMapped]
         public int BuyerId { get; set; }
-        public User Buyer { get; set; } 
-        public bool IsReferral {get; set; }
         [NotMapped]
         public int ReferrerId { get; set; }
-        public User Referrer { get; set; }
-        public double PaymentAmountDue 
-        {
-            get
-            {
-                return PaymentAmountDue;
-            }
-            private set
-            {
-                PaymentAmountDue = (SalePrice * 0.05);
-            }
-        }
+        public bool IsReferral {get; set; }
+        // public double PaymentAmountDue 
+        // {
+        //     get
+        //     {
+        //         return SalePrice * 0.05;
+        //     }
+        // }
         public bool ReferralIsCredit { get; set; }
         public bool ReferralIsPaid { get; set; } 
-        public string Date_First_On_Lot { get; set; }
-        public string Date_Sold { get; set; }
+        public string Date_first_on_lot { get; set; }
+        public string Date_sold { get; set; }
         public string Available 
         { 
             get
@@ -91,50 +82,37 @@ namespace CarSales.Models
             } 
         }
         public List<Maintenance> Maintenance {get; set;}
-        public double MaintenanceCost { 
-            get
-            {
-                return Maintenance.Aggregate(0.00, (currentTotal, maintenance) => currentTotal + maintenance.Cost);
-            }
-        }
-        public double MarginAmount {
-            get
-            {
-                return SalePrice - PurchaseCost - MaintenanceCost;
-            }
-        }
-        public double MarginPercentage{
-            get
-            {
-                return MarginAmount / (PurchaseCost + MaintenanceCost);
-            }
-        }
-        public double MarginAmountWithReferral {
-            get
-            {
-                return SalePrice * 1.05 - PurchaseCost - MaintenanceCost;
-            }
-        }
-        public double MarginPercentageWithReferral{
-            get
-            {
-                return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
-            }
-        }
-
-        //Internal Id
-        public int DealerId { get; set; }
-        public int Fb_Page_Id { get; set; }
-
-        //External Id
-        public string Dealer_Id { get; set; }
-        public string Dealer_Name { get; set; }
-        public string Dealer_Phone { get; set; }
+        // public double MaintenanceCost { 
+        //     get
+        //     {
+        //         return Maintenance.Aggregate(0.00, (currentTotal, maintenance) => currentTotal + maintenance.Cost);
+        //     }
+        // }
+        // public double MarginAmount {
+        //     get
+        //     {
+        //         return SalePrice - PurchaseCost - MaintenanceCost;
+        //     }
+        // }
+        // public double MarginPercentage{
+        //     get
+        //     {
+        //         return MarginAmount / (PurchaseCost + MaintenanceCost);
+        //     }
+        // }
+        // public double MarginAmountWithReferral {
+        //     get
+        //     {
+        //         return SalePrice * 1.05 - PurchaseCost - MaintenanceCost;
+        //     }
+        // }
+        // public double MarginPercentageWithReferral{
+        //     get
+        //     {
+        //         return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
+        //     }
+        // }
         public int AddressId { get; set; }
-        public Address Address { get; set; }
-        public float Latitude { get; set; }
-        public float Longitude { get; set; }
-        public string Url { get; set; }     
         public DateTime CreationDate { get; private set; } = DateTime.Now;   
     }
 }

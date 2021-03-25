@@ -21,13 +21,17 @@ export function Nav() {
 
         <ul id="menu">
           {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
-          {(isLoggedIn() && currentUser.tier >= 1) ||
+          {(isLoggedIn() && currentUser.tier >= 1 && (
+            <li>
+              <Link to="/vehicles/create" onClick={() => setOpen(false)}>
+                Add a Vehicle
+              </Link>
+            </li>
+          )) ||
             (isLoggedIn() && (
               <li>
                 <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                  In search of a specific vehicle?
-                  <br />
-                  Want to sell your vehicle?
+                  Search, Sell, or Trade Form
                 </Link>
               </li>
             )) || (
@@ -44,13 +48,6 @@ export function Nav() {
               Pre-owned Inventory
             </Link>
           </li>
-          {isLoggedIn() && currentUser.tier >= 1 && (
-            <li>
-              <Link to="/vehicles/create" onClick={() => setOpen(false)}>
-                Add A Vehicle
-              </Link>
-            </li>
-          )}
           <li>
             <Link to="/about" onClick={() => setOpen(false)}>
               About Us

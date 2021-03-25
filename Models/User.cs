@@ -15,9 +15,9 @@ namespace CarSales.Models
         [Required]
         public string LastName { get; set; }
         [Required]
-        public string Email { get; set; }
+        public string PhoneNumber { get; set; }   
         [Required]
-        public string PhoneNumber { get; set; }     
+        public string Email { get; set; }  
         [JsonIgnore]
         public string HashedPassword { get; set; }
         // Define a property for being able to _set_ a password

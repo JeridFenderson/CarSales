@@ -14,14 +14,17 @@ import {
 
 export function VehiclesController({ filterText }) {
   // Get the modal
-  var modal = document.getElementById('myModal')
-
-  // Get the <span> element that closes the modal
-  var span = document.getElementsByClassName('close')[0]
+  const featuresModal = document.getElementById('featuresModal')
+  const mxModal = document.getElementById('mxModal')
 
   window.onclick = function (event) {
-    if (event.target === modal) {
-      modal.style.display = 'none'
+    if (event.target === featuresModal) {
+      featuresModal.style.display = 'none'
+    }
+  }
+  window.onclick = function (event) {
+    if (event.target === mxModal) {
+      mxModal.style.display = 'none'
     }
   }
   // @ts-ignore
@@ -33,11 +36,18 @@ export function VehiclesController({ filterText }) {
   const [isUploading, setIsUploading] = useState(false)
   const [filesToUpload, setFilesToUpload] = useState([])
   const [errorMessage, setErrorMessage] = useState('')
+  const [referrerEmail, setReferrerEmail] = useState('')
   const [formTrigger, setFormTrigger] = useState(false)
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: setFilesToUpload,
   })
   const [vehicleFeatures, setVehicleFeatures] = useState([])
+  const [vehicleMxTask, setVehicleMxTask] = useState({
+    task: '',
+    description: '',
+    cost: 0,
+  })
+  const [vehicleMaintenance, setVehicleMaintenance] = useState([])
 
   const [vehicles, setVehicles] = useState([{ id: 0 }])
 
@@ -63,13 +73,14 @@ export function VehiclesController({ filterText }) {
     mileage: { value: 0, unit: '' },
     images: [],
     status: '',
-    searchPrice: '',
-    offerCost: '',
-    purchaseCost: '',
-    listPrice: '',
-    salePrice: '',
+    searchPrice: 0,
+    offerCost: 0,
+    purchaseCost: 0,
+    listPrice: 0,
+    salePrice: 0,
     isReferral: false,
-    maintenance: { task: '', description: '', cost: 0 },
+    maintenance: [],
+    addressId: 1,
   })
 
   const {
@@ -98,7 +109,7 @@ export function VehiclesController({ filterText }) {
     listPrice,
     salePrice,
     isReferral,
-    maintenance,
+    addressId,
   } = vehicle
 
   useEffect(() => {
@@ -212,6 +223,10 @@ export function VehiclesController({ filterText }) {
     })
   }
 
+  function handleBooleanFieldChange(event) {
+    setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
+  }
+
   function handleMileage(event) {
     setMileageDisplay(event.target.value)
     setVehicle({
@@ -220,7 +235,7 @@ export function VehiclesController({ filterText }) {
         unit: 'MI',
         value:
           Number(event.target.value) > 499 &&
-          Number(event.target.value) < 999999
+          Number(event.target.value) < 9999999
             ? Number(event.target.value)
             : null,
       },
@@ -248,37 +263,52 @@ export function VehiclesController({ filterText }) {
     }
   }
 
-  function handleBooleanFieldChange(event) {
-    setVehicle({ ...vehicle, [event.target.name]: event.target.checked })
+  function handleMxStringChange(event) {
+    setVehicleMxTask({
+      ...vehicleMxTask,
+      [event.target.name]: event.target.value,
+    })
+  }
+  function handleMxIntChange(event) {
+    setVehicleMxTask({
+      ...vehicleMxTask,
+      [event.target.name]: Number(event.target.value) || 0,
+    })
+  }
+
+  function handleMxAdd() {
+    const newList = vehicleMaintenance.concat(vehicleMxTask)
+    setVehicleMaintenance(newList)
+    setVehicleMxTask({ task: '', description: '', cost: 0 })
+  }
+
+  function handleMxRemove(task) {
+    const newList = vehicleMaintenance.filter((item) => item.task !== task)
+    setVehicleMaintenance(newList)
+  }
+
+  function handleReferralFieldChange(event) {
+    setReferrerEmail(event.target.value)
   }
 
   function handleFormSubmit(event) {
     event.preventDefault()
     vehicle.features = vehicleFeatures
-    if (
-      vehicle.status === 'PURCHASED' &&
-      (vehicle.purchaseCost === '' || Number(vehicle.purchaseCost) < 0)
-    ) {
+    vehicle.maintenance = vehicleMaintenance
+    if (vehicle.status === 'PURCHASED' && vehicle.purchaseCost < 0) {
       setErrorMessage(
         `How'd you find this deal ${currentUser.firstName}? Purchase it for at least a few dollars.`
       )
-    } else if (
-      vehicle.status === 'LISTED' &&
-      (vehicle.listPrice === '' || Number(vehicle.listPrice) < 0)
-    ) {
+    } else if (vehicle.status === 'LISTED' && vehicle.listPrice < 0) {
       setErrorMessage(
         `You can't list a vehicle for free ${currentUser.firstName}. You also must have a vehicle on record from a purchase action to list it.`
       )
-    } else if (
-      vehicle.status === 'SOLD' &&
-      (vehicle.purchaseCost === '' || Number(vehicle.salePrice) < 0)
-    ) {
+    } else if (vehicle.status === 'SOLD' && vehicle.salePrice < 0) {
       setErrorMessage(
         `Are you sure you meant to sell this vehicle for free? If so, sell it for $1, but be by the phone ${currentUser.firstName}.`
       )
     } else {
-      console.log(vehicle)
-      // setFormTrigger(true)
+      setFormTrigger(true)
     }
   }
 
@@ -294,7 +324,7 @@ export function VehiclesController({ filterText }) {
             {Input(['text', 'Year', year, handleNumberFieldChange, true, 4])}
             {Input(['text', 'Make', make, handleStringFieldChange, true])}
             {Input(['text', 'Model', model, handleStringFieldChange, true])}
-            {Input(['text', 'Trim', trim, handleStringFieldChange, true])}
+            {Input(['text', 'Trim', trim, handleStringFieldChange, false])}
             {BigInput([
               'text',
               'Mileage',
@@ -505,21 +535,21 @@ export function VehiclesController({ filterText }) {
             <p>
               {/* Trigger/Open The Modal */}
               <button
-                id="myBtn"
+                id="featuresBtn"
                 type="button"
-                onClick={() => (modal.style.display = 'block')}
+                onClick={() => (featuresModal.style.display = 'block')}
               >
                 Features
               </button>
 
               {/* The Modal */}
-              <div id="myModal" className="modal">
+              <div id="featuresModal" className="modal">
                 {/* Modal content */}
                 <div className="modal-content">
                   <div className="modal-header">
                     <span
                       className="close"
-                      onClick={() => (modal.style.display = 'none')}
+                      onClick={() => (featuresModal.style.display = 'none')}
                     >
                       &times;
                     </span>
@@ -556,31 +586,72 @@ export function VehiclesController({ filterText }) {
                 <p>
                   {/* Trigger/Open The Modal */}
                   <button
-                    id="myBtn"
+                    id="mxBtn"
                     type="button"
-                    onClick={() => (modal.style.display = 'block')}
+                    onClick={() => (mxModal.style.display = 'block')}
                   >
                     Did A Little Maintenance Already? Log it!
                   </button>
-
                   {/* The Modal */}
-                  <div id="myModal" className="modal">
+                  <div id="mxModal" className="modal">
                     {/* Modal content */}
                     <div className="modal-content">
                       <div className="modal-header">
                         <span
                           className="close"
-                          onClick={() => (modal.style.display = 'none')}
+                          onClick={() => (mxModal.style.display = 'none')}
                         >
                           &times;
                         </span>
-                        <h2>Referral Form</h2>
+                        <h2>Maintenance Log</h2>
                       </div>
                       <div className="modal-body">
-                        Referral lookup form here
+                        <ul>
+                          {vehicleMaintenance.map((mx, index) => (
+                            <li key={index}>
+                              <p>
+                                {mx.task} - {mx.description} - ${mx.cost}
+                                <button
+                                  type="button"
+                                  onClick={() => handleMxRemove(mx.task)}
+                                >
+                                  Remove
+                                </button>
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                        <div>
+                          {Input([
+                            'text',
+                            'Task',
+                            vehicleMxTask.task,
+                            handleMxStringChange,
+                            false,
+                          ])}
+                          {Input([
+                            'text',
+                            'Description',
+                            vehicleMxTask.description,
+                            handleMxStringChange,
+                            false,
+                          ])}
+                          {Input([
+                            'text',
+                            'Cost',
+                            vehicleMxTask.cost,
+                            handleMxIntChange,
+                            false,
+                          ])}
+                          <button type="button" onClick={handleMxAdd}>
+                            Add
+                          </button>
+                        </div>
                       </div>
                       <div className="modal-footer">
-                        <h3>Refer a friend, get 5% of what they spend!</h3>
+                        <h3>
+                          If it's not properly documented, it didn't happen!
+                        </h3>
                       </div>
                     </div>
                   </div>
@@ -612,31 +683,31 @@ export function VehiclesController({ filterText }) {
               'status',
               [
                 { name: null, value: null },
-                { name: 'Search Request', value: 'SEARCH_REQUESTED' },
-                { name: 'Offer', value: 'OFFERED' },
+                { name: 'Requesting', value: 'SEARCH_REQUESTED' },
+                { name: 'Offering', value: 'OFFERED' },
                 isLoggedIn() &&
                   currentUser.tier >= 2 && {
-                    name: 'Reject',
+                    name: 'Rejecting',
                     value: 'REJECTED',
                   },
                 isLoggedIn() &&
                   currentUser.tier >= 1 && {
-                    name: 'Purchase',
+                    name: 'Purchasing',
                     value: 'PURCHASED',
                   },
                 isLoggedIn() &&
                   currentUser.tier >= 1 && {
-                    name: 'Maintain',
+                    name: 'Maintaining',
                     value: 'MAINTAINED',
                   },
                 isLoggedIn() &&
                   currentUser.tier >= 1 && {
-                    name: 'List',
+                    name: 'Listing',
                     value: 'LISTED',
                   },
                 isLoggedIn() &&
-                  currentUser.tier === 'SOLD' && {
-                    name: 'Sell',
+                  currentUser.tier >= 2 && {
+                    name: 'Selling',
                     value: 'SOLD',
                   },
               ],
@@ -721,7 +792,26 @@ export function VehiclesController({ filterText }) {
                     <i className="fas fa-backward"></i>
                   </Link>
                 </p>
-              )}
+              ) &&
+              BigInput([
+                'checkbox',
+                'Did someone refer them?',
+                isReferral,
+                handleBooleanFieldChange,
+                false,
+                '',
+                'isReferral',
+              ])}
+            {isReferral &&
+              BigInput([
+                'text',
+                `What's the referrer's email?`,
+                referrerEmail,
+                handleReferralFieldChange,
+                false,
+                '',
+                'referrerEmail',
+              ])}
             <p>
               <span></span>
               <button type="submit" value="Submit">

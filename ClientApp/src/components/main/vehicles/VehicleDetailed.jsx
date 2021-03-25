@@ -35,7 +35,6 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
     isReferral,
     maintenance,
     mileage,
-    description,
   } = vehicle
 
   return (
@@ -64,7 +63,10 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
       </figure>
       <ul>
         <li>{mileage && `Odometer miles: ${mileage.value}. VIN: ${vin}.`}</li>
-        <li>{description}</li>
+        <li>
+          A {condition} condition, {exterior_color} exterior, {interior_color}{' '}
+          interior {body_style}
+        </li>
       </ul>
       {(status === 'SOLD' && <h3 className="isSold">SOLD</h3>) || (
         <h3>{price && `$${price}`}</h3>

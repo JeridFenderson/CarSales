@@ -22,71 +22,84 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
     transmission,
     drivetrain,
     fuel_type,
-    vehicle_type,
     condition,
     state_of_vehicle,
     images,
     status,
-    searchPrice,
-    offerCost,
-    purchaseCost,
-    listPrice,
-    salePrice,
-    isReferral,
-    maintenance,
     mileage,
+    features,
   } = vehicle
 
   return (
     <>
-      {(singleVehicle && (
-        <section>
-          <p className="back-arrow">
-            <Link to="/vehicles/view">
-              <i className="fas fa-backward"></i>
-            </Link>
-          </p>
+      <p className="back-arrow">
+        <Link to="/vehicles/view">
+          <i className="fas fa-backward"></i>
+        </Link>
+      </p>
+      <section>
+        {(singleVehicle && (
           <h2>
             {year} {make} {model} {trim && trim}
           </h2>
-          <span></span>
-        </section>
-      )) || (
-        <h2>
-          {year} {make} {model} {trim && trim}
-        </h2>
-      )}
-      <figure className="vehicle">
-        {(images && images.length > 0 && (
-          <img src={images[0].url} alt={`${year} ${make} ${model}`} />
-        )) || <img alt={`${year} ${make} ${model}`} />}
-      </figure>
-      <ul>
-        <li>{mileage && `Odometer miles: ${mileage.value}. VIN: ${vin}.`}</li>
-        <li>
-          A {condition} condition, {exterior_color} exterior, {interior_color}{' '}
-          interior {body_style}
-        </li>
-      </ul>
-      {(status === 'SOLD' && <h3 className="isSold">SOLD</h3>) || (
-        <h3>{price && `$${price}`}</h3>
-      )}
-
-      {isLoggedIn() && currentUser.tier >= 1 && !notFound && (
+        )) || (
+          <h2>
+            {year} {make} {model} {trim && trim}
+          </h2>
+        )}
+        <figure className="vehicle">
+          {(images && images.length > 0 && (
+            <img src={images[0].url} alt={`${year} ${make} ${model}`} />
+          )) || <img alt={`${year} ${make} ${model}`} />}
+        </figure>
         <aside>
           <ul>
-            <li>Posted by {currentUser.firstName}</li>
+            <h3>Description</h3>
+            <li>{mileage && `${mileage.value} miles. VIN: ${vin}.`}</li>
             <li>
-              <Link to={`/vehicles/create/${id}/edit`}>Edit</Link>
+              {condition &&
+                `${state_of_vehicle}, ${condition.toLowerCase()} condition, ${exterior_color.toLowerCase()} 
+          exterior, ${interior_color.toLowerCase()} interior, ${seats} seater ${body_style.toLowerCase()}.`}
             </li>
-            {currentUser.tier >= 3 && (
-              <li>
-                <Link to={`/vehicles/create/${id}/delete`}>Delete</Link>
-              </li>
-            )}
+            <li>
+              {engineDisplacement &&
+                `This ${body_style.toLowerCase()} has a ${engineDisplacement} liter ${fuel_type.toLowerCase()} engine. It's a ${transmission.toLowerCase()} with ${drivetrain}.`}
+            </li>
+            <li>
+              {(status === 'SOLD' && <h3 className="isSold">SOLD</h3>) || (
+                <h3>
+                  {price && `$${price}`} {lotSpot && `Lot Spot: ${lotSpot}`}
+                </h3>
+              )}
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <h3>Features</h3>
+            </li>
+            {features && features.map((feature) => <li>{feature.value}</li>)}
           </ul>
         </aside>
-      )}
+
+        {isLoggedIn() && currentUser.tier >= 1 && !notFound && (
+          <aside>
+            <ul>
+              <li>
+                <h3>Admin Information</h3>
+              </li>
+              <li>Posted by {currentUser.firstName}</li>
+              <li>
+                <Link to={`/vehicles/create/${id}/edit`}>Edit</Link>
+              </li>
+              {currentUser.tier >= 3 && (
+                <li>
+                  <Link to={`/vehicles/create/${id}/delete`}>Delete</Link>
+                </li>
+              )}
+            </ul>
+          </aside>
+        )}
+      </section>
     </>
   )
 }

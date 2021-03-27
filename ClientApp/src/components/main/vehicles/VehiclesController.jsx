@@ -12,7 +12,7 @@ import {
   supportedFeatures,
 } from '../formInputs'
 
-export function VehiclesController({ filterText }) {
+export function VehiclesController(filterText) {
   // Get the modal
   const featuresModal = document.getElementById('featuresModal')
   const mxModal = document.getElementById('mxModal')
@@ -80,7 +80,6 @@ export function VehiclesController({ filterText }) {
     salePrice: 0,
     isReferral: false,
     maintenance: [],
-    addressId: 1,
   })
 
   const {
@@ -109,7 +108,6 @@ export function VehiclesController({ filterText }) {
     listPrice,
     salePrice,
     isReferral,
-    addressId,
   } = vehicle
 
   useEffect(() => {
@@ -141,9 +139,7 @@ export function VehiclesController({ filterText }) {
       setDropzoneMessage('Drop the files here...')
     }
     if (!isUploading && !isDragActive) {
-      setDropzoneMessage(
-        'Click here or drag vehicle images right below to upload!'
-      )
+      setDropzoneMessage('Click or drag vehicle images here!')
     }
   }, [isDragActive, isUploading])
 
@@ -217,9 +213,9 @@ export function VehiclesController({ filterText }) {
     setVehicle({
       ...vehicle,
       [event.target.name]:
-        Number(event.target.value) > 1 && Number(event.target.value) < 999999
+        Number(event.target.value) > -1 && Number(event.target.value) < 999999
           ? Number(event.target.value)
-          : null,
+          : 0,
     })
   }
 
@@ -234,10 +230,9 @@ export function VehiclesController({ filterText }) {
       mileage: {
         unit: 'MI',
         value:
-          Number(event.target.value) > 499 &&
-          Number(event.target.value) < 9999999
+          Number(event.target.value) > 0 && Number(event.target.value) < 9999999
             ? Number(event.target.value)
-            : null,
+            : 0,
       },
     })
   }
@@ -660,17 +655,18 @@ export function VehiclesController({ filterText }) {
             )}
             <div className="file-drop-zone">
               <div {...getRootProps()}>
-                {/* Make input required -------------------------hello--------------- */}
-                <input {...getInputProps()} />
+                <input {...getInputProps()} required />
                 {dropzoneMessage}
               </div>
             </div>
-            {images.length > 0 &&
-              images.map((photo, index) => (
-                <figure key={index}>
-                  <img alt={`${year}${make} ${model}`} src={photo.url} />
-                </figure>
-              ))}
+            <aside>
+              {images.length > 0 &&
+                images.map((photo, index) => (
+                  <figure key={index}>
+                    <img alt={`${year}${make} ${model}`} src={photo.url} />
+                  </figure>
+                ))}
+            </aside>
           </section>
           <section>
             {OptionsInput([
@@ -793,7 +789,7 @@ export function VehiclesController({ filterText }) {
                   </Link>
                 </p>
               ) &&
-              BigInput([
+              ButtonInput([
                 'checkbox',
                 'Did someone refer them?',
                 isReferral,

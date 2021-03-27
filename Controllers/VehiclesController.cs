@@ -49,15 +49,19 @@ namespace CarSales.Controllers
             if (filterMake == null)
             {
                 return await _context.Vehicles
+                .Include(vehicle => vehicle.Images)
+                .Include(vehicle => vehicle.Mileage)
+                .Include(vehicle => vehicle.Features)
                 .ToListAsync();
-
-                 //.Include(vehicle => vehicle.Images)
                 // .Where(vehicle => vehicle.Status == "LISTED")
             }
             else
             {
             return await _context.Vehicles
-            .Where(vehicle => (vehicle.Status == "LISTED" && (vehicle.Make.ToLower().Contains(filterMake.ToLower()))))
+            .Include(vehicle => vehicle.Images)
+            .Include(vehicle => vehicle.Mileage)
+            .Include(vehicle => vehicle.Features)
+            .Where(vehicle => vehicle.Make.ToLower().Contains(filterMake.ToLower()))
             .ToListAsync();
             }        
         }
@@ -82,12 +86,17 @@ namespace CarSales.Controllers
             {
                 return await _context.Vehicles
                 .Include(vehicle => vehicle.Images)
+                .Include(vehicle => vehicle.Mileage)
+                .Include(vehicle => vehicle.Features)
                 .ToListAsync();
             }
             else
             {
                 return await _context.Vehicles
                 .Where(vehicle => (vehicle.Make.ToLower().Contains(filterMake.ToLower())))
+                .Include(vehicle => vehicle.Images)
+                .Include(vehicle => vehicle.Mileage)
+                .Include(vehicle => vehicle.Features)
                 .ToListAsync();
             }        
         }
@@ -104,6 +113,8 @@ namespace CarSales.Controllers
             // Find the vehicle in the database using `FindAsync` to look it up by id
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Images)
+            .Include(vehicle => vehicle.Mileage)
+            .Include(vehicle => vehicle.Features)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
 
             // If we didn't find anything, we receive a `null` in return
@@ -126,9 +137,85 @@ namespace CarSales.Controllers
         // supplies to the names of the attributes of our Vehicle POCO class. This represents the
         // new values for the record.
         //
+        [HttpPut("{id}")]
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle)
+        {
+            var response = new
+            {
+                status = 401,
+                errors = new List<string>() { "Not Authorized" }
+            };
+            // If the ID in the URL does not match the ID in the supplied request body, return a bad request
+            if (id != vehicle.Id)
+                return BadRequest();
+
+             // Find the user information of the user that called a delete request
+            var user = await _context.Users.FindAsync(GetCurrentUserId());
+            if (user.Tier < 2)
+                return Unauthorized(response);
+
+            var vehicleFromDatabase = await _context.Vehicles.FindAsync(id);
+
+            if(vehicleFromDatabase.Status == "SOLD")
+                return Unauthorized(response);
+
+            if(vehicleFromDatabase.PurchaseCost > 0)
+                vehicle.PurchaseCost = vehicleFromDatabase.PurchaseCost;
+
+            if(vehicle.Status == "SOLD" && vehicleFromDatabase.PurchaseCost < 1) 
+                return Unauthorized(response);
+
+            // if (vehicle.Status == "SOLD" && vehicleFromDatabase.MarginPercentage < 0.15) 
+            //     return Unauthorized(response);
+
+            // if (vehicleFromDatabase.Status == "SOLD" && vehicle.IsReferral && vehicleFromDatabase.MarginPercentageWithReferral < 0.15)
+            //     return Unauthorized(response);
+
+            if (vehicle.Status == "LISTED" && vehicleFromDatabase.Status != "LISTED")
+            {
+                vehicle.Date_first_on_lot = DateTime.Now.ToString("yyyy-mm-dd");
+            }
+
+            if(vehicle.Status == "SOLD")
+            {
+                vehicle.Date_sold = DateTime.Now.ToString("yyyy-mm-dd");
+            }
+
+            // Tell the database to consider everything in vehicle to be _updated_ values. When
+            // the save happens the database will _replace_ the values in the database with the ones from vehicle
+            _context.Entry(vehicle).State = EntityState.Modified;
+
+            try
+            {
+                // Try to save these changes.
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ooops, looks like there was an error, so check to see if the record we were
+                // updating no longer exists.
+                if (!VehicleExists(id))
+                {
+                    // If the record we tried to update was already deleted by someone else,
+                    // return a `404` not found
+                    return NotFound();
+                }
+                else
+                {
+                    // Otherwise throw the error back, which will cause the request to fail
+                    // and generate an error to the client.
+                    throw;
+                }
+            }
+
+            // Return a copy of the updated data
+            return Ok(vehicle);
+        }
+
         [HttpPut("{id}/{referralEmail}/{referredFromId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> PutVehicle(int id, Vehicle vehicle, string referralEmail, int referredFromId)
+        public async Task<IActionResult> PutReferralVehicle(int id, Vehicle vehicle, string referralEmail, int referredFromId)
         {
             var response = new
             {
@@ -230,14 +317,14 @@ namespace CarSales.Controllers
         // new values for the record.
         //
         [HttpPost]
-        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle vehicle)
         {
-            // var purchaser = await _context.Users
-            // .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
+            var purchaser = await _context.Users
+            .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
 
-            // var purchaserAddress = await _context.Addresses
-            // .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
+            var purchaserAddress = await _context.Addresses
+            .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
 
             if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             {
@@ -250,8 +337,8 @@ namespace CarSales.Controllers
             }
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
-            // vehicle.PurchaserId = purchaser.Id;
-            // vehicle.AddressId = purchaser.AddressId;
+            vehicle.PurchaserId = purchaser.Id;
+            vehicle.AddressId = purchaser.AddressId;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();

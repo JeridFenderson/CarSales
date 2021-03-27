@@ -5,6 +5,7 @@ import { VehiclesController } from './VehiclesController'
 export function SearchVehicles() {
   const [filterText, setFilterText] = useState('')
   const [mainClass, setMainClass] = useState('')
+  // @ts-ignore
   const { path, id } = useParams()
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function SearchVehicles() {
           }}
         />
       )}
-      <VehiclesController filterText={filterText} />
+      <div>{VehiclesController(filterText)}</div>
     </main>
   )
 }

@@ -69,8 +69,8 @@ nav {
   }
   @media (max-width: $tablet - 1px) {
     position: absolute;
-    top: 1.6em;
-    right: 1em;
+    top: 2.1em;
+    right: 0.2em;
     z-index: 1;
     -webkit-user-select: none;
     user-select: none;
@@ -162,7 +162,7 @@ nav {
 
 .scroll #menuToggle {
   position: absolute;
-  top: 0.8em;
+  top: 1.4em;
   right: 1em;
   z-index: 1;
   -webkit-user-select: none;
@@ -222,4 +222,25 @@ nav {
   position: fixed;
   top: 0;
   right: 0;
+  width: 16em;
+  padding-top: 2em;
+  background-color: black;
+  border-left: 0.1em solid white;
+  border-bottom: 0.2em solid white;
+  border-radius: 0 0 0 0.5em;
+  flex-flow: column nowrap;
+  list-style-type: none;
+  -webkit-font-smoothing: antialiased;
+  transform-origin: 0% 0%;
+  transform: translate(100%, 0);
+  transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1);
+  li {
+    color: $font-color;
+    padding: 1em;
+    display: flex;
+    justify-content: space-between;
+    &:last-of-type {
+      padding-bottom: 2em;
+    }
+  }
 }

@@ -26,12 +26,17 @@
         object-fit: cover;
         width: 5em;
         height: 5em;
-        border-top: 0.2em solid $font-color;
-        border-bottom: 0.2em solid $font-color;
-        border-left: 0.1em solid $font-color;
-        border-right: 0.1em solid $font-color;
+        border-top: 0.2em solid $background-color;
+        border-bottom: 0.2em solid $background-color;
+        border-left: 0.1em solid $background-color;
+        border-right: 0.1em solid $background-color;
         border-radius: 0.5em;
       }
+    }
+    aside {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: flex-start;
     }
     h3 {
       margin-left: 2em;
@@ -45,12 +50,17 @@
       min-width: 16em;
       max-width: 22em;
       display: flex;
-      flex: row nowrap;
+      flex-flow: row nowrap;
       justify-content: space-between;
     }
     .file-drop-zone {
-      height: 18em;
       width: 16em;
+      height: 4em;
+      border-top: 0.2em solid $background-color;
+      border-bottom: 0.2em solid $background-color;
+      border-left: 0.1em solid $background-color;
+      border-right: 0.1em solid $background-color;
+      border-radius: 0.5em;
     }
     .addressSelector {
       display: flex;

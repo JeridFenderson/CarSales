@@ -40,7 +40,6 @@ export function Vehicle({ vehicle, singleVehicle, notFound }) {
   const thumbs = []
 
   if (images != null) {
-    console.log(images)
     for (let i = 0; i < images.length; i++) {
       slides.push(
         <SwiperSlide key={`slide-${i}`}>

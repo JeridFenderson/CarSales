@@ -1,6 +1,6 @@
 import React from 'react'
+import { Vehicles } from './Vehicles'
 import { Vehicle } from './Vehicle'
-import { VehicleDetailed } from './VehicleDetailed'
 
 export function SelectVehicles({ vehicles }) {
   const notFoundImg = {
@@ -16,27 +16,17 @@ export function SelectVehicles({ vehicles }) {
   }
 
   if (!Array.isArray(vehicles)) {
-    return (
-      <VehicleDetailed
-        vehicle={vehicles}
-        singleVehicle={true}
-        notFound={false}
-      />
-    )
+    return <Vehicle vehicle={vehicles} singleVehicle={true} notFound={false} />
   }
 
   switch (vehicles.length) {
     case 0:
       return (
-        <VehicleDetailed
-          vehicle={notFound}
-          singleVehicle={false}
-          notFound={true}
-        />
+        <Vehicle vehicle={notFound} singleVehicle={false} notFound={true} />
       )
     case 1:
       return vehicles.map((vehicle) => (
-        <VehicleDetailed
+        <Vehicle
           key={vehicle.id}
           vehicle={vehicle}
           singleVehicle={false}
@@ -45,7 +35,7 @@ export function SelectVehicles({ vehicles }) {
       ))
     default:
       return vehicles.map((vehicle) => (
-        <Vehicle key={vehicle.id} vehicle={vehicle} display="vehicles" />
+        <Vehicles key={vehicle.id} vehicle={vehicle} display="vehicles" />
       ))
   }
 }

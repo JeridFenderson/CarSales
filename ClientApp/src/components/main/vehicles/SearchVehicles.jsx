@@ -11,12 +11,14 @@ export function SearchVehicles() {
   useEffect(() => {
     if (path === 'create') {
       setMainClass('main-form')
-    } else if (path === 'view') {
+    } else if (path === 'view' && id === undefined) {
       setMainClass('main-vehicles')
+    } else if (path === 'view' && id !== undefined) {
+      setMainClass('main-vehicle')
     } else {
       setMainClass('')
     }
-  }, [path])
+  }, [id, path])
 
   return (
     <main className={mainClass}>
@@ -31,7 +33,7 @@ export function SearchVehicles() {
           }}
         />
       )}
-      <div>{VehiclesController(filterText)}</div>
+      <div className="vehicles-container">{VehiclesController(filterText)}</div>
     </main>
   )
 }

@@ -1,45 +1,92 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import '../../../css/vehicles.scss'
+import { getUser, isLoggedIn } from '../../../auth'
+import '../../../css/vehicle.scss'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import SwiperCore, { Navigation, Pagination, Thumbs } from 'swiper'
+import 'swiper/swiper-bundle.css'
 
-export function Vehicle({ vehicle, display }) {
+SwiperCore.use([Navigation, Pagination, Thumbs])
+
+export function Vehicle({ vehicle, singleVehicle, notFound }) {
+  const currentUser = getUser()
   const {
     id,
+    vin,
     lotSpot,
     price,
     year,
     make,
     model,
     trim,
+    exterior_color,
+    interior_color,
+    engineDisplacement,
+    body_style,
+    seats,
+    transmission,
+    drivetrain,
+    fuel_type,
+    condition,
+    state_of_vehicle,
     images,
     status,
     mileage,
-    description,
+    features,
   } = vehicle
 
+  const [thumbsSwiper, setThumbsSwiper] = useState()
+  const slides = []
+  const thumbs = []
+
+  if (images != null) {
+    console.log(images)
+    for (let i = 0; i < images.length; i++) {
+      slides.push(
+        <SwiperSlide key={`slide-${i}`}>
+          <img
+            src={images[i].url}
+            alt={`Slide ${i} ${year} ${make} ${model}`}
+            className="slideImg"
+          />
+        </SwiperSlide>
+      )
+    }
+    for (let i = 0; i < images.length; i++) {
+      thumbs.push(
+        <SwiperSlide key={`thumb-${i}`}>
+          <img
+            src={images[i].url}
+            alt={`Thumbnail ${i} ${year} ${make} ${model}`}
+            className="thumbnail"
+          />
+        </SwiperSlide>
+      )
+    }
+  }
+
   return (
-    <figure className={display}>
-      <Link to={`/vehicles/view/${id}`}>
-        {(images && images.length > 0 && (
-          <img src={images[0].url} alt={`${year} ${make} ${model}`} />
-        )) || <img alt={`${year} ${make} ${model}`} />}
-        <ul>
-          <li>
-            <h3>
-              {year} {make} {model} {trim && trim}
-            </h3>
-          </li>
-          <li>{mileage && mileage.value} miles.</li>
-          <li className="desktop">{description}</li>
-          <li>
-            {(status === 'SOLD' && <h3 className="isSold">SOLD</h3>) || (
-              <h3>
-                ${price} {lotSpot && `Lot Spot: ${lotSpot}`}
-              </h3>
-            )}
-          </li>
-        </ul>
-      </Link>
-    </figure>
+    <>
+      <Swiper
+        id="main"
+        thumbs={{ swiper: thumbsSwiper }}
+        navigation
+        pagination
+        spaceBetween={0}
+        slidesPerView={1}
+      >
+        {slides}
+      </Swiper>
+      <Swiper
+        id="thumbs"
+        // @ts-ignore
+        onSwiper={setThumbsSwiper}
+        spaceBetween={0}
+        slidesPerView={3}
+      >
+        {thumbs}
+      </Swiper>
+      <p>Other Content On Page</p>
+    </>
   )
 }

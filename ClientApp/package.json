@@ -15,7 +15,8 @@
     "react-scripts": "^4.0.1",
     "rimraf": "^3.0.2",
     "sass": "^1.30.0",
-    "styled-components": "^5.2.1"
+    "styled-components": "^5.2.1",
+    "swiper": "^6.5.0"
   },
   "devDependencies": {
     "ajv": "^7.0.2",

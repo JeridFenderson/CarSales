@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getUser, isLoggedIn } from '../../../auth'
 import '../../../css/vehicles.scss'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import SwiperCore from 'swiper'
+import 'swiper/swiper-bundle.css'
 
 export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
   const currentUser = getUser()
@@ -30,6 +33,16 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
     features,
   } = vehicle
 
+  const slides = []
+
+  // for (let i = 0; i < images.Length; i++) {
+  //   slides.push(
+  //     <SwiperSlide key={i}>
+  //       <img src={images[i].url} alt={`${year} ${make} ${model}`} />
+  //     </SwiperSlide>
+  //   )
+  // }
+
   return (
     <>
       <p className="back-arrow">
@@ -47,11 +60,22 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
             {year} {make} {model} {trim && trim}
           </h2>
         )}
-        <figure className="vehicle">
+        {images &&
+          images.forEach((image, i) => {
+            slides.push(
+              <SwiperSlide key={i}>
+                <img src={images[i].url} alt={`${year} ${make} ${model}`} />
+              </SwiperSlide>
+            )
+          })}
+        <Swiper id="main" className="vehicle">
+          {slides}
+        </Swiper>
+        {/* <figure className="vehicle">
           {(images && images.length > 0 && (
             <img src={images[0].url} alt={`${year} ${make} ${model}`} />
           )) || <img alt={`${year} ${make} ${model}`} />}
-        </figure>
+        </figure> */}
         <aside>
           <ul>
             <h3>Description</h3>

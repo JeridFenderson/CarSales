@@ -60,22 +60,7 @@ export function VehicleDetailed({ vehicle, singleVehicle, notFound }) {
             {year} {make} {model} {trim && trim}
           </h2>
         )}
-        {images &&
-          images.forEach((image, i) => {
-            slides.push(
-              <SwiperSlide key={i}>
-                <img src={images[i].url} alt={`${year} ${make} ${model}`} />
-              </SwiperSlide>
-            )
-          })}
-        <Swiper id="main" className="vehicle">
-          {slides}
-        </Swiper>
-        {/* <figure className="vehicle">
-          {(images && images.length > 0 && (
-            <img src={images[0].url} alt={`${year} ${make} ${model}`} />
-          )) || <img alt={`${year} ${make} ${model}`} />}
-        </figure> */}
+
         <aside>
           <ul>
             <h3>Description</h3>

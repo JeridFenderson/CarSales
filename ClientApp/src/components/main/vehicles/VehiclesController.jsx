@@ -200,7 +200,7 @@ export function VehiclesController(filterText) {
         headers: { 'content-type': 'application/json', ...authHeader() },
         body: JSON.stringify(vehicle),
       })
-      history.push('/vehicles')
+      history.push('/vehicles/view')
     }
     if (formTrigger || action === 'delete') submitForm()
   }, [formTrigger, action, history, id, vehicle, path])

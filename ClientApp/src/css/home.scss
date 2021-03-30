@@ -1,0 +1,46 @@
+@import 'constants';
+
+.main-home {
+  background-color: $foreground-color;
+  min-height: 80vh;
+  figure {
+    margin: 0;
+    #main {
+      width: 100vw;
+    }
+
+    .swipper-wrapper {
+      padding-inline-start: 0;
+      z-index: 0;
+    }
+
+    .slideImg {
+      width: 100vw;
+      object-fit: contain;
+    }
+  }
+  section {
+    padding: 1em;
+    p {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    h1 {
+      text-align: center;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  }
+}
+
+@media all and (min-width: $desktop) {
+  .main-home {
+    figure {
+      .slideImg {
+        width: 33.333vw;
+        object-fit: contain;
+      }
+    }
+  }
+}

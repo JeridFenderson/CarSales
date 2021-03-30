@@ -3,28 +3,74 @@
 .main-vehicle {
   background-color: $foreground-color;
   min-height: 80vh;
+  .vehicles-container {
+    figure {
+      margin: 0;
+      #main {
+        width: 100vw;
+      }
 
-  #main {
-    width: 100vw;
+      .swipper-wrapper {
+        padding-inline-start: 0;
+        z-index: 0;
+      }
+
+      .slideImg {
+        width: 100vw;
+        object-fit: contain;
+      }
+
+      #thumbs {
+        height: 10vh;
+      }
+
+      .thumbnail {
+        width: 33vw;
+        object-fit: contain;
+      }
+    }
+    section {
+      padding: 1em;
+      p {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      h2 {
+        text-align: center;
+        margin-top: 0;
+      }
+      h3 {
+        margin-bottom: 0;
+      }
+    }
   }
+}
 
-  .swipper-wrapper {
-    padding-inline-start: 0;
-    z-index: 0;
-  }
-
-  .slideImg {
-    width: 100vw;
-    object-fit: contain;
-  }
-
-  #thumbs {
-    height: 10vh;
-  }
-
-  .thumbnail {
-    width: 33vw;
-    object-fit: contain;
+@media all and (min-width: $desktop) {
+  .main-vehicle {
+    .vehicles-container {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-evenly;
+      figure {
+        width: 50vw;
+        #main {
+          width: 45vw;
+        }
+        .slideImg {
+          width: 45vw;
+        }
+        #thumbs {
+          width: 45vw;
+        }
+        .thumbnail {
+          width: 15vw;
+        }
+      }
+      section {
+        width: 45vw;
+      }
+    }
   }
 }
 

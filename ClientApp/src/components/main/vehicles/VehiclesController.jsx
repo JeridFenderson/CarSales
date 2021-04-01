@@ -18,15 +18,12 @@ export function VehiclesController(filterText) {
   const mxModal = document.getElementById('mxModal')
 
   window.onclick = function (event) {
-    if (event.target === featuresModal) {
+    if (event.target === mxModal || event.target === featuresModal) {
+      mxModal.style.display = 'none'
       featuresModal.style.display = 'none'
     }
   }
-  window.onclick = function (event) {
-    if (event.target === mxModal) {
-      mxModal.style.display = 'none'
-    }
-  }
+
   // @ts-ignore
   const { path, id, action } = useParams()
   const currentUser = getUser()
@@ -84,7 +81,7 @@ export function VehiclesController(filterText) {
 
   const {
     vin,
-    lotSpot,
+    // lotSpot,
     year,
     make,
     model,
@@ -102,9 +99,9 @@ export function VehiclesController(filterText) {
     state_of_vehicle,
     images,
     status,
-    searchPrice,
-    offerCost,
-    purchaseCost,
+    // searchPrice,
+    // offerCost,
+    // purchaseCost,
     listPrice,
     salePrice,
     isReferral,
@@ -200,7 +197,7 @@ export function VehiclesController(filterText) {
         headers: { 'content-type': 'application/json', ...authHeader() },
         body: JSON.stringify(vehicle),
       })
-      history.push('/vehicles/view')
+      window.location.assign('/vehicles/view')
     }
     if (formTrigger || action === 'delete') submitForm()
   }, [formTrigger, action, history, id, vehicle, path])
@@ -290,21 +287,21 @@ export function VehiclesController(filterText) {
     event.preventDefault()
     vehicle.features = vehicleFeatures
     vehicle.maintenance = vehicleMaintenance
-    if (vehicle.status === 'PURCHASED' && vehicle.purchaseCost < 0) {
-      setErrorMessage(
-        `How'd you find this deal ${currentUser.firstName}? Purchase it for at least a few dollars.`
-      )
-    } else if (vehicle.status === 'LISTED' && vehicle.listPrice < 0) {
-      setErrorMessage(
-        `You can't list a vehicle for free ${currentUser.firstName}. You also must have a vehicle on record from a purchase action to list it.`
-      )
-    } else if (vehicle.status === 'SOLD' && vehicle.salePrice < 0) {
-      setErrorMessage(
-        `Are you sure you meant to sell this vehicle for free? If so, sell it for $1, but be by the phone ${currentUser.firstName}.`
-      )
-    } else {
-      setFormTrigger(true)
-    }
+    // if (vehicle.status === 'PURCHASED' && vehicle.purchaseCost < 0) {
+    //   setErrorMessage(
+    //     `How'd you find this deal ${currentUser.firstName}? Purchase it for at least a few dollars.`
+    //   )
+    // } else if (vehicle.status === 'LISTED' && vehicle.listPrice < 0) {
+    //   setErrorMessage(
+    //     `You can't list a vehicle for free ${currentUser.firstName}. You also must have a vehicle on record from a purchase action to list it.`
+    //   )
+    // } else if (vehicle.status === 'SOLD' && vehicle.salePrice < 0) {
+    //   setErrorMessage(
+    //     `Are you sure you meant to sell this vehicle for free? If so, sell it for $1, but be by the phone ${currentUser.firstName}.`
+    //   )
+    // } else {
+    setFormTrigger(true)
+    // }
   }
 
   if (path === 'view') {
@@ -708,7 +705,7 @@ export function VehiclesController(filterText) {
                   },
               ],
             ])}
-            {isLoggedIn() &&
+            {/* {isLoggedIn() &&
               status === 'SEARCH_REQUESTED' &&
               BigInput([
                 'text',
@@ -741,7 +738,7 @@ export function VehiclesController(filterText) {
                 false,
                 '',
                 'purchaseCost',
-              ])}
+              ])} */}
             {isLoggedIn() &&
               currentUser.tier >= 1 &&
               id &&
@@ -755,7 +752,8 @@ export function VehiclesController(filterText) {
                 false,
                 '',
                 'listPrice',
-              ]) &&
+              ])}
+            {/* &&
               BigInput([
                 'text',
                 'Lot Spot',
@@ -764,7 +762,7 @@ export function VehiclesController(filterText) {
                 false,
                 3,
                 'lotSpot',
-              ])}
+              ])} */}
             {isLoggedIn() &&
               currentUser.tier >= 2 &&
               id &&

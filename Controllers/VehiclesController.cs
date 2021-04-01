@@ -326,15 +326,15 @@ namespace CarSales.Controllers
             var purchaserAddress = await _context.Addresses
             .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
 
-            if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
-            {
-                 var response = new
-                {
-                    status = 401,
-                    errors = new List<string>() { "Not Authorized, must purchase vehicle first" }
-                };
-                return Unauthorized(response);
-            }
+            // if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
+            // {
+            //      var response = new
+            //     {
+            //         status = 401,
+            //         errors = new List<string>() { "Not Authorized, must purchase vehicle first" }
+            //     };
+            //     return Unauthorized(response);
+            // }
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
             vehicle.PurchaserId = purchaser.Id;
@@ -362,6 +362,8 @@ namespace CarSales.Controllers
             var vehicle = await _context.Vehicles
             .Include(vehicle => vehicle.Mileage)
             .Include(vehicle => vehicle.Maintenance)
+            .Include(vehicle => vehicle.Features)
+            .Include(vehicle => vehicle.Images)
             .FirstOrDefaultAsync(vehicle => vehicle.Id == id);
             if (vehicle == null)
             {
@@ -386,16 +388,17 @@ namespace CarSales.Controllers
 
             // Caputes photos id's of the vehicle being deleted
             var photos = vehicle.Images
-            .Where(photo => photo.PublicId != "")
             .Select(photo => photo.PublicId).ToList();
 
             // Removes Media Files From Cloudinary
-            var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
-            var delResParams = new DelResParams()
-            {
-            PublicIds = new List<string>(photos)
-            };
-            cloudinaryClient.DeleteResources(delResParams);
+            if (photos.Count > 0){
+                var cloudinaryClient = new Cloudinary(new Account(CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET));
+                var delResParams = new DelResParams()
+                {
+                    PublicIds = new List<string>(photos)
+                };
+                cloudinaryClient.DeleteResources(delResParams);
+            }
 
             var deletionInfo = new DeletedVehicle 
             {
@@ -406,9 +409,15 @@ namespace CarSales.Controllers
             _context.DeletedVehicles.Add(deletionInfo);
 
             // Tell the database we want to remove this record
-            _context.Mileage.Remove(vehicle.Mileage);
-            _context.Maintenance.RemoveRange(vehicle.Maintenance);
-            _context.Features.RemoveRange(vehicle.Features);
+            if (vehicle.Mileage != null){
+                _context.Mileage.Remove(vehicle.Mileage);
+            }
+            if (vehicle.Maintenance != null && vehicle.Maintenance.Count > 0){
+                _context.Maintenance.RemoveRange(vehicle.Maintenance);
+            }
+            if (vehicle.Features != null && vehicle.Features.Count > 0){
+                _context.Features.RemoveRange(vehicle.Features);
+            }
             _context.Vehicles.Remove(vehicle);
 
             // Tell the database to perform the deletion

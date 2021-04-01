@@ -4,7 +4,8 @@ import '../css/home.scss'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, { Navigation, Pagination, Thumbs, Autoplay } from 'swiper'
 import 'swiper/swiper-bundle.css'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 SwiperCore.use([Navigation, Pagination, Thumbs, Autoplay])
 
@@ -28,18 +29,34 @@ export function useMediaQuery(query) {
 
 export function HomePage() {
   let isDesktop = useMediaQuery('(min-width: 959px)')
+  const [vehicles, setVehicles] = useState([
+    { images: [], id: 0, year: 0, make: '', model: '' },
+  ])
+
+  useEffect(() => {
+    async function loadVehicles() {
+      const response = await fetch(`/api/Vehicles`)
+      const json = await response.json()
+      setVehicles(json)
+    }
+    loadVehicles()
+  }, [])
   const slides = []
 
-  for (let i = 0; i < 5; i++) {
-    slides.push(
-      <SwiperSlide key={`slide-${i}`}>
-        <img
-          src={`https://picsum.photos/id/${i}/500/300`}
-          alt={`Slide ${i}`}
-          className="slideImg"
-        />
-      </SwiperSlide>
-    )
+  if (vehicles != null && vehicles.length > 1) {
+    for (let i = 0; i < vehicles.length; i++) {
+      slides.push(
+        <SwiperSlide key={`slide-${i}`}>
+          <Link to={`/vehicles/view/${vehicles[i].id}`}>
+            <img
+              src={vehicles[i].images[0].url}
+              alt={`Slide ${i} ${vehicles[i].year} ${vehicles[i].make} ${vehicles[i].model}`}
+              className="slideImg"
+            />
+          </Link>
+        </SwiperSlide>
+      )
+    }
   }
 
   return (

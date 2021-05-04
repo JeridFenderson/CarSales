@@ -112,7 +112,7 @@ namespace CarSales.Models
         //         return MarginAmountWithReferral / (PurchaseCost + MaintenanceCost);
         //     }
         // }
-        public int AddressId { get; set; }
+        public int AddressesId { get; set; }
         public DateTime CreationDate { get; private set; } = DateTime.Now;   
     }
 }

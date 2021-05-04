@@ -139,7 +139,7 @@ namespace CarSales.Controllers
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
-                PublicId = "CarSales"
+                Folder = "CarSales"
             };
 
             // Upload the file to the server

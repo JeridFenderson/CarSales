@@ -324,7 +324,7 @@ namespace CarSales.Controllers
             .FirstOrDefaultAsync(user => user.Id == GetCurrentUserId());
 
             var purchaserAddress = await _context.Addresses
-            .FirstOrDefaultAsync(address => address.Id == purchaser.AddressId);
+            .FirstOrDefaultAsync(address => address.Id == purchaser.AddressesId);
 
             // if(vehicle.Status == "LISTED" || vehicle.Status == "SOLD")
             // {
@@ -338,7 +338,7 @@ namespace CarSales.Controllers
 
             // Set the UserID to the current user id, this overrides anything the user specifies.
             vehicle.PurchaserId = purchaser.Id;
-            vehicle.AddressId = purchaser.AddressId;
+            vehicle.AddressesId = purchaser.AddressesId;
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();

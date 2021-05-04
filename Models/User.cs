@@ -40,9 +40,7 @@ namespace CarSales.Models
             return passwordVerification == PasswordVerificationResult.Success;
         }
         public int Tier { get; set; }
-
-        [ForeignKey("Address")]
-        public int AddressId { get; set; }
+        public int AddressesId { get; set; }
         public List<Media> Media { get; set; }
         public DateTime LastActive { get;  set; } = DateTime.Now;
         public DateTime CreationDate { get; private set;} = DateTime.Now; 

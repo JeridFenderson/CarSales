@@ -91,7 +91,7 @@ namespace CarSales.Controllers
             var user = await _context.Users.FindAsync(GetCurrentUserId());
             var addressFromDatabase = await _context.Addresses.Include(address => address.Users.Where(users => users.Id == GetCurrentUserId())).FirstOrDefaultAsync();
         
-            if (addressFromDatabase == null || addressFromDatabase.Id != user.AddressId || user.Tier < 2)
+            if (addressFromDatabase == null || addressFromDatabase.Id != user.AddressesId || user.Tier < 2)
             {
                 return Unauthorized(response);
             }

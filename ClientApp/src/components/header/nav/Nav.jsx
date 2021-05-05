@@ -21,6 +21,11 @@ export function Nav() {
 
         <ul id="menu">
           {isLoggedIn() && <li>Welcome, {currentUser.firstName}!</li>}
+          {isLoggedIn() && (
+            <li>
+              <Link to="/signup">User Portal</Link>
+            </li>
+          )}
           {(isLoggedIn() && currentUser.tier >= 1 && (
             <li>
               <Link to="/vehicles/create" onClick={() => setOpen(false)}>

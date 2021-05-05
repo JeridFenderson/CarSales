@@ -11,10 +11,13 @@ export function About() {
         <figcaption>
           <h1>CEO</h1>
           <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-            Perspiciatis commodi molestias minus, earum numquam optio quia
-            suscipit tenetur molestiae, voluptas rerum aspernatur distinctio
-            sunt quod ipsum porro dolorum et fugiat?
+            Hello! Welcome to my capstone project, Cheap & Easy Auto! This is
+            the only page that does not contain stateful information (for now).
+            I have plans to make improvements to this site overtime. Currently,
+            I'm a jr full-stack software developer open to work, so if you're
+            hiring, please reach out! Filling out the contact form will send me
+            an email. The made with love link in the footer directs to my
+            LinkedIn.
           </p>
         </figcaption>
       </figure>

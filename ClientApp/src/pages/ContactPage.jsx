@@ -1,12 +1,12 @@
 import { Header } from '../components/header/Header'
 import { Footer } from '../components/footer/Footer'
-import { UsersController } from '../components/main/users/UsersController'
+import { Contact } from '../components/main/users/Contact'
 
 export function ContactPage() {
   return (
     <>
       <Header />
-      <UsersController />
+      <Contact />
       <Footer />
     </>
   )

@@ -1,0 +1,42 @@
+@import 'constants';
+
+.main-about {
+  background-color: $foreground-color;
+  color: $font-color;
+  min-height: 80vh;
+  padding-top: 1em;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  figure {
+    img {
+      width: 80vw;
+      object-fit: contain;
+    }
+    figcaption {
+      width: 80vw;
+      h1 {
+        margin: 0;
+      }
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
+
+@media all and (min-width: $tablet) {
+  .main-about {
+    figure {
+      display: flex;
+      flex-flow: row wrap;
+      img {
+        width: 35vw;
+      }
+      figcaption {
+        width: 55vw;
+        margin-left: 1em;
+      }
+    }
+  }
+}

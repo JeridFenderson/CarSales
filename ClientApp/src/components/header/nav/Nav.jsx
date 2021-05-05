@@ -49,12 +49,12 @@ export function Nav() {
             </Link>
           </li>
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link to="/about" onClick={() => setOpen(false)}>
               About Us
             </Link>
           </li>
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link to="/contact" onClick={() => setOpen(false)}>
               Contact Us
             </Link>
           </li>

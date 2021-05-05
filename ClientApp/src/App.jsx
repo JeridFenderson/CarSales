@@ -2,6 +2,8 @@ import { Route, Switch } from 'react-router-dom'
 import { VehiclesPage } from './pages/VehiclesPage'
 import { UsersPage } from './pages/UsersPage'
 import { HomePage } from './pages/HomePage'
+import { AboutPage } from './pages/AboutPage'
+import { ContactPage } from './pages/ContactPage'
 
 export function App() {
   return (
@@ -20,6 +22,12 @@ export function App() {
       </Route>
       <Route exact path="/vehicles/:path/:id/:action">
         <VehiclesPage />
+      </Route>
+      <Route exact path="/about">
+        <AboutPage />
+      </Route>
+      <Route exact path="/contact">
+        <ContactPage />
       </Route>
       <Route exact path="/signup">
         <UsersPage />
